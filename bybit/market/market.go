@@ -38,7 +38,7 @@ func (m *marketImpl) ServerTime(params *client.Params) (*ServerTimeResponse, err
 		return nil, err
 	}
 	var serverTime ServerTimeResponse
-	err = res.Unmarshal(serverTime)
+	err = res.Unmarshal(&serverTime)
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +46,12 @@ func (m *marketImpl) ServerTime(params *client.Params) (*ServerTimeResponse, err
 }
 func (m *marketImpl) Kline(params *client.Params) (*KlineResponse, error) {
 	res, err := m.c.Get(fmt.Sprintf("/%s/market/kline", client.ApiVersion), *params)
+
 	if err != nil {
 		return nil, err
 	}
 	var kline KlineResponse
-	err = res.Unmarshal(kline)
+	err = res.Unmarshal(&kline)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +77,7 @@ func (m *marketImpl) MarkPriceKline(params *client.Params) (*KlineResponse, erro
 		return nil, err
 	}
 	var markPriceKline KlineResponse
-	err = res.Unmarshal(markPriceKline)
+	err = res.Unmarshal(&markPriceKline)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (m *marketImpl) IndexPriceKline(params *client.Params) (*KlineResponse, err
 		return nil, err
 	}
 	var indexPriceKline KlineResponse
-	err = res.Unmarshal(indexPriceKline)
+	err = res.Unmarshal(&indexPriceKline)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,7 @@ func (m *marketImpl) PremiumIndexKline(params *client.Params) (*KlineResponse, e
 		return nil, err
 	}
 	var premiumIndexKline KlineResponse
-	err = res.Unmarshal(premiumIndexKline)
+	err = res.Unmarshal(&premiumIndexKline)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +116,7 @@ func (m *marketImpl) OrderBook(params *client.Params) (*OrderBook, error) {
 		return nil, err
 	}
 	var orderBook OrderBook
-	err = res.Unmarshal(orderBook)
+	err = res.Unmarshal(&orderBook)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +129,7 @@ func (m *marketImpl) InstrumentsInfo(params *client.Params) (*InstrumentsInfoRes
 		return nil, err
 	}
 	var instrumentsInfo InstrumentsInfoResponse
-	err = res.Unmarshal(instrumentsInfo)
+	err = res.Unmarshal(&instrumentsInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,7 @@ func (m *marketImpl) Tickers(params *client.Params) (*TickerResponse, error) {
 		return nil, err
 	}
 	var tickers TickerResponse
-	err = res.Unmarshal(tickers)
+	err = res.Unmarshal(&tickers)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +155,7 @@ func (m *marketImpl) FundingHistory(params *client.Params) (*FundingRateHistory,
 		return nil, err
 	}
 	var fundingHistory FundingRateHistory
-	err = res.Unmarshal(fundingHistory)
+	err = res.Unmarshal(&fundingHistory)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +168,7 @@ func (m *marketImpl) RiskLimit(params *client.Params) (*RiskLimit, error) {
 		return nil, err
 	}
 	var riskLimit RiskLimit
-	err = res.Unmarshal(riskLimit)
+	err = res.Unmarshal(&riskLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +181,7 @@ func (m *marketImpl) OpenInterest(params *client.Params) (*OpenHistory, error) {
 		return nil, err
 	}
 	var openInterest OpenHistory
-	err = res.Unmarshal(openInterest)
+	err = res.Unmarshal(&openInterest)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +194,7 @@ func (m *marketImpl) Insurance(params *client.Params) (*Insurance, error) {
 		return nil, err
 	}
 	var insurance Insurance
-	err = res.Unmarshal(insurance)
+	err = res.Unmarshal(&insurance)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (m *marketImpl) RecentTrade(params *client.Params) (*ResendTrade, error) {
 		return nil, err
 	}
 	var recentTrade ResendTrade
-	err = res.Unmarshal(recentTrade)
+	err = res.Unmarshal(&recentTrade)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +220,7 @@ func (m *marketImpl) DeliveryPrice(params *client.Params) (*DeliveryPrice, error
 		return nil, err
 	}
 	var deliveryPrice DeliveryPrice
-	err = res.Unmarshal(deliveryPrice)
+	err = res.Unmarshal(&deliveryPrice)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +233,7 @@ func (m *marketImpl) HistoricalVolatility(params *client.Params) (*HistoricalVol
 		return nil, err
 	}
 	var historicalVolatility HistoricalVolatility
-	err = res.Unmarshal(historicalVolatility)
+	err = res.Unmarshal(&historicalVolatility)
 	if err != nil {
 		return nil, err
 	}

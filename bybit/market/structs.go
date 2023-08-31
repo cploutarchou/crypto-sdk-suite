@@ -8,7 +8,6 @@ type ApiResponse struct {
 	Time       int64       `json:"time"`
 }
 
-// Define specific result structures
 type KlineResult struct {
 	Symbol   string     `json:"symbol"`
 	Category string     `json:"category"`

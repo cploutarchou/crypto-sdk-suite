@@ -139,7 +139,6 @@ func (c *Client) setCommonHeaders(req *http.Request, params Params) {
 }
 
 func GenerateSignature(secretKey string, params Params) string {
-	// Step 1: Convert params to a concatenated string.
 	var keys []string
 	for k := range params {
 		keys = append(keys, k)

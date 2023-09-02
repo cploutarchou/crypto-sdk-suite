@@ -1,4 +1,4 @@
-package ws
+package client
 
 type Environment string // Environment is the environment for the Bybit API
 type ChannelType string // ChannelType is the channel type for the Bybit API

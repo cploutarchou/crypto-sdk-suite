@@ -22,7 +22,7 @@ const (
 	Linear              SubChannel  = "linear"
 	Inverse             SubChannel  = "inverse"
 	Option              SubChannel  = "option"
-	PingInterval                    = 20 * time.Second // Change ping interval to 20 seconds.
+	PingInterval                    = 20 * time.Second
 	ReconnectionRetries             = 3
 	ReconnectionDelay               = 2 * time.Second
 )

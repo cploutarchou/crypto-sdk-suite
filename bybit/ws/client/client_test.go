@@ -2,7 +2,7 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
+
 	"log"
 	"net/http"
 	"testing"
@@ -27,7 +27,7 @@ func mockWSServer() {
 				return
 			}
 
-			dummyResponse := ws.SuccessResponse{
+			dummyResponse := SuccessResponse{
 				Success: true,
 				RetMsg:  "Test message",
 				Op:      "test_op",

@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
 	"log"
 	"os"
 	"sync"
@@ -136,13 +135,13 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 	return c.conn.WriteMessage(websocket.TextMessage, jsonData)
 }
 
-func (c *Client) ReadMessage() (*ws.SuccessResponse, error) {
+func (c *Client) ReadMessage() (*SuccessResponse, error) {
 	_, message, err := c.conn.ReadMessage()
 	if err != nil {
 		return nil, err
 	}
 
-	var response ws.SuccessResponse
+	var response SuccessResponse
 	err = json.Unmarshal(message, &response)
 	if err != nil {
 		c.logger.Printf("Error reading message: %v", err)

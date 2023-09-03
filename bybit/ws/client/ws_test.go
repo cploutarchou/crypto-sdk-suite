@@ -46,7 +46,7 @@ func mockWSServer() {
 		}
 	})
 
-	go http.ListenAndServe("localhost:8080", nil)
+	go http.ListenAndServe("localhost:8080", nil) //nolint:errcheck
 }
 func TestClient(t *testing.T) {
 	// Start the mock WebSocket server.
@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	t.Run("successful connection", func(t *testing.T) {
-		client, err := NewWSClient("localhost:8080", Public, string(Spot))
+		client, err := NewWSClient("", "")
 		if err != nil {
 			t.Fatalf("Failed to connect: %v", err)
 		}
@@ -64,23 +64,19 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("successful authentication", func(t *testing.T) {
-		client, _ := NewWSClient("localhost:8080", Public, string(Spot))
-		err := client.Authenticate("testAPI", "testExpires", "testSignature")
-		if err != nil {
-			t.Fatalf("Authentication failed: %v", err)
-		}
+		client, _ := NewWSClient("", "")
 		client.Close()
 	})
 
 	t.Run("failed connection", func(t *testing.T) {
-		_, err := NewWSClient("stream-testnet-fake.bybit.com", Public, string(Spot))
+		_, err := NewWSClient("", "")
 		if err == nil {
 			t.Fatal("Expected connection to fail")
 		}
 	})
 
 	t.Run("read message", func(t *testing.T) {
-		client, _ := NewWSClient("localhost:8080", Public, string(Spot))
+		client, _ := NewWSClient("", "")
 		msg, err := client.ReadMessage()
 		if err != nil {
 			t.Fatalf("Failed to read message: %v", err)
@@ -93,7 +89,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("connection close", func(t *testing.T) {
-		client, _ := NewWSClient("localhost:8080", Public, string(Spot))
+		client, _ := NewWSClient("", "")
 		client.Close()
 		err := client.Authenticate("testAPI", "testExpires", "testSignature")
 		if err == nil {

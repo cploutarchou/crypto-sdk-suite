@@ -1,4 +1,4 @@
-package ws
+package kline
 
 type Kline struct {
 	Topic string      `json:"topic"`

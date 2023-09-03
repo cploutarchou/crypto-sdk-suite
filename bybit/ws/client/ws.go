@@ -60,6 +60,8 @@ type WSClient struct {
 	isPublic  bool
 	apiKey    string
 	apiSecret string
+	isTest    bool
+	channel   ChannelType
 }
 
 // NewWSClient initializes a new WSClient
@@ -85,8 +87,19 @@ func (c *WSClient) connect() error {
 	if err := c.authenticateIfRequired(); err != nil {
 		return err
 	}
+	var url string
+	if c.isTestNet {
+		url = "stream-testnet.bybit.com"
+	} else {
+		url = "stream.bybit.com"
+	}
+	if c.isPublic {
+		c.channel = Public
+	} else {
+		c.channel = Private
+	}
 
-	url := fmt.Sprintf("%s://%s/%s/%s/%s", scheme, *c.env, ApiV5, *c.channel, *c.subChannel)
+	url = fmt.Sprintf("%s://%s/%s/%s", scheme, url, ApiV5, c.channel)
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to dial %s: %v", url, err)
@@ -98,14 +111,14 @@ func (c *WSClient) connect() error {
 }
 
 func (c *WSClient) getScheme() string {
-	if *c.env == LocalNetEnvironment {
+	if c.isTest {
 		return LocalhostScheme
 	}
 	return DefaultScheme
 }
 
 func (c *WSClient) authenticateIfRequired() error {
-	if *c.channel == Private {
+	if c.channel == Private {
 		expires := fmt.Sprintf("%d", time.Now().UnixNano()/int64(time.Millisecond)+1)
 		signatureData := fmt.Sprintf("GET/realtime%s", expires)
 		signed := GenerateWsSignature(c.apiSecret, signatureData)
@@ -167,7 +180,7 @@ func (c *WSClient) handleReconnection() {
 
 // Authenticate performs authentication
 func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
-	if *c.channel != Private {
+	if c.channel != Private {
 		return errors.New("cannot authenticate on a public channel")
 	}
 	c.logger.Printf("Authenticating with apiKey %s", apiKey)
@@ -194,4 +207,8 @@ func (c *WSClient) Close() {
 		c.logger.Println("Connection closed")
 		c.conn.Close()
 	})
+}
+
+func (c *WSClient) isUnitTest(isTest bool) {
+	c.isTest = isTest
 }

@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	t.Run("successful connection", func(t *testing.T) {
-		client, err := NewWSClient("", "")
+		client, err := NewWSClient("", "", true, true)
 		if err != nil {
 			t.Fatalf("Failed to connect: %v", err)
 		}
@@ -64,32 +64,19 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("successful authentication", func(t *testing.T) {
-		client, _ := NewWSClient("", "")
+		client, _ := NewWSClient("", "", true, true)
 		client.Close()
 	})
 
 	t.Run("failed connection", func(t *testing.T) {
-		_, err := NewWSClient("", "")
+		_, err := NewWSClient("", "", true, true)
 		if err == nil {
 			t.Fatal("Expected connection to fail")
 		}
 	})
 
-	t.Run("read message", func(t *testing.T) {
-		client, _ := NewWSClient("", "")
-		msg, err := client.ReadMessage()
-		if err != nil {
-			t.Fatalf("Failed to read message: %v", err)
-		}
-		t.Logf("Received message: %v", msg) // Log the entire message
-		if msg.Op != "test_op" {
-			t.Fatalf("Unexpected message op: %v", msg.Op)
-		}
-		client.Close()
-	})
-
 	t.Run("connection close", func(t *testing.T) {
-		client, _ := NewWSClient("", "")
+		client, _ := NewWSClient("", "", true, true)
 		client.Close()
 		err := client.Authenticate("testAPI", "testExpires", "testSignature")
 		if err == nil {

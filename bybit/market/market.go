@@ -28,7 +28,7 @@ type marketImpl struct {
 	c *client.Client
 }
 
-func NewMarket(c *client.Client) Market {
+func New(c *client.Client) Market {
 	return &marketImpl{c}
 }
 

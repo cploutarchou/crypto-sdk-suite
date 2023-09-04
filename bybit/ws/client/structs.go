@@ -1,5 +1,11 @@
 package client
 
+import (
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
 // WSPongPublicResponse contains fields common to public pong responses
 type WSPongPublicResponse struct {
 	SuccessResponse
@@ -33,8 +39,19 @@ const (
 	MainNet Environment = "stream.bybit.com"
 	TestNet Environment = "stream-testnet.bybit.com"
 
-	Public  ChannelType = "public"
-	Private ChannelType = "private"
+	Public              ChannelType = "public"
+	Private             ChannelType = "private"
+	DefaultReqID                    = "100001"
+	PingOperation                   = "ping"
+	AuthOperation                   = "auth"
+	LocalNetEnvironment             = "localhost:8080"
+	DefaultScheme                   = "wss"
+	LocalhostScheme                 = "ws"
+	ApiV5                           = "v5"
+	PingInterval                    = 20 * time.Second
+	ReconnectionRetries             = 3
+	ReconnectionDelay               = 2 * time.Second
+	WSMessageText                   = websocket.TextMessage
 )
 
 type CommonResponse struct {
@@ -52,5 +69,4 @@ type SuccessResponse struct {
 }
 
 type Environment string // Environment is the environment for the Bybit API
-type ChannelType string // ChannelType is the channel type for the Bybit API
 type SubChannel string  // SubChannel is the sub channel for the Bybit API

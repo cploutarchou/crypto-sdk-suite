@@ -1,13 +1,13 @@
 package kline
 
-type Kline struct {
-	Topic string      `json:"topic"`
-	Data  []KlineData `json:"data"`
-	Ts    int64       `json:"ts"`
-	Type  string      `json:"type"`
+type Res struct {
+	Topic string `json:"topic"`
+	Data  []Data `json:"data"`
+	Ts    int64  `json:"ts"`
+	Type  string `json:"type"`
 }
 
-type KlineData struct {
+type Data struct {
 	Start     int64  `json:"start"`
 	End       int64  `json:"end"`
 	Interval  string `json:"interval"`

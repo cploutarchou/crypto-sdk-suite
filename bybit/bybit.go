@@ -4,6 +4,7 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/market"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
+	client2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
 type Bybit interface {
@@ -26,13 +27,13 @@ func (b bybitImpl) Ws() ws.WebSocket {
 	return b.webSocket
 }
 
-func NewBybit(key, secretKey string, isTestNet bool) Bybit {
+func New(key, secretKey string, isTestNet bool) Bybit {
 	c := client.NewClient(key, secretKey)
-	wsClient, _ := ws.NewWebSocket(key, secretKey)
+	wsClient, _ := client2.New(key, secretKey, isTestNet, true)
 	return &bybitImpl{
-		market:    market.NewMarket(c),
+		market:    market.New(c),
 		client:    c,
 		isTestNet: isTestNet,
-		webSocket: wsClient,
+		webSocket: ws.New().SetClient(wsClient),
 	}
 }

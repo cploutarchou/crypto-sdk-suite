@@ -2,6 +2,7 @@ package public
 
 import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/kline"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/liquidation"
 	ltkline "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-kline"
 	ltnav "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-nav"
@@ -12,6 +13,7 @@ import (
 )
 
 type Public interface {
+	Kline(channel, environment, subChannel string) *kline.TheKline
 	Liquidation() *liquidation.Liquidation
 	LtKline() *ltkline.LtKline
 	LtNav() *ltnav.LtNav
@@ -26,6 +28,9 @@ type implPublic struct {
 	client *client.WSClient
 }
 
+func (i *implPublic) Kline(channel, environment, subChannel string) *kline.TheKline {
+	return kline.New(i.client, channel, environment, subChannel)
+}
 func (i *implPublic) Liquidation() *liquidation.Liquidation {
 	return liquidation.New()
 }

@@ -1,34 +1,22 @@
 package ws
 
 import (
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/kline"
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/private"
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public"
 )
 
 type WebSocket interface {
-	Kline(channel kline.ChannelType, environment kline.Environment, subChannel kline.SubChannel) *kline.TheKline
+	Private() private.Private
+	Public() public.Public
 }
 
-type webSocketImpl struct {
-	kline *kline.TheKline
+type implWebSocket struct {
 }
 
-func (w webSocketImpl) Kline(channel kline.ChannelType, environment kline.Environment, subChannel kline.SubChannel) *kline.TheKline {
-	w.kline = new(kline.TheKline)
-	w.kline.Config.ChannelType = channel
-	w.kline.Config.Environment = environment
-	w.kline.Config.SubChannel = subChannel
-	return w.kline
-
+func (i *implWebSocket) Private() private.Private {
+	return private.New()
 }
 
-func NewWebSocket(key, secretKey string) (WebSocket, error) {
-	wsClient, err := client.NewWSClient(key, secretKey)
-	if err != nil {
-		return nil, err
-	}
-	k := &kline.TheKline{}
-	return &webSocketImpl{
-		kline: k.SetClient(wsClient),
-	}, nil
+func (i *implWebSocket) Public() public.Public {
+	return public.New()
 }

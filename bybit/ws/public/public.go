@@ -13,62 +13,59 @@ import (
 )
 
 type Public interface {
-	Kline(channel, environment, subChannel string) *kline.TheKline
-	Liquidation() *liquidation.Liquidation
-	LtKline() *ltkline.LtKline
-	LtNav() *ltnav.LtNav
-	LtTickers() *ltticker.LtTicker
-	OrderBook() *orderbook.OrderBook
-	Ticker() *ticker.Ticker
-	Trade() *trade.Trade
-	SetClient(client_ *client.WSClient) Public
+	Kline(symbol string, interval kline.Interval, isTestNet bool) kline.Kline
+	Liquidation() liquidation.Liquidation
+	LtKline() ltkline.LtKline
+	LtNav() ltnav.LtNav
+	LtTickers() ltticker.LtTicker
+	OrderBook() orderbook.OrderBook
+	Ticker() ticker.Ticker
+	Trade() trade.Trade
+	SetClient(client *client.WSClient) Public
 }
 
 type implPublic struct {
 	client *client.WSClient
 }
 
-func (i *implPublic) Kline(channel, environment, subChannel string) *kline.TheKline {
-	return kline.New(i.client, channel, environment, subChannel)
+func (i *implPublic) Kline(symbol string, interval kline.Interval, isTestNet bool) kline.Kline {
+	return kline.New(i.client, symbol, interval, isTestNet)
 }
-func (i *implPublic) Liquidation() *liquidation.Liquidation {
-	return liquidation.New()
-}
-
-func (i *implPublic) LtKline() *ltkline.LtKline {
-	return ltkline.New()
-
+func (i *implPublic) Liquidation() liquidation.Liquidation {
+	return *liquidation.New()
 }
 
-func (i *implPublic) LtNav() *ltnav.LtNav {
-	return ltnav.New()
+func (i *implPublic) LtKline() ltkline.LtKline {
+	return *ltkline.New()
 }
 
-func (i *implPublic) LtTickers() *ltticker.LtTicker {
-	return ltticker.New()
+func (i *implPublic) LtNav() ltnav.LtNav {
+	return *ltnav.New()
 }
 
-func (i *implPublic) OrderBook() *orderbook.OrderBook {
-	return orderbook.New()
+func (i *implPublic) LtTickers() ltticker.LtTicker {
+	return *ltticker.New()
 }
 
-func (i *implPublic) Ticker() *ticker.Ticker {
-
-	return ticker.New()
+func (i *implPublic) OrderBook() orderbook.OrderBook {
+	return *orderbook.New()
 }
 
-func (i *implPublic) Trade() *trade.Trade {
-	return trade.New()
+func (i *implPublic) Ticker() ticker.Ticker {
+	return *ticker.New()
 }
 
-func (i *implPublic) SetClient(client_ *client.WSClient) Public {
-	if client_ != nil {
+func (i *implPublic) Trade() trade.Trade {
+	return *trade.New()
+}
+
+func (i *implPublic) SetClient(client *client.WSClient) Public {
+	if client != nil {
 		return &implPublic{
-			client: client_,
+			client: client,
 		}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func New() Public {

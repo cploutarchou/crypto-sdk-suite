@@ -7,88 +7,117 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
-type TheKline struct {
-	client      *client.WSClient
-	Messages    chan []byte
-	StopChan    chan struct{}
-	channel     string
-	environment string
-	subChannel  string
+type Interval string
+
+const (
+	// Minute intervals
+	OneMinute      Interval = "1"
+	ThreeMinutes   Interval = "3"
+	FiveMinutes    Interval = "5"
+	FifteenMinutes Interval = "15"
+	ThirtyMinutes  Interval = "30"
+	SixtyMinutes   Interval = "60"
+	TwoHours       Interval = "120"
+	FourHours      Interval = "240"
+	SixHours       Interval = "360"
+	TwelveHours    Interval = "720"
+
+	// Day, week, month intervals
+	OneDay   Interval = "D"
+	OneWeek  Interval = "W"
+	OneMonth Interval = "M"
+)
+
+// Kline represents the interface for the kline functionality
+type Kline interface {
+	SetClient(client *client.WSClient) (Kline, error)
+	Subscribe(symbol string, intervals ...Interval) (Kline, error)
+	Unsubscribe(topics ...string) (Kline, error)
+	Receive() (int, []byte, error)
+	Close()
+	GetMessagesChan() <-chan []byte
+	Stop()
 }
 
-func (w *TheKline) SetClient(client_ *client.WSClient) *TheKline {
-	w.client = client_
-	return w
+// KlineImpl provides the implementation for the Kline interface
+type klineImpl struct {
+	client        *client.WSClient
+	Messages      chan []byte
+	StopChan      chan struct{}
+	isTest        bool
+	interval      Interval
+	initialSymbol string
 }
 
-func (w *TheKline) Subscribe(topics ...string) error {
-	topicJSON, err := json.Marshal(topics)
-	if err != nil {
-		return fmt.Errorf("failed to marshal topics: %v", err)
+func (w *klineImpl) Subscribe(symbol string, intervals ...Interval) (Kline, error) {
+	// Creating topic strings for all provided intervals
+	topics := make([]string, len(intervals))
+	for i, intvl := range intervals {
+		topics[i] = fmt.Sprintf("kline.%s.%s", intvl, symbol)
 	}
 
-	message := fmt.Sprintf(`{"op":"subscribe","args":%s}`, string(topicJSON))
-	return w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
-}
-
-func (w *TheKline) Unsubscribe(topics ...string) error {
+	// Marshalling topics into a JSON string
 	topicJSON, err := json.Marshal(topics)
 	if err != nil {
-		return fmt.Errorf("failed to marshal topics: %v", err)
+		return nil, fmt.Errorf("failed to marshal topics: %w", err)
+	}
+
+	// Forming the message with the marshalled topics
+	message := fmt.Sprintf(`{"op":"subscribe","args":%s}`, string(topicJSON))
+
+	// Sending the subscription message
+	err = w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe to kline channel: %w", err)
+	}
+
+	return w, nil
+}
+
+func (w *klineImpl) Unsubscribe(topics ...string) (Kline, error) {
+	topicJSON, err := json.Marshal(topics)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal topics: %w", err)
 	}
 
 	message := fmt.Sprintf(`{"op":"unsubscribe","args":%s}`, string(topicJSON))
-	return w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
+	err = w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
+	if err != nil {
+		return nil, fmt.Errorf("failed to unsubscribe to kline channel: %w", err)
+	}
+
+	return w, nil
 }
 
-func (w *TheKline) Receive() (int, []byte, error) {
+func (w *klineImpl) Receive() (int, []byte, error) {
 	return w.client.Conn.ReadMessage()
 }
 
-func (w *TheKline) Close() {
+func (w *klineImpl) Close() {
 	w.client.Close()
 }
 
-func (w *TheKline) AddSymbols(symbols ...string) error {
-	var subscriptions []string
-	for _, symbol := range symbols {
-		subscription := fmt.Sprintf("kline.%s", symbol)
-		subscriptions = append(subscriptions, subscription)
-	}
-
-	if err := w.Subscribe(subscriptions...); err != nil {
-		return fmt.Errorf("failed to subscribe to kline channel: %v", err)
-	}
-
-	for {
-		select {
-		case <-w.StopChan:
-			return nil
-		default:
-			_, message, err := w.Receive()
-			if err != nil {
-				return fmt.Errorf("error receiving message: %v", err)
-			}
-			w.Messages <- message
-		}
-	}
-}
-
-func (w *TheKline) GetMessagesChan() <-chan []byte {
+func (w *klineImpl) GetMessagesChan() <-chan []byte {
 	return w.Messages
 }
 
-func (w *TheKline) Stop() {
+func (w *klineImpl) Stop() {
 	w.StopChan <- struct{}{}
 }
 
-func New(client_ *client.WSClient, channel, environment, subChannel string) *TheKline {
-	return &TheKline{
-		client:      client_,
-		channel:     channel,
-		environment: environment,
-		subChannel:  subChannel,
-		Messages:    make(chan []byte),
-		StopChan:    make(chan struct{}),
+func (w *klineImpl) SetClient(client *client.WSClient) (Kline, error) {
+	w.client = client
+	return w, nil
+}
+
+// New creates a new instance of KlineImpl
+func New(client *client.WSClient, symbol string, interval Interval, isTestNet bool) Kline {
+	return &klineImpl{
+		client:        client,
+		Messages:      make(chan []byte, 100),
+		StopChan:      make(chan struct{}, 1),
+		isTest:        isTestNet,
+		interval:      interval,
+		initialSymbol: symbol,
 	}
 }

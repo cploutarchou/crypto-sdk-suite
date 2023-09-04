@@ -24,16 +24,8 @@ type WSPingMsg struct {
 // WSPublicChannels represent public channels for WebSocket connection
 type WSPublicChannels string
 
-const (
-	SpotPublic WSPublicChannels = "spotPublic"
-)
-
 // WSPrivateChannels represent private channels for WebSocket connection
 type WSPrivateChannels string
-
-const (
-	SpotPrivate WSPrivateChannels = "spotPrivate"
-)
 
 type WSClient struct {
 	Conn      *websocket.Conn
@@ -46,7 +38,7 @@ type WSClient struct {
 	isPublic  bool
 	apiKey    string
 	apiSecret string
-	isTest    bool
+	IsTest    bool
 	channel   ChannelType
 }
 
@@ -71,10 +63,10 @@ func New(apiKey, apiSecret string, isTestNet, isPublic bool) (*WSClient, error) 
 
 // connect establishes a connection to the server
 func (c *WSClient) connect() error {
-	scheme := c.getScheme()
 	if err := c.authenticateIfRequired(); err != nil {
 		return err
 	}
+	fmt.Println("isTestNet", c.isTestNet)
 	var url string
 	if c.isTestNet {
 		url = "stream-testnet.bybit.com"
@@ -87,7 +79,7 @@ func (c *WSClient) connect() error {
 		c.channel = Private
 	}
 
-	url = fmt.Sprintf("%s://%s/%s/%s", scheme, url, ApiV5, c.channel)
+	url = fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, url, ApiV5, c.channel)
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to dial %s: %v", url, err)
@@ -96,13 +88,6 @@ func (c *WSClient) connect() error {
 	c.Conn = conn
 	c.logger.Printf("Connected to %s", url)
 	return nil
-}
-
-func (c *WSClient) getScheme() string {
-	if c.isTest {
-		return LocalhostScheme
-	}
-	return DefaultScheme
 }
 
 func (c *WSClient) authenticateIfRequired() error {
@@ -195,8 +180,4 @@ func (c *WSClient) Close() {
 		c.logger.Println("Connection closed")
 		c.Conn.Close()
 	})
-}
-
-func (c *WSClient) isUnitTest(isTest bool) {
-	c.isTest = isTest
 }

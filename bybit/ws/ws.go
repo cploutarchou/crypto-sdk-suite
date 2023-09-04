@@ -27,16 +27,11 @@ func (i *implWebSocket) SetClient(client_ *client.WSClient) WebSocket {
 }
 
 func (i *implWebSocket) Private() (private.Private, error) {
-	return private.New().SetClient(i.client), nil
+	return private.New(), nil
 }
 
 func (i *implWebSocket) Public() (public.Public, error) {
-	cl, err := client.New("", "", false, true)
-	if err != nil {
-		return nil, err
-	}
-	i.client = cl
-	return public.New().SetClient(cl), nil
+	return public.New(), nil
 }
 func New() WebSocket {
 	return &implWebSocket{}

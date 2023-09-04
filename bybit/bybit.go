@@ -17,6 +17,8 @@ type bybitImpl struct {
 	client    *client.Client
 	isTestNet bool
 	webSocket ws.WebSocket
+	apiKey    string
+	secretKey string
 }
 
 func (b bybitImpl) Market() market.Market {
@@ -30,10 +32,14 @@ func (b bybitImpl) Ws() ws.WebSocket {
 func New(key, secretKey string, isTestNet bool) Bybit {
 	c := client.NewClient(key, secretKey)
 	wsClient, _ := client2.New(key, secretKey, isTestNet, true)
-	return &bybitImpl{
+	by := &bybitImpl{
 		market:    market.New(c),
 		client:    c,
 		isTestNet: isTestNet,
-		webSocket: ws.New().SetClient(wsClient),
+		apiKey:    key,
+		secretKey: secretKey,
+		webSocket: ws.New(),
 	}
+	by.webSocket.SetClient(wsClient)
+	return by
 }

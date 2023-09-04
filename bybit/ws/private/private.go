@@ -1,6 +1,7 @@
 package private
 
 import (
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/private/dcp"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/private/execution"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/private/greek"
@@ -16,9 +17,11 @@ type Private interface {
 	Order() *order.Order
 	Position() *position.Position
 	Wallet() *wallet.Wallet
+	SetClient(client_ *client.WSClient) Private
 }
 
 type implPrivate struct {
+	client *client.WSClient
 }
 
 func (i *implPrivate) Dcp() *dcp.Dcp {
@@ -45,6 +48,15 @@ func (i *implPrivate) Wallet() *wallet.Wallet {
 	return wallet.New()
 }
 
+func (i *implPrivate) SetClient(client_ *client.WSClient) Private {
+	if client_ != nil {
+		return &implPrivate{
+			client: client_,
+		}
+	} else {
+		return nil
+	}
+}
 func New() Private {
 	return &implPrivate{}
 }

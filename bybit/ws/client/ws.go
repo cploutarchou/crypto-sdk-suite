@@ -52,8 +52,8 @@ type WSClient struct {
 
 type ChannelType string
 
-// NewWSClient initializes a new WSClient
-func NewWSClient(apiKey, apiSecret string, isTestNet, isPublic bool) (*WSClient, error) {
+// New initializes a new WSClient
+func New(apiKey, apiSecret string, isTestNet, isPublic bool) (*WSClient, error) {
 	client := &WSClient{
 		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		isTestNet: isTestNet,

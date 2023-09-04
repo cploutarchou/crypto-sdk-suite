@@ -1,6 +1,7 @@
 package public
 
 import (
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/liquidation"
 	ltkline "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-kline"
 	ltnav "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-nav"
@@ -18,9 +19,11 @@ type Public interface {
 	OrderBook() *orderbook.OrderBook
 	Ticker() *ticker.Ticker
 	Trade() *trade.Trade
+	SetClient(client_ *client.WSClient) Public
 }
 
 type implPublic struct {
+	client *client.WSClient
 }
 
 func (i *implPublic) Liquidation() *liquidation.Liquidation {
@@ -51,6 +54,16 @@ func (i *implPublic) Ticker() *ticker.Ticker {
 
 func (i *implPublic) Trade() *trade.Trade {
 	return trade.New()
+}
+
+func (i *implPublic) SetClient(client_ *client.WSClient) Public {
+	if client_ != nil {
+		return &implPublic{
+			client: client_,
+		}
+	} else {
+		return nil
+	}
 }
 
 func New() Public {

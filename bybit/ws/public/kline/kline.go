@@ -8,9 +8,12 @@ import (
 )
 
 type TheKline struct {
-	client   *client.WSClient
-	Messages chan []byte
-	StopChan chan struct{}
+	client      *client.WSClient
+	Messages    chan []byte
+	StopChan    chan struct{}
+	channel     string
+	environment string
+	subChannel  string
 }
 
 func (w *TheKline) SetClient(client_ *client.WSClient) *TheKline {
@@ -81,8 +84,11 @@ func (w *TheKline) Stop() {
 
 func New(client_ *client.WSClient, channel, environment, subChannel string) *TheKline {
 	return &TheKline{
-		client:   client_,
-		Messages: make(chan []byte),
-		StopChan: make(chan struct{}),
+		client:      client_,
+		channel:     channel,
+		environment: environment,
+		subChannel:  subChannel,
+		Messages:    make(chan []byte),
+		StopChan:    make(chan struct{}),
 	}
 }

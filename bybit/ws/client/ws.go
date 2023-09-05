@@ -94,6 +94,7 @@ func (c *WSClient) Connect() error {
 			return err
 		}
 	}
+	fmt.Println("isTestNet", c.isTestNet)
 	var url string
 	if c.isTestNet {
 		url = "stream-testnet.bybit.com"

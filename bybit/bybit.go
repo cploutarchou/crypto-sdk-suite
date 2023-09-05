@@ -9,7 +9,8 @@ import (
 
 type Bybit interface {
 	Market() market.Market
-	Ws() ws.WebSocket
+	// WebSocket returns the websocket package for bybit
+	WebSocket() ws.WebSocket
 }
 
 type bybitImpl struct {
@@ -17,23 +18,29 @@ type bybitImpl struct {
 	client    *client.Client
 	isTestNet bool
 	webSocket ws.WebSocket
+	apiKey    string
+	secretKey string
 }
 
 func (b bybitImpl) Market() market.Market {
 	return b.market
 }
 
-func (b bybitImpl) Ws() ws.WebSocket {
+// WebSocket returns the websocket package for bybit
+func (b bybitImpl) WebSocket() ws.WebSocket {
 	return b.webSocket
 }
 
 func New(key, secretKey string, isTestNet bool) Bybit {
 	c := client.NewClient(key, secretKey)
 	wsClient, _ := client2.New(key, secretKey, isTestNet, true)
-	return &bybitImpl{
+	by := &bybitImpl{
 		market:    market.New(c),
 		client:    c,
 		isTestNet: isTestNet,
-		webSocket: ws.New().SetClient(wsClient),
+		apiKey:    key,
+		secretKey: secretKey,
+		webSocket: ws.New(wsClient),
 	}
+	return by
 }

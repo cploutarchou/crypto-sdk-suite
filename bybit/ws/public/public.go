@@ -13,7 +13,7 @@ import (
 )
 
 type Public interface {
-	Kline(symbol string, interval kline.Interval, isTestNet bool) kline.Kline
+	Kline(isTestNet bool) kline.Kline
 	Liquidation() liquidation.Liquidation
 	LtKline() ltkline.LtKline
 	LtNav() ltnav.LtNav
@@ -21,15 +21,14 @@ type Public interface {
 	OrderBook() orderbook.OrderBook
 	Ticker() ticker.Ticker
 	Trade() trade.Trade
-	SetClient(client *client.WSClient) Public
 }
 
 type implPublic struct {
 	client *client.WSClient
 }
 
-func (i *implPublic) Kline(symbol string, interval kline.Interval, isTestNet bool) kline.Kline {
-	return kline.New(i.client, symbol, interval, isTestNet)
+func (i *implPublic) Kline(isTestNet bool) kline.Kline {
+	return kline.New(i.client, isTestNet)
 }
 func (i *implPublic) Liquidation() liquidation.Liquidation {
 	return *liquidation.New()
@@ -59,15 +58,6 @@ func (i *implPublic) Trade() trade.Trade {
 	return *trade.New()
 }
 
-func (i *implPublic) SetClient(client *client.WSClient) Public {
-	if client != nil {
-		return &implPublic{
-			client: client,
-		}
-	}
-	return nil
-}
-
-func New() Public {
-	return &implPublic{}
+func New(wsClient *client.WSClient) Public {
+	return &implPublic{client: wsClient}
 }

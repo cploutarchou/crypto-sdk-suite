@@ -57,6 +57,6 @@ func (i *implPrivate) SetClient(client_ *client.WSClient) Private {
 		return nil
 	}
 }
-func New() Private {
-	return &implPrivate{}
+func New(wsClient *client.WSClient) Private {
+	return &implPrivate{client: wsClient}
 }

@@ -9,31 +9,27 @@ import (
 type WebSocket interface {
 	Private() (private.Private, error)
 	Public() (public.Public, error)
-	SetClient(client_ *client.WSClient) WebSocket
 }
 
 type implWebSocket struct {
-	client *client.WSClient
-}
-
-func (i *implWebSocket) SetClient(client_ *client.WSClient) WebSocket {
-	if client_ != nil {
-		return &implWebSocket{
-			client: client_,
-		}
-	} else {
-		return nil
-	}
+	client  *client.WSClient
+	private private.Private
+	public  public.Public
 }
 
 func (i *implWebSocket) Private() (private.Private, error) {
-	return private.New(), nil
+
+	return i.private, nil
 }
 
 func (i *implWebSocket) Public() (public.Public, error) {
-	return public.New(), nil
-}
-func New() WebSocket {
-	return &implWebSocket{}
 
+	return i.public, nil
+}
+func New(wsClient *client.WSClient) WebSocket {
+	return &implWebSocket{
+		client:  wsClient,
+		private: private.New(wsClient),
+		public:  public.New(wsClient),
+	}
 }

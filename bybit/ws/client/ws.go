@@ -118,10 +118,8 @@ func (c *WSClient) Connect() error {
 	}
 
 	c.Conn = conn
-	if c.Connected != nil {
-		close(c.Connected)
-		c.Connected = nil
-	}
+
+	close(c.Connected)
 	c.logger.Printf("Connected to %s", url)
 	go c.keepAlive()
 	return nil

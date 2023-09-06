@@ -92,19 +92,19 @@ func (w *klineImpl) Stop() {
 	w.StopChan <- struct{}{}
 }
 
-func (w *klineImpl) SetClient(client *client.WSClient) (Kline, error) {
+func (w *klineImpl) SetClient(c *client.WSClient) (Kline, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	w.client = client
+	w.client = c
 	return w, nil
 }
 
 // New creates a new instance of KlineImpl
-func New(client *client.WSClient, isTestNet bool) Kline {
-	client.Path = "linear"
+func New(c *client.WSClient, isTestNet bool) Kline {
+	c.Path = "linear"
 	var k klineImpl
-	k.client = client
+	k.client = c
 	k.Messages = make(chan []byte, 100)
 	k.StopChan = make(chan struct{}, 1)
 	k.isTest = isTestNet

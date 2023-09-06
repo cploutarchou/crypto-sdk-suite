@@ -4,6 +4,7 @@ package client
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -18,17 +19,20 @@ import (
 )
 
 const (
-	DefaultScheme                   = "wss"
-	ApiV5                           = "v5"
-	PingInterval                    = 30 * time.Second
-	DefaultReqID                    = "some_default_request_id"
+	DefaultScheme = "wss"
+	ApiV5         = "v5"
+	PingInterval  = 30 * time.Second
+
 	PingOperation                   = "ping"
 	AuthOperation                   = "auth"
 	ReconnectionRetries             = 3
-	ReconnectionDelay               = 5 * time.Second
+	ReconnectionDelay               = 10 * time.Second
 	Public              ChannelType = "public"
 	Private             ChannelType = "private"
 )
+
+// create a new uuid
+var DefaultReqID = randomString(8)
 
 // WSPingMsg represents the WebSocket ping message format.
 type WSPingMsg struct {
@@ -117,7 +121,6 @@ func (c *WSClient) Connect() error {
 	if c.Path != "" {
 		url = fmt.Sprintf("%s/%s", url, c.Path)
 	}
-
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		if c.OnConnectionError != nil {
@@ -194,13 +197,15 @@ func (c *WSClient) sendPingAndHandleReconnection() {
 
 // handleReconnection closes the current connection and attempts to reconnect to the WebSocket server.
 func (c *WSClient) handleReconnection() {
-	_ = c.Conn.Close()
-
-	for i := 0; i < ReconnectionRetries; i++ {
-		if err := c.Connect(); err == nil {
-			break
+	if c.Conn == nil {
+		for i := 0; i < ReconnectionRetries; i++ {
+			if err := c.Connect(); err == nil {
+				c.logger.Printf("Reconnection attempt %d successful", i+1)
+				break
+			}
+			c.logger.Printf("Reconnection attempt %d failed", i+1)
+			time.Sleep(ReconnectionDelay)
 		}
-		time.Sleep(ReconnectionDelay)
 	}
 }
 
@@ -249,4 +254,10 @@ func (c *WSClient) Close() {
 			c.Conn = nil
 		}
 	})
+}
+
+func randomString(n int) string {
+	b := make([]byte, n)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }

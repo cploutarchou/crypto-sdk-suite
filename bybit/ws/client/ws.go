@@ -44,19 +44,21 @@ type WSPrivateChannels string
 
 // WSClient is the main WebSocket client struct, managing the connection and its state.
 type WSClient struct {
-	Conn      *websocket.Conn
-	mu        sync.Mutex
-	closeOnce sync.Once
-	isClosed  bool
-	logger    *log.Logger
-	isTestNet bool
-	isPublic  bool
-	apiKey    string
-	apiSecret string
-	IsTest    bool
-	channel   ChannelType
-	Path      string
-	Connected chan struct{}
+	Conn              *websocket.Conn
+	mu                sync.Mutex
+	closeOnce         sync.Once
+	isClosed          bool
+	logger            *log.Logger
+	isTestNet         bool
+	isPublic          bool
+	apiKey            string
+	apiSecret         string
+	IsTest            bool
+	channel           ChannelType
+	Path              string
+	Connected         chan struct{}
+	OnConnected       func()
+	OnConnectionError func(err error)
 }
 
 // ChannelType defines the types of channels (public/private) that the WebSocket client can connect to.
@@ -86,6 +88,9 @@ func (c *WSClient) Connect() error {
 	defer c.mu.Unlock()
 
 	if c.isClosed {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(errors.New("connection already closed"))
+		}
 		return errors.New("connection already closed")
 	}
 
@@ -114,6 +119,9 @@ func (c *WSClient) Connect() error {
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
+		}
 		return fmt.Errorf("failed to dial %s: %v", url, err)
 	}
 
@@ -121,6 +129,9 @@ func (c *WSClient) Connect() error {
 
 	close(c.Connected)
 	c.logger.Printf("Connected to %s", url)
+	if c.OnConnected != nil {
+		c.OnConnected()
+	}
 	go c.keepAlive()
 	return nil
 }
@@ -209,7 +220,13 @@ func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.Conn.WriteMessage(websocket.TextMessage, jsonData)
+	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // Close gracefully closes the WebSocket connection.
@@ -224,7 +241,8 @@ func (c *WSClient) Close() {
 		c.logger.Println("Connection closed")
 		if c.Conn != nil {
 			err := c.Conn.Close()
-			if err != nil {
+			if err != nil && c.OnConnectionError != nil {
+				c.OnConnectionError(err)
 				return
 			}
 			c.Conn = nil

@@ -4,6 +4,7 @@ package client
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -18,17 +19,20 @@ import (
 )
 
 const (
-	DefaultScheme                   = "wss"
-	ApiV5                           = "v5"
-	PingInterval                    = 30 * time.Second
-	DefaultReqID                    = "some_default_request_id"
+	DefaultScheme = "wss"
+	ApiV5         = "v5"
+	PingInterval  = 30 * time.Second
+
 	PingOperation                   = "ping"
 	AuthOperation                   = "auth"
 	ReconnectionRetries             = 3
-	ReconnectionDelay               = 5 * time.Second
+	ReconnectionDelay               = 10 * time.Second
 	Public              ChannelType = "public"
 	Private             ChannelType = "private"
 )
+
+// create a new uuid
+var DefaultReqID = randomString(8)
 
 // WSPingMsg represents the WebSocket ping message format.
 type WSPingMsg struct {
@@ -44,19 +48,21 @@ type WSPrivateChannels string
 
 // WSClient is the main WebSocket client struct, managing the connection and its state.
 type WSClient struct {
-	Conn      *websocket.Conn
-	mu        sync.Mutex
-	closeOnce sync.Once
-	isClosed  bool
-	logger    *log.Logger
-	isTestNet bool
-	isPublic  bool
-	apiKey    string
-	apiSecret string
-	IsTest    bool
-	channel   ChannelType
-	Path      string
-	Connected chan struct{}
+	Conn              *websocket.Conn
+	mu                sync.Mutex
+	closeOnce         sync.Once
+	isClosed          bool
+	logger            *log.Logger
+	isTestNet         bool
+	isPublic          bool
+	apiKey            string
+	apiSecret         string
+	IsTest            bool
+	channel           ChannelType
+	Path              string
+	Connected         chan struct{}
+	OnConnected       func()
+	OnConnectionError func(err error)
 }
 
 // ChannelType defines the types of channels (public/private) that the WebSocket client can connect to.
@@ -86,6 +92,9 @@ func (c *WSClient) Connect() error {
 	defer c.mu.Unlock()
 
 	if c.isClosed {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(errors.New("connection already closed"))
+		}
 		return errors.New("connection already closed")
 	}
 
@@ -94,6 +103,7 @@ func (c *WSClient) Connect() error {
 			return err
 		}
 	}
+	fmt.Println("isTestNet", c.isTestNet)
 	var url string
 	if c.isTestNet {
 		url = "stream-testnet.bybit.com"
@@ -111,9 +121,11 @@ func (c *WSClient) Connect() error {
 	if c.Path != "" {
 		url = fmt.Sprintf("%s/%s", url, c.Path)
 	}
-
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
+		}
 		return fmt.Errorf("failed to dial %s: %v", url, err)
 	}
 
@@ -121,6 +133,9 @@ func (c *WSClient) Connect() error {
 
 	close(c.Connected)
 	c.logger.Printf("Connected to %s", url)
+	if c.OnConnected != nil {
+		c.OnConnected()
+	}
 	go c.keepAlive()
 	return nil
 }
@@ -182,13 +197,15 @@ func (c *WSClient) sendPingAndHandleReconnection() {
 
 // handleReconnection closes the current connection and attempts to reconnect to the WebSocket server.
 func (c *WSClient) handleReconnection() {
-	_ = c.Conn.Close()
-
-	for i := 0; i < ReconnectionRetries; i++ {
-		if err := c.Connect(); err == nil {
-			break
+	if c.Conn == nil {
+		for i := 0; i < ReconnectionRetries; i++ {
+			if err := c.Connect(); err == nil {
+				c.logger.Printf("Reconnection attempt %d successful", i+1)
+				break
+			}
+			c.logger.Printf("Reconnection attempt %d failed", i+1)
+			time.Sleep(ReconnectionDelay)
 		}
-		time.Sleep(ReconnectionDelay)
 	}
 }
 
@@ -209,7 +226,13 @@ func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.Conn.WriteMessage(websocket.TextMessage, jsonData)
+	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+		if c.OnConnectionError != nil {
+			c.OnConnectionError(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // Close gracefully closes the WebSocket connection.
@@ -224,10 +247,17 @@ func (c *WSClient) Close() {
 		c.logger.Println("Connection closed")
 		if c.Conn != nil {
 			err := c.Conn.Close()
-			if err != nil {
+			if err != nil && c.OnConnectionError != nil {
+				c.OnConnectionError(err)
 				return
 			}
 			c.Conn = nil
 		}
 	})
+}
+
+func randomString(n int) string {
+	b := make([]byte, n)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }

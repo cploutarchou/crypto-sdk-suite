@@ -9,43 +9,154 @@ type Wallet struct {
 	client *client.Client
 }
 
-func NewWallet(client *client.Client) (Wallet, error) {
+func NewWallet(client *client.Client) *Wallet {
 	if client == nil {
-		return Wallet{}, fmt.Errorf("client is nil")
+		panic("client should not be nil")
 	}
-	return Wallet{
+	return &Wallet{
 		client: client,
-	}, nil
+	}
 }
 
 const (
-	testNetEndpoint string = "https://api-testnet.bybit.com/v5/account/wallet-balance"
-	endpoint        string = "https://api.bybit.com/v2/private/wallet/balance"
+	endpoint string = "/v5/account/wallet-balance"
 )
 
-func (w Wallet) GetWalletBalance(accountType AccountType, coins ...string) (*WalletBalance, error) {
-	var endpoint_ string
-	if w.client.IsTestNet {
-		endpoint_ = testNetEndpoint
-	} else {
-		endpoint_ = endpoint
+func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Unified)
+	coinStr := ""
+	for _, coin := range coins {
+		coinStr += coin + ","
 	}
-	url := fmt.Sprintf("%s?accountType=%s", endpoint_, accountType)
-
-	if len(coins) > 0 {
-		coinParam := fmt.Sprintf("&coin=%s", coins[0])
-		for _, coin := range coins[1:] {
-			coinParam = fmt.Sprintf("%s,%s", coinParam, coin)
-		}
-		url += coinParam
+	if coinStr != "" {
+		coinStr = coinStr[:len(coinStr)-1]
+		params["coin"] = coinStr
 	}
-
-	resp, err := w.client.Get(url, nil)
+	resp, err := w.client.Get(endpoint, params)
 	if err != nil {
 		return nil, err
 	}
 	if resp.StatusCode() != 200 {
-		return nil, fmt.Errorf("status should be 200, got: %d, body: %s", resp.StatusCode(), resp.Status())
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
+	}
+
+	var balanceResp WalletBalance
+	err = resp.Unmarshal(&balanceResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balanceResp, nil
+}
+func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Unified)
+
+	resp, err := w.client.Get(endpoint, params)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
+	}
+
+	var balanceResp WalletBalance
+	err = resp.Unmarshal(&balanceResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balanceResp, nil
+}
+
+func (w Wallet) GetAllSpotWalletBalance() (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Spot)
+
+	resp, err := w.client.Get(endpoint, params)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
+	}
+
+	var balanceResp WalletBalance
+	err = resp.Unmarshal(&balanceResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balanceResp, nil
+}
+
+func (w Wallet) GetSpotWalletBalance(coins ...string) (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Spot)
+	coinStr := ""
+	for _, coin := range coins {
+		coinStr += coin + ","
+	}
+	if coinStr != "" {
+		coinStr = coinStr[:len(coinStr)-1]
+		params["coin"] = coinStr
+	}
+	resp, err := w.client.Get(endpoint, params)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
+	}
+
+	var balanceResp WalletBalance
+	err = resp.Unmarshal(&balanceResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balanceResp, nil
+}
+
+func (w Wallet) GetAllContractWalletBalance() (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Contract)
+
+	resp, err := w.client.Get(endpoint, params)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
+	}
+
+	var balanceResp WalletBalance
+	err = resp.Unmarshal(&balanceResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balanceResp, nil
+}
+
+func (w Wallet) GetContractWalletBalance(coins ...string) (*WalletBalance, error) {
+	params := client.Params{}
+	params["accountType"] = fmt.Sprintf("%s", Contract)
+	coinStr := ""
+	for _, coin := range coins {
+		coinStr += coin + ","
+	}
+	if coinStr != "" {
+		coinStr = coinStr[:len(coinStr)-1]
+		params["coin"] = coinStr
+	}
+	resp, err := w.client.Get(endpoint, params)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
 	}
 
 	var balanceResp WalletBalance

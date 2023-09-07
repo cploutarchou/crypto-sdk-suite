@@ -20,7 +20,7 @@ type ResponseImpl struct {
 	status     string
 }
 
-func NewResponse(response http.Response) Response {
+func NewResponse(response *http.Response) Response {
 	var res ResponseImpl
 	body, err := io.ReadAll(response.Body)
 	if err != nil {

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"sort"
@@ -101,16 +100,7 @@ func (c *Client) do(req *Request) (Response, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed request: " + string(body))
-	}
-
-	return NewResponse(body), nil
+	return NewResponse(resp), nil
 }
 
 func (c *Client) newGETRequest(baseURL string, req *Request) (*http.Request, error) {

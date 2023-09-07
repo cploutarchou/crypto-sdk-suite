@@ -1,7 +1,7 @@
 package account
 
 type AccountCategory int
-
+type AccountType string
 type TimeInterval int
 
 const (
@@ -36,6 +36,10 @@ const (
 	NormalInversePerp
 	NormalInverseFutures
 	NormalSpot
+
+	Unified  AccountType = "UNIFIED"
+	Contract AccountType = "CONTRACT"
+	Spot     AccountType = "SPOT"
 )
 
 func (a AccountCategory) String() string {

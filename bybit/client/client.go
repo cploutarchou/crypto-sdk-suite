@@ -1,5 +1,6 @@
 package client
 
+import "C"
 import (
 	"bytes"
 	"crypto/hmac"
@@ -12,7 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 )
@@ -36,7 +36,7 @@ type Client struct {
 }
 
 type Method string
-type Params map[string]interface{}
+type Params map[string]string
 
 type Request struct {
 	method Method
@@ -44,11 +44,12 @@ type Request struct {
 	params Params
 }
 
-func NewClient(key, secretKey string) *Client {
+func NewClient(key, secretKey string, isTestnet bool) *Client {
 	return &Client{
 		key:        key,
 		secretKey:  secretKey,
 		httpClient: &http.Client{},
+		IsTestNet:  isTestnet,
 	}
 }
 
@@ -96,28 +97,26 @@ func (c *Client) do(req *Request) (Response, error) {
 	c.setCommonHeaders(httpReq, req.params)
 
 	resp, err := c.httpClient.Do(httpReq)
+
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed request: " + string(body))
-	}
-
-	return NewResponse(body), nil
+	return NewResponse(resp), nil
 }
 
 func (c *Client) newGETRequest(baseURL string, req *Request) (*http.Request, error) {
 	queryParams := url.Values{}
 	for k, v := range req.params {
-		queryParams.Add(k, v.(string))
+		queryParams.Set(k, v)
 	}
+
 	return http.NewRequest(string(GET), baseURL+req.path+"?"+queryParams.Encode(), nil)
 }
 
@@ -130,36 +129,41 @@ func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, er
 }
 
 func (c *Client) setCommonHeaders(req *http.Request, params Params) {
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-BAPI-SIGN-TYPE", "2")
-	req.Header.Set("X-BAPI-API-KEY", c.key)
-	req.Header.Set("X-BAPI-TIMESTAMP", fmt.Sprintf("%d", time.Now().UnixNano()/1000000))
-	req.Header.Set("X-BAPI-SIGN", GenerateSignature(c.secretKey, params))
-	req.Header.Set("X-BAPI-RECV-WINDOW", "50000")
+	timestamp := fmt.Sprintf("%d", time.Now().UTC().UnixMilli())
+
+	req.Header.Add("X-BAPI-SIGN-TYPE", "2")
+	req.Header.Add("X-BAPI-SIGN", GenerateSignature(c.secretKey, c.key, params, timestamp))
+	req.Header.Add("X-BAPI-API-KEY", c.key)
+	req.Header.Add("X-BAPI-TIMESTAMP", timestamp)
+	req.Header.Add("X-BAPI-RECV-WINDOW", "50000")
+	req.Header.Add("Content-Type", "application/json")
 }
 
-func GenerateSignature(secretKey string, params Params) string {
+func GenerateSignature(secretKey, apiKey string, params Params, timestamp string) string {
+	// Start with the timestamp
+	str := timestamp
+
+	// Append the API Key
+	str += apiKey
+
+	// Append recv window value
+	str += "50000" // adjust as needed
+
+	// Sort keys and append sorted query parameters
 	var keys []string
 	for k := range params {
 		keys = append(keys, k)
 	}
-
-	// Sort keys in alphabetical order
 	sort.Strings(keys)
-
-	var paramString string
+	queryParams := url.Values{}
 	for _, k := range keys {
-		paramString += k + "=" + params[k].(string) + "&"
+		queryParams.Set(k, params[k])
 	}
+	str += fmt.Sprintf("%s", queryParams.Encode())
+	// Generate HMAC-SHA256 signature
+	h := hmac.New(sha256.New, []byte(secretKey))
+	h.Write([]byte(str))
+	signature := hex.EncodeToString(h.Sum(nil))
 
-	// Trim the last '&'
-	paramString = strings.TrimSuffix(paramString, "&")
-
-	// Step 2: Use HMAC-SHA256 to hash the concatenated string, using secretKey as the key.
-	mac := hmac.New(sha256.New, []byte(secretKey))
-	mac.Write([]byte(paramString))
-
-	// Step 3: Convert the hash into a hexadecimal representation.
-	signature := hex.EncodeToString(mac.Sum(nil))
 	return signature
 }

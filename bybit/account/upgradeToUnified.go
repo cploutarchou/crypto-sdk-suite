@@ -24,7 +24,7 @@ type UpgradeToUnified struct {
 	client *client.Client
 }
 
-func (r *UpgradeToUnified) Uprade() (*UpgradeToUnifiedResponse, error) {
+func (r *UpgradeToUnified) Upgrade() (*UpgradeToUnifiedResponse, error) {
 	var ret UpgradeToUnifiedResponse
 	res, err := r.client.Post(upgradeToUnified, client.Params{})
 	if err != nil {

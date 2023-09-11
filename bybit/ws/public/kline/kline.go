@@ -108,6 +108,7 @@ func New(c *client.WSClient, isTestNet bool) Kline {
 	k.Messages = make(chan []byte, 100)
 	k.StopChan = make(chan struct{}, 1)
 	k.isTest = isTestNet
+	k.client.IsPublic = true
 	err := k.client.Connect()
 	if err != nil {
 		fmt.Println("Error connecting:", err)

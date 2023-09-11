@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	t.Run("successful connection", func(t *testing.T) {
-		client, err := New("", "", true, true)
+		client, err := New("", "", true)
 		if err != nil {
 			t.Fatalf("Failed to connect: %v", err)
 		}
@@ -64,19 +64,19 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("successful authentication", func(t *testing.T) {
-		client, _ := New("", "", true, true)
+		client, _ := New("", "", true)
 		client.Close()
 	})
 
 	t.Run("failed connection", func(t *testing.T) {
-		_, err := New("", "", true, true)
+		_, err := New("", "", true)
 		if err == nil {
 			t.Fatal("Expected connection to fail")
 		}
 	})
 
 	t.Run("connection close", func(t *testing.T) {
-		client, _ := New("", "", true, true)
+		client, _ := New("", "", true)
 		client.Close()
 		err := client.Authenticate("testAPI", "testExpires", "testSignature")
 		if err == nil {

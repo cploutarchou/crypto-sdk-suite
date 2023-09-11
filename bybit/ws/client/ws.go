@@ -54,7 +54,7 @@ type WSClient struct {
 	isClosed          bool
 	logger            *log.Logger
 	isTestNet         bool
-	isPublic          bool
+	IsPublic          bool
 	apiKey            string
 	apiSecret         string
 	IsTest            bool
@@ -72,11 +72,10 @@ type ChannelType string
 // apiKey and apiSecret are required for authentication with private channels.
 // isTestNet determines if the client connects to a test network.
 // isPublic specifies if the client connects to a public channel.
-func New(apiKey, apiSecret string, isTestNet, isPublic bool) (*WSClient, error) {
+func New(apiKey, apiSecret string, isTestNet bool) (*WSClient, error) {
 	client := &WSClient{
 		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		isTestNet: isTestNet,
-		isPublic:  isPublic,
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
 		Path:      "",
@@ -103,14 +102,13 @@ func (c *WSClient) Connect() error {
 			return err
 		}
 	}
-	fmt.Println("isTestNet", c.isTestNet)
 	var url string
 	if c.isTestNet {
 		url = "stream-testnet.bybit.com"
 	} else {
 		url = "stream.bybit.com"
 	}
-	if c.isPublic {
+	if c.IsPublic {
 		c.channel = Public
 	} else {
 		c.channel = Private

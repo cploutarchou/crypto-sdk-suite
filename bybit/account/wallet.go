@@ -18,10 +18,6 @@ func NewWallet(client *client.Client) *Wallet {
 	}
 }
 
-const (
-	walletEndpoint string = "/v5/account/wallet-balance"
-)
-
 func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = fmt.Sprintf("%s", Unified)
@@ -33,7 +29,7 @@ func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error)
 		coinStr = coinStr[:len(coinStr)-1]
 		params["coin"] = coinStr
 	}
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +49,7 @@ func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = fmt.Sprintf("%s", Unified)
 
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +70,7 @@ func (w Wallet) GetAllSpotWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = fmt.Sprintf("%s", Spot)
 
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +98,7 @@ func (w Wallet) GetSpotWalletBalance(coins ...string) (*WalletBalance, error) {
 		coinStr = coinStr[:len(coinStr)-1]
 		params["coin"] = coinStr
 	}
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +119,7 @@ func (w Wallet) GetAllContractWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = fmt.Sprintf("%s", Contract)
 
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +147,7 @@ func (w Wallet) GetContractWalletBalance(coins ...string) (*WalletBalance, error
 		coinStr = coinStr[:len(coinStr)-1]
 		params["coin"] = coinStr
 	}
-	resp, err := w.client.Get(walletEndpoint, params)
+	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}

@@ -32,8 +32,8 @@ func (b bybitImpl) WebSocket() ws.WebSocket {
 }
 
 func New(key, secretKey string, isTestNet bool) Bybit {
-	c := client.NewClient(key, secretKey)
-	wsClient, _ := client2.New(key, secretKey, isTestNet, true)
+	c := client.NewClient(key, secretKey, isTestNet)
+	wsClient, _ := client2.New(key, secretKey, isTestNet)
 	by := &bybitImpl{
 		market:    market.New(c),
 		client:    c,

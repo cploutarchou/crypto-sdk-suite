@@ -11,6 +11,7 @@ type Response interface {
 	Data() []byte
 	Status() string
 	StatusCode() int
+	Error() error
 }
 
 type ResponseImpl struct {
@@ -49,4 +50,8 @@ func (r *ResponseImpl) StatusCode() int {
 
 func (r *ResponseImpl) Status() string {
 	return r.status
+}
+
+func (r *ResponseImpl) Error() error {
+	return r.err
 }

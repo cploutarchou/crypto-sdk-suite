@@ -6,26 +6,6 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
-const borrowEndpoint = "/v5/account/borrow-history"
-
-type BorrowRes struct {
-	RetCode int    `json:"retCode"`
-	RetMsg  string `json:"retMsg"`
-	Result  struct {
-		NextPageCursor string `json:"nextPageCursor"`
-		List           []struct {
-			CreatedTime               int64  `json:"createdTime"`
-			CostExemption             string `json:"costExemption"`
-			InterestBearingBorrowSize string `json:"InterestBearingBorrowSize"`
-			Currency                  string `json:"currency"`
-			HourlyBorrowRate          string `json:"hourlyBorrowRate"`
-			BorrowCost                string `json:"borrowCost"`
-		} `json:"list"`
-	} `json:"result"`
-	RetExtInfo struct {
-	} `json:"retExtInfo"`
-	Time int64 `json:"time"`
-}
 type Borrow struct {
 	client *client.Client
 }
@@ -50,7 +30,7 @@ func (b *Borrow) GetHistory(currency string, startTime, endTime, limit int, curs
 		params["cursor"] = cursor
 	}
 
-	response, err := b.client.Get(borrowEndpoint, params)
+	response, err := b.client.Get(Endpoints.Borrow, params)
 	if err != nil {
 		return nil, err
 	}

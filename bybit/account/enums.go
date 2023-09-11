@@ -5,45 +5,37 @@ type AccountType string
 type TimeInterval int
 
 const (
-	Minute1 TimeInterval = iota + 1
-	Minute3
-	Minute5
-	Minute15
-	Minute30
-	Minute60
-	Minute120
-	Minute240
-	Minute360
-	Minute720
-	Day
-	Week
-	Month
-
-	// Unified Account
-	UnifiedSpot AccountCategory = iota
-	UnifiedLinearUSDT
-	UnifiedLinearUSDC
-	UnifiedLinearUSDCPerp
-	UnifiedLinearUSDCFutures
-	UnifiedInverse
-	UnifiedInversePerp
-	UnifiedInverseFutures
-	UnifiedOption
-
-	// Normal Account
-	NormalLinearUSDTPerp
-	NormalInverse
-	NormalInversePerp
-	NormalInverseFutures
-	NormalSpot
-
 	Unified  AccountType = "UNIFIED"
 	Contract AccountType = "CONTRACT"
 	Spot     AccountType = "SPOT"
 )
 
+type CollateralSwitch string
+
+// AccountCategory constants using iota
+const (
+	ON  CollateralSwitch = "ON"
+	OFF CollateralSwitch = "OFF"
+)
+
+type EndpointsStruct struct {
+	Borrow           string
+	CoinGreek        string
+	Collateral       string
+	UpgradeToUnified string
+	Wallet           string
+}
+
+var Endpoints = EndpointsStruct{
+	Borrow:           "/v5/account/borrow-history",
+	CoinGreek:        "/v5/asset/coin-greeks",
+	Collateral:       "/v5/account/set-collateral-switch",
+	UpgradeToUnified: "/v5/account/upgrade-to-uta",
+	Wallet:           "/v5/account/wallet-balance",
+}
+
 func (a AccountCategory) String() string {
-	return [...]string{
+	names := [...]string{
 		"UnifiedSpot",
 		"UnifiedLinearUSDT",
 		"UnifiedLinearUSDC",
@@ -58,11 +50,12 @@ func (a AccountCategory) String() string {
 		"NormalInversePerp",
 		"NormalInverseFutures",
 		"NormalSpot",
-	}[a]
+	}
+	return names[a]
 }
 
 func (ti TimeInterval) String() string {
-	return [...]string{
+	intervals := [...]string{
 		"1 Minute",
 		"3 Minutes",
 		"5 Minutes",
@@ -76,5 +69,6 @@ func (ti TimeInterval) String() string {
 		"Day",
 		"Week",
 		"Month",
-	}[ti-1] // subtract 1 because the iota starts from 1 in this case
+	}
+	return intervals[ti-1] // subtract 1 because the iota starts from 1 in this case
 }

@@ -6,14 +6,15 @@ type Account interface {
 	Wallet() *Wallet
 	UpgradeToUnified() *UpgradeToUnified
 	Borrow() *Borrow
-	CollateralCoin() *CollateralCoin
+	Collateral() *CollateralCoin
+	CoinGreek() *CoinGreeks
 }
 
 type account struct {
 	client *client.Client
 }
 
-func (a *account) CollateralCoin() *CollateralCoin {
+func (a *account) Collateral() *CollateralCoin {
 	return NewSetCollateralCoin(a.client)
 }
 
@@ -27,6 +28,10 @@ func (a *account) UpgradeToUnified() *UpgradeToUnified {
 
 func (a *account) Borrow() *Borrow {
 	return NewBorrow(a.client)
+}
+
+func (a *account) CoinGreek() *CoinGreeks {
+	return NewCoinGreeks(a.client)
 }
 
 func New(client *client.Client) Account {

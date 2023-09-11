@@ -137,6 +137,10 @@ func (c *Client) setCommonHeaders(req *http.Request, params Params) {
 	req.Header.Add("X-BAPI-TIMESTAMP", timestamp)
 	req.Header.Add("X-BAPI-RECV-WINDOW", "50000")
 	req.Header.Add("Content-Type", "application/json")
+	if req.Method == string(POST) {
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Length", fmt.Sprintf("%d", len(params)))
+	}
 }
 
 func GenerateSignature(secretKey, apiKey string, params Params, timestamp string) string {

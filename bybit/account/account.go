@@ -8,6 +8,7 @@ type Account interface {
 	Borrow() *Borrow
 	Collateral() *CollateralCoin
 	CoinGreek() *CoinGreeks
+	FeeRates() *FeeRates
 }
 
 type account struct {
@@ -34,6 +35,9 @@ func (a *account) CoinGreek() *CoinGreeks {
 	return NewCoinGreeks(a.client)
 }
 
+func (a *account) FeeRates() *FeeRates {
+	return NewFeeRates(a.client)
+}
 func New(client *client.Client) Account {
 	return &account{client: client}
 }

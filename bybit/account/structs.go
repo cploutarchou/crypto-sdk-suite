@@ -1,6 +1,5 @@
 package account
 
-// BaseResponse holds fields that are common for many API responses.
 type BaseResponse struct {
 	RetCode    int                    `json:"retCode"`
 	RetMsg     string                 `json:"retMsg"`
@@ -8,7 +7,6 @@ type BaseResponse struct {
 	RetExtInfo map[string]interface{} `json:"retExtInfo"`
 }
 
-// CoinDetails represents individual coin details within an account.
 type CoinDetails struct {
 	AvailableToBorrow   string `json:"availableToBorrow"`
 	Bonus               string `json:"bonus"`
@@ -29,7 +27,6 @@ type CoinDetails struct {
 	Coin                string `json:"coin"`
 }
 
-// AccountDetails holds details related to an account's wallet balance.
 type AccountDetails struct {
 	TotalEquity            string        `json:"totalEquity"`
 	AccountIMRate          string        `json:"accountIMRate"`
@@ -49,13 +46,13 @@ type WalletBalance struct {
 	BaseResponse
 	Result struct {
 		List []AccountDetails `json:"list"`
-	} `json:"result"`
+	}
 }
 
 type BorrowItem struct {
 	CreatedTime               int64  `json:"createdTime"`
 	CostExemption             string `json:"costExemption"`
-	InterestBearingBorrowSize string `json:"InterestBearingBorrowSize"`
+	InterestBearingBorrowSize string `json:"interestBearingBorrowSize"`
 	Currency                  string `json:"currency"`
 	HourlyBorrowRate          string `json:"hourlyBorrowRate"`
 	BorrowCost                string `json:"borrowCost"`
@@ -66,7 +63,7 @@ type BorrowRes struct {
 	Result struct {
 		NextPageCursor string       `json:"nextPageCursor"`
 		List           []BorrowItem `json:"list"`
-	} `json:"result"`
+	}
 }
 
 type CoinGreekItem struct {
@@ -81,7 +78,7 @@ type CoinGreekRes struct {
 	BaseResponse
 	Result struct {
 		List []CoinGreekItem `json:"list"`
-	} `json:"result"`
+	}
 }
 
 type UnifiedUpdateMsg struct {
@@ -93,7 +90,7 @@ type UpgradeToUnifiedResponse struct {
 	Result struct {
 		UnifiedUpdateStatus string           `json:"unifiedUpdateStatus"`
 		UnifiedUpdateMsg    UnifiedUpdateMsg `json:"unifiedUpdateMsg"`
-	} `json:"result"`
+	}
 }
 
 type CollateralData struct {
@@ -112,9 +109,22 @@ type CollateralData struct {
 
 type CollateralInfoResponse struct {
 	BaseResponse
-	Result CollateralResult `json:"result"`
+	Result CollateralResult
 }
 
 type CollateralResult struct {
 	List []CollateralData `json:"list"`
+}
+
+type FeeRate struct {
+	Symbol       string `json:"symbol"`
+	TakerFeeRate string `json:"takerFeeRate"`
+	MakerFeeRate string `json:"makerFeeRate"`
+}
+
+type FeeRatesResponse struct {
+	BaseResponse
+	Result struct {
+		List []FeeRate
+	}
 }

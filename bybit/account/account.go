@@ -9,6 +9,8 @@ type Account interface {
 	Collateral() *CollateralCoin
 	CoinGreek() *CoinGreeks
 	FeeRates() *FeeRates
+	Info() *Info
+	TransactionLog() *TransactionLog
 }
 
 type account struct {
@@ -37,6 +39,13 @@ func (a *account) CoinGreek() *CoinGreeks {
 
 func (a *account) FeeRates() *FeeRates {
 	return NewFeeRates(a.client)
+}
+
+func (a *account) Info() *Info {
+	return NewInfo(a.client)
+}
+func (a *account) TransactionLog() *TransactionLog {
+	return NewTransactionLog(a.client)
 }
 func New(client *client.Client) Account {
 	return &account{client: client}

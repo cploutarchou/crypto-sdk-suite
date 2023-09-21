@@ -42,6 +42,16 @@ type AccountDetails struct {
 	Coin                   []CoinDetails `json:"coin"`
 }
 
+// AccountInfo represents the response from the /v5/account/info endpoint.
+type AccountInfo struct {
+	UnifiedMarginStatus int    `json:"unifiedMarginStatus"`
+	MarginMode          string `json:"marginMode"`
+	DcpStatus           string `json:"dcpStatus"`
+	TimeWindow          int    `json:"timeWindow"`
+	SmpGroup            int    `json:"smpGroup"`
+	IsMasterTrader      bool   `json:"isMasterTrader"`
+	UpdatedTime         string `json:"updatedTime"`
+}
 type WalletBalance struct {
 	BaseResponse
 	Result struct {

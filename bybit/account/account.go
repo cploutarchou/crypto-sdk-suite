@@ -11,6 +11,7 @@ type Account interface {
 	FeeRates() *FeeRates
 	Info() *Info
 	TransactionLog() *TransactionLog
+	Margin() *Margin
 }
 
 type account struct {
@@ -46,6 +47,9 @@ func (a *account) Info() *Info {
 }
 func (a *account) TransactionLog() *TransactionLog {
 	return NewTransactionLog(a.client)
+}
+func (a *account) Margin() *Margin {
+	return NewMargin(a.client)
 }
 func New(client *client.Client) Account {
 	return &account{client: client}

@@ -6,6 +6,6 @@ type Margin struct {
 	client *client.Client
 }
 
-func NewMargin(client *client.Client) *Margin {
-	return &Margin{client: client}
+func NewMargin(client_ *client.Client) *Margin {
+	return &Margin{client: client_}
 }

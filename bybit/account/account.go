@@ -51,6 +51,6 @@ func (a *account) TransactionLog() *TransactionLog {
 func (a *account) Margin() *Margin {
 	return NewMargin(a.client)
 }
-func New(client *client.Client) Account {
-	return &account{client: client}
+func New(client_ *client.Client) Account {
+	return &account{client: client_}
 }

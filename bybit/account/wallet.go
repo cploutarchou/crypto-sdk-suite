@@ -2,6 +2,7 @@ package account
 
 import (
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
@@ -9,18 +10,18 @@ type Wallet struct {
 	client *client.Client
 }
 
-func NewWallet(client *client.Client) *Wallet {
-	if client == nil {
+func NewWallet(client_ *client.Client) *Wallet {
+	if client_ == nil {
 		panic("client should not be nil")
 	}
 	return &Wallet{
-		client: client,
+		client: client_,
 	}
 }
 
 func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Unified)
+	params["accountType"] = string(Unified)
 	coinStr := ""
 	for _, coin := range coins {
 		coinStr += coin + ","
@@ -47,7 +48,7 @@ func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error)
 }
 func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Unified)
+	params["accountType"] = string(Unified)
 
 	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
@@ -68,7 +69,7 @@ func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
 
 func (w Wallet) GetAllSpotWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Spot)
+	params["accountType"] = string(Spot)
 
 	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
@@ -89,7 +90,7 @@ func (w Wallet) GetAllSpotWalletBalance() (*WalletBalance, error) {
 
 func (w Wallet) GetSpotWalletBalance(coins ...string) (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Spot)
+	params["accountType"] = string(Spot)
 	coinStr := ""
 	for _, coin := range coins {
 		coinStr += coin + ","
@@ -117,7 +118,7 @@ func (w Wallet) GetSpotWalletBalance(coins ...string) (*WalletBalance, error) {
 
 func (w Wallet) GetAllContractWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Contract)
+	params["accountType"] = string(Contract)
 
 	resp, err := w.client.Get(Endpoints.Wallet, params)
 	if err != nil {
@@ -138,7 +139,7 @@ func (w Wallet) GetAllContractWalletBalance() (*WalletBalance, error) {
 
 func (w Wallet) GetContractWalletBalance(coins ...string) (*WalletBalance, error) {
 	params := client.Params{}
-	params["accountType"] = fmt.Sprintf("%s", Contract)
+	params["accountType"] = string(Contract)
 	coinStr := ""
 	for _, coin := range coins {
 		coinStr += coin + ","

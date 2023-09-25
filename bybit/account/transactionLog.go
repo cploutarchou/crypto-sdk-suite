@@ -13,12 +13,12 @@ type TransactionLog struct {
 }
 
 // NewTransactionLog initializes a new TransactionLog object with a client instance.
-func NewTransactionLog(client *client.Client) *TransactionLog {
-	if client == nil {
+func NewTransactionLog(client_ *client.Client) *TransactionLog {
+	if client_== nil {
 		panic("client should not be nil")
 	}
 	return &TransactionLog{
-		client: client,
+		client: client_,
 	}
 }
 
@@ -57,7 +57,7 @@ func (tl *TransactionLog) Get(params map[string]string) (*LogResponse, error) {
 	endpoint := "/v5/account/transaction-log"
 
 	// Add the optional query parameters if provided
-	if params != nil && len(params) > 0 {
+	if len(params) > 0 {
 		queryParams := url.Values{}
 		for key, value := range params {
 			queryParams.Add(key, value)

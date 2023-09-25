@@ -6,8 +6,8 @@ type CoinGreeks struct {
 	client *client.Client
 }
 
-func NewCoinGreeks(client *client.Client) *CoinGreeks {
-	return &CoinGreeks{client: client}
+func NewCoinGreeks(client_ *client.Client) *CoinGreeks {
+	return &CoinGreeks{client: client_}
 }
 
 func (cg *CoinGreeks) Get(coin string) (*CoinGreekRes, error) {
@@ -28,6 +28,9 @@ func (cg *CoinGreeks) Get(coin string) (*CoinGreekRes, error) {
 	}
 	var coinGreekRes CoinGreekRes
 	err = response.Unmarshal(&coinGreekRes)
+	if err != nil {
+		return nil, err
+	}
 
 	return &coinGreekRes, nil
 }

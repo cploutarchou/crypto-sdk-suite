@@ -15,7 +15,7 @@ func NewInfo(client *client.Client) *Info {
 }
 
 // Get queries the margin mode configuration of the account.
-func (info *Info) Get() (*AccountInfo, error) {
+func (info *Info) Get() (*AccInfo, error) {
 	path := "/v5/account/info"
 	resp, err := info.client.Get(path, nil) // Assuming the Get method is as per your client package.
 
@@ -27,7 +27,7 @@ func (info *Info) Get() (*AccountInfo, error) {
 		return nil, errors.New("failed to get account info: non-200 status code received")
 	}
 
-	var accountInfo AccountInfo
+	var accountInfo AccInfo
 	err = resp.Unmarshal(&accountInfo)
 	if err != nil {
 		return nil, err

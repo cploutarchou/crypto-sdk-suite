@@ -17,17 +17,6 @@ func NewMargin(client *client.Client) *Margin {
 	return &Margin{client: client}
 }
 
-type SetMarginModeResponse struct {
-	RetCode int    `json:"retCode"`
-	RetMsg  string `json:"retMsg"`
-	Result  struct {
-		Reasons []struct {
-			ReasonCode string `json:"reasonCode"`
-			ReasonMsg  string `json:"reasonMsg"`
-		} `json:"reasons"`
-	} `json:"result"`
-}
-
 func (m *Margin) SetMarginMode(mode string) (*SetMarginModeResponse, error) {
 	params := client.Params{
 		"setMarginMode": mode,

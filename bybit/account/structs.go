@@ -1,5 +1,6 @@
 package account
 
+// BaseResponse is a generic struct used to parse the common response received from Bybit API
 type BaseResponse struct {
 	RetCode    int                    `json:"retCode"`
 	RetMsg     string                 `json:"retMsg"`
@@ -27,7 +28,7 @@ type CoinDetails struct {
 	Coin                string `json:"coin"`
 }
 
-type AccountDetails struct {
+type AccDetails struct {
 	TotalEquity            string        `json:"totalEquity"`
 	AccountIMRate          string        `json:"accountIMRate"`
 	TotalMarginBalance     string        `json:"totalMarginBalance"`
@@ -42,8 +43,8 @@ type AccountDetails struct {
 	Coin                   []CoinDetails `json:"coin"`
 }
 
-// AccountInfo represents the response from the /v5/account/info endpoint.
-type AccountInfo struct {
+// AccInfo represents the response from the /v5/account/info endpoint.
+type AccInfo struct {
 	UnifiedMarginStatus int    `json:"unifiedMarginStatus"`
 	MarginMode          string `json:"marginMode"`
 	DcpStatus           string `json:"dcpStatus"`
@@ -55,7 +56,7 @@ type AccountInfo struct {
 type WalletBalance struct {
 	BaseResponse
 	Result struct {
-		List []AccountDetails `json:"list"`
+		List []AccDetails `json:"list"`
 	}
 }
 
@@ -137,4 +138,14 @@ type FeeRatesResponse struct {
 	Result struct {
 		List []FeeRate
 	}
+}
+
+type SetMarginModeResponse struct {
+	BaseResponse
+	Result struct {
+		Reasons []struct {
+			ReasonCode string `json:"reasonCode"`
+			ReasonMsg  string `json:"reasonMsg"`
+		} `json:"reasons"`
+	} `json:"result"`
 }

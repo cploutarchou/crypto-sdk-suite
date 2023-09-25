@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
@@ -65,7 +66,9 @@ func (s *CollateralCoin) GetInfo(currency string) (*CollateralInfoResponse, erro
 
 	var resp CollateralInfoResponse
 	err = response.Unmarshal(&resp)
-
+	if err != nil {
+		return nil, err
+	}
 	if resp.RetCode != 0 {
 		return nil, fmt.Errorf("API error: %s", resp.RetMsg)
 	}

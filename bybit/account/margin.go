@@ -3,11 +3,16 @@ package account
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
-const setMarginModePath = "/v5/account/set-margin-mode"
+const (
+	setMarginModePath = "/v5/account/set-margin-mode"
+
+	setMMPPath = "/v5/account/mmp-modify"
+)
 
 type Margin struct {
 	client *client.Client
@@ -41,4 +46,34 @@ func (m *Margin) SetMarginMode(mode string) (*SetMarginModeResponse, error) {
 	}
 
 	return &setMarginModeResponse, nil
+}
+
+// SetMMP sets the Market Maker Protection for the client.
+func (m *Margin) SetMMP(params *MMPParams) (*MMPResponse, error) {
+	response, err := m.client.Post(setMMPPath, client.Params{
+		"baseCoin":     params.BaseCoin,
+		"window":       strconv.Itoa(params.Window),
+		"frozenPeriod": strconv.Itoa(params.FrozenPeriod),
+		"qtyLimit":     strconv.Itoa(params.QtyLimit),
+		"deltaLimit":   strconv.Itoa(params.DeltaLimit),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("API returned non-200 status code: %d", response.StatusCode())
+	}
+
+	var mmpResponse MMPResponse
+	err = response.Unmarshal(&mmpResponse)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	if mmpResponse.RetCode != 0 {
+		return nil, fmt.Errorf("unexpected retCode: %d, retMsg: %s", mmpResponse.RetCode, mmpResponse.RetMsg)
+	}
+
+	return &mmpResponse, nil
 }

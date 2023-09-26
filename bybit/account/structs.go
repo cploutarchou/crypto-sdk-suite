@@ -163,3 +163,21 @@ type MMPParams struct {
 	QtyLimit     int    `json:"qtyLimit"`     // Assuming QtyLimit is an integer representing quantity
 	DeltaLimit   int    `json:"deltaLimit"`   // Assuming DeltaLimit is an integer representing delta
 }
+
+type MMPStateItem struct {
+	BaseCoin       string `json:"baseCoin"`
+	MMPEnabled     bool   `json:"mmpEnabled"`
+	Window         string `json:"window"`
+	FrozenPeriod   string `json:"frozenPeriod"`
+	QtyLimit       string `json:"qtyLimit"`
+	DeltaLimit     string `json:"deltaLimit"`
+	MMPFrozenUntil string `json:"mmpFrozenUntil"`
+	MMPFrozen      bool   `json:"mmpFrozen"`
+}
+
+type MMPStateResponse struct {
+	BaseResponse
+	Result struct {
+		List []MMPStateItem `json:"result"`
+	}
+}

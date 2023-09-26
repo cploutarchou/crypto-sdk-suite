@@ -10,8 +10,8 @@ import (
 
 const (
 	setMarginModePath = "/v5/account/set-margin-mode"
-
-	setMMPPath = "/v5/account/mmp-modify"
+	resetMMPPath      = "/v5/account/mmp-reset"
+	setMMPPath        = "/v5/account/mmp-modify"
 )
 
 type Margin struct {
@@ -71,6 +71,32 @@ func (m *Margin) SetMMP(params *MMPParams) (*MMPResponse, error) {
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
+	if mmpResponse.RetCode != 0 {
+		return nil, fmt.Errorf("unexpected retCode: %d, retMsg: %s", mmpResponse.RetCode, mmpResponse.RetMsg)
+	}
+
+	return &mmpResponse, nil
+}
+
+func (m *Margin) ResetMMP(baseCoin string) (*MMPResponse, error) {
+	params := client.Params{
+		"baseCoin": baseCoin,
+	}
+
+	response, err := m.client.Post(resetMMPPath, params)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("API returned non-200 status code: %d", response.StatusCode())
+	}
+
+	var mmpResponse MMPResponse
+	err = response.Unmarshal(&mmpResponse)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
 	if mmpResponse.RetCode != 0 {
 		return nil, fmt.Errorf("unexpected retCode: %d, retMsg: %s", mmpResponse.RetCode, mmpResponse.RetMsg)
 	}

@@ -115,6 +115,11 @@ func setMMP() (interface{}, error) {
 	}
 	return margin.SetMMP(params)
 }
+
+func resetMMP() (interface{}, error) {
+	margin := acc.Margin()
+	return margin.ResetMMP("BTC")
+}
 func runAccountExamples() {
 	handleErrorWithPrint(getWalletBalance())
 	handleErrorWithPrint(upgradeToUnified())
@@ -127,6 +132,7 @@ func runAccountExamples() {
 	handleErrorWithPrint(getTransactionLog())
 	handleErrorWithPrint(setMargin())
 	handleErrorWithPrint(setMMP())
+	handleErrorWithPrint(resetMMP())
 }
 func bybitExamples() {
 	initBybit()

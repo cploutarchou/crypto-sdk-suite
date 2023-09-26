@@ -149,3 +149,17 @@ type SetMarginModeResponse struct {
 		} `json:"reasons"`
 	} `json:"result"`
 }
+
+// MMPResponse represents the response from setting the Market Maker Protection.
+type MMPResponse struct {
+	BaseResponse
+}
+
+// MMPParams represents the parameters needed to set Market Maker Protection.
+type MMPParams struct {
+	BaseCoin     string `json:"baseCoin"`
+	Window       int    `json:"window"`       // Assuming Window is a number representing milliseconds
+	FrozenPeriod int    `json:"frozenPeriod"` // Assuming FrozenPeriod is a number representing milliseconds
+	QtyLimit     int    `json:"qtyLimit"`     // Assuming QtyLimit is an integer representing quantity
+	DeltaLimit   int    `json:"deltaLimit"`   // Assuming DeltaLimit is an integer representing delta
+}

@@ -104,6 +104,17 @@ func setMargin() (interface{}, error) {
 	return margin.SetMarginMode("ISOLATED")
 }
 
+func setMMP() (interface{}, error) {
+	margin := acc.Margin()
+	params := &account.MMPParams{
+		BaseCoin:     "BTC",
+		Window:       200,
+		FrozenPeriod: 10,
+		QtyLimit:     100,
+		DeltaLimit:   100,
+	}
+	return margin.SetMMP(params)
+}
 func runAccountExamples() {
 	handleErrorWithPrint(getWalletBalance())
 	handleErrorWithPrint(upgradeToUnified())
@@ -115,6 +126,7 @@ func runAccountExamples() {
 	handleErrorWithPrint(getInfo())
 	handleErrorWithPrint(getTransactionLog())
 	handleErrorWithPrint(setMargin())
+	handleErrorWithPrint(setMMP())
 }
 func bybitExamples() {
 	initBybit()

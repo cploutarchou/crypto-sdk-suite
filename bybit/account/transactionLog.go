@@ -14,7 +14,7 @@ type TransactionLog struct {
 
 // NewTransactionLog initializes a new TransactionLog object with a client instance.
 func NewTransactionLog(client_ *client.Client) *TransactionLog {
-	if client_== nil {
+	if client_ == nil {
 		panic("client should not be nil")
 	}
 	return &TransactionLog{

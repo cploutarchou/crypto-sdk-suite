@@ -15,7 +15,7 @@ const (
 	POST           Method = "POST"
 	GET            Method = "GET"
 	BaseURL               = "https://pro-api.coinmarketcap.com"
-	TestnetBaseURL        = "https://sandbox-api.coinmarketcap.co"
+	TestnetBaseURL        = "https://sandbox-api.coinmarketcap.com"
 )
 
 type Requester interface {

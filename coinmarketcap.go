@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	coinmarketcap "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -20,11 +20,11 @@ func GetIDMap() {
 
 	resp, err := cr.GetMapID(nil)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		logrus.Fatal(err)
 		return
 	}
 
 	for _, coin := range resp {
-		fmt.Printf("ID: %d, Name: %s, Symbol: %s\n", coin.Id, coin.Name, coin.Symbol)
+		logrus.Infof("ID: %d, Name: %s, Symbol: %s\n", coin.Id, coin.Name, coin.Symbol)
 	}
 }

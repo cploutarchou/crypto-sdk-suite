@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"sync"
@@ -39,12 +39,31 @@ type Request struct {
 	params Params
 }
 
-func NewClient(key string, isTestnet bool) *Client {
+func NewClient(key string, isTestnet bool, httpClient ...*http.Client) *Client {
+	client := &http.Client{}
+	if len(httpClient) > 0 && httpClient[0] != nil {
+		client = httpClient[0]
+	}
 	return &Client{
 		apiKey:     key,
-		httpClient: &http.Client{},
+		httpClient: client,
 		IsTestNet:  isTestnet,
 	}
+}
+
+func (c *Client) SetIsTestNet(isTestNet bool) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.IsTestNet = isTestNet
+}
+
+func (c *Client) getBaseURL() string {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	if c.IsTestNet {
+		return TestnetBaseURL
+	}
+	return BaseURL
 }
 
 func (c *Client) Get(path string, params Params) (Response, error) {
@@ -65,11 +84,7 @@ func (c *Client) doRequest(method Method, path string, params Params) (Response,
 }
 
 func (c *Client) do(req *Request) (Response, error) {
-	baseURL := BaseURL
-	if c.IsTestNet {
-		baseURL = TestnetBaseURL
-	}
-
+	baseURL := c.getBaseURL()
 	var (
 		httpReq *http.Request
 		err     error
@@ -91,16 +106,14 @@ func (c *Client) do(req *Request) (Response, error) {
 	c.setCommonHeaders(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
-
 	if err != nil {
 		return nil, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			return
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			logrus.Error(closeErr)
 		}
-	}(resp.Body)
+	}()
 
 	return NewResponse(resp), nil
 }
@@ -123,6 +136,7 @@ func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, er
 }
 
 func (c *Client) setCommonHeaders(req *http.Request) {
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-CMC_PRO_API_KEY", c.apiKey)
 	req.Header.Add("Accept", "application/json")
 }

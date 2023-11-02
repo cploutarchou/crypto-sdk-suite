@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
 	coinmarketcap "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency"
-	"os"
+	"github.com/sirupsen/logrus"
 )
 
 var client_ *coinmarketcap.Client
@@ -20,11 +21,23 @@ func GetIDMap() {
 
 	resp, err := cr.GetMapID(nil)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		logrus.Fatal(err)
 		return
 	}
 
 	for _, coin := range resp {
-		fmt.Printf("ID: %d, Name: %s, Symbol: %s\n", coin.Id, coin.Name, coin.Symbol)
+		logrus.Infof("ID: %d, Name: %s, Symbol: %s\n", coin.ID, coin.Name, coin.Symbol)
+	}
+}
+
+func GetGainersAndLosers() {
+	resp, err := cr.FetchGainersLosers(nil)
+	if err != nil {
+		logrus.Fatal(err)
+		return
+	}
+
+	for _, coin := range resp {
+		logrus.Infof("%+v\n", coin)
 	}
 }

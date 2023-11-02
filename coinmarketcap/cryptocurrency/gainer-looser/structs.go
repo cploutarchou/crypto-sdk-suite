@@ -44,6 +44,16 @@ type Status struct {
 	CreditCount  int       `json:"credit_count"`
 }
 
+// Params represents the query parameters for fetching data.
+type Params struct {
+	Limit      *int        `json:"limit,omitempty"`
+	TimePeriod *TimePeriod `json:"time_period,omitempty"`
+	Convert    *string     `json:"convert,omitempty"`
+	ConvertID  *int        `json:"convert_id,omitempty"`
+	Sort       *Sort       `json:"sort,omitempty"`
+	SortDir    *SortDir    `json:"sort_dir,omitempty"`
+}
+
 type CryptocurrencyID int
 
 type Rank int

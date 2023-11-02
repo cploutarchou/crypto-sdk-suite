@@ -1,7 +1,13 @@
 package gainer_looser
 
+import (
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
+	"strconv"
+)
+
 // GainersAndLosers represents the gainers and losers data.
 type GainersAndLosers struct {
+	*client.Client
 }
 
 // Sort represents the fields by which data should be sorted.
@@ -26,15 +32,10 @@ const (
 	SevenDay         TimePeriod = "7d"
 )
 
-// Params represents the query parameters for fetching data.
-type Params struct {
-	Start      *int        // Start represents the starting index.
-	Limit      *int        // The Limit represents the maximum number of results to retrieve.
-	TimePeriod *TimePeriod // TimePeriod represents the time span for the data.
-	Convert    *string     // Convert represents the currency conversion symbols.
-	ConvertID  *string     // ConvertID represents the CoinMarketCap ID for conversion.
-	Sort       *Sort       // Sort specifies the field to sort data by.
-	SortDir    *SortDir    // SortDir specifies the direction of the sort.
+func New(c *client.Client) *GainersAndLosers {
+	return &GainersAndLosers{
+		c,
+	}
 }
 
 // IsValidSort checks if the given Sort is a valid enumeration value.
@@ -65,4 +66,41 @@ func IsValidTimePeriod(tp TimePeriod) bool {
 	default:
 		return false
 	}
+}
+
+const GainersLosersEndpoint = "/v1/cryptocurrency/trending/gainers-losers"
+
+func (g *GainersAndLosers) FetchGainersLosers(cli client.Requester, params *Params) ([]CryptocurrencyData, error) {
+	queryParams := make(map[string]string)
+
+	if params.Limit != nil {
+		queryParams["limit"] = strconv.Itoa(*params.Limit)
+	}
+	if params.TimePeriod != nil && IsValidTimePeriod(*params.TimePeriod) {
+		queryParams["time_period"] = string(*params.TimePeriod)
+	}
+	if params.Convert != nil {
+		queryParams["convert"] = *params.Convert
+	}
+	if params.ConvertID != nil {
+		queryParams["convert_id"] = strconv.Itoa(*params.ConvertID)
+	}
+	if params.Sort != nil && IsValidSort(*params.Sort) {
+		queryParams["sort"] = string(*params.Sort)
+	}
+	if params.SortDir != nil && IsValidSortDir(*params.SortDir) {
+		queryParams["sort_dir"] = string(*params.SortDir)
+	}
+
+	resp, err := cli.Get(GainersLosersEndpoint, queryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Response
+	if err := resp.Unmarshal(&data); err != nil {
+		return nil, err
+	}
+
+	return data.Data, nil
 }

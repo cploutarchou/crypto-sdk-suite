@@ -29,3 +29,15 @@ func GetIDMap() {
 		logrus.Infof("ID: %d, Name: %s, Symbol: %s\n", coin.ID, coin.Name, coin.Symbol)
 	}
 }
+
+func GetGainersAndLosers() {
+	resp, err := cr.FetchGainersLosers(nil)
+	if err != nil {
+		logrus.Fatal(err)
+		return
+	}
+
+	for _, coin := range resp {
+		logrus.Infof("%+v\n", coin)
+	}
+}

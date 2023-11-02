@@ -16,7 +16,7 @@ type Params struct {
 }
 
 type Map struct {
-	client *client.Client
+	*client.Client
 }
 
 func (m *Map) GetID(params *Params) ([]Data, error) {
@@ -44,7 +44,7 @@ func (m *Map) GetID(params *Params) ([]Data, error) {
 		}
 	}
 
-	resp, err := m.client.Get(path, queryParams)
+	resp, err := m.Get(path, queryParams)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +63,6 @@ func (m *Map) GetID(params *Params) ([]Data, error) {
 
 func New(c *client.Client) *Map {
 	return &Map{
-		client: c,
+		c,
 	}
 }

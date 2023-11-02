@@ -20,8 +20,11 @@ type CryptocurrencyData struct {
 }
 
 type Response struct {
-	Data   []CryptocurrencyData `json:"data"`
-	Status Status               `json:"status"`
+	Data struct {
+		Data   []CryptocurrencyData `json:"data"`
+		Status Status               `json:"status"`
+	} `json:"data"`
+	Status Status `json:"status"`
 }
 
 type Quote map[string]CurrencyQuote

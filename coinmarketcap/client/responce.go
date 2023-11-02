@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	httperrors "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/errors"
 	"io"
 	"net/http"
 )
@@ -19,6 +20,7 @@ type ResponseImpl struct {
 	err        error
 	statusCode int
 	status     string
+	httpError  httperrors.HTTPError
 }
 
 func NewResponse(response *http.Response) Response {
@@ -30,28 +32,55 @@ func NewResponse(response *http.Response) Response {
 	res.statusCode = response.StatusCode
 	res.data = body
 	res.status = response.Status
+
+	// Check if the status code indicates an error
+	switch res.statusCode {
+	case http.StatusBadRequest:
+		res.httpError = httperrors.BadRequest(string(body))
+	case http.StatusUnauthorized:
+		res.httpError = httperrors.Unauthorized(string(body))
+	case http.StatusForbidden:
+		res.httpError = httperrors.Forbidden(string(body))
+	case http.StatusTooManyRequests:
+		res.httpError = httperrors.TooManyRequests(string(body))
+	case http.StatusInternalServerError:
+		res.httpError = httperrors.InternalServerError(string(body))
+	}
+
 	return &res
 }
 
+func (r *ResponseImpl) Error() error {
+	if r.httpError != nil {
+		return r.httpError
+	}
+	return r.err
+}
+
 func (r *ResponseImpl) Unmarshal(v interface{}) error {
+	// Check if there's an HTTP error first
+	if r.httpError != nil {
+		return r.httpError
+	}
+	// If there's a read error, return that next
 	if r.err != nil {
 		return r.err
 	}
-	return json.Unmarshal(r.Data(), v)
+	// Unmarshal the data into the provided interface
+	return json.Unmarshal(r.data, v)
 }
 
 func (r *ResponseImpl) Data() []byte {
+	// Return the response data
 	return r.data
 }
 
-func (r *ResponseImpl) StatusCode() int {
-	return r.statusCode
-}
-
 func (r *ResponseImpl) Status() string {
+	// Return the HTTP status text
 	return r.status
 }
 
-func (r *ResponseImpl) Error() error {
-	return r.err
+func (r *ResponseImpl) StatusCode() int {
+	// Return the HTTP status code
+	return r.statusCode
 }

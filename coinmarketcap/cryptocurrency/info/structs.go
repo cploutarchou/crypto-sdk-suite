@@ -1,9 +1,6 @@
 package info
 
 type Response struct {
-}
-
-type Coin struct {
 	Data   map[string]CryptoCurrency `json:"data"`
 	Status StatusData                `json:"status"`
 }
@@ -47,5 +44,13 @@ type StatusData struct {
 	Notice       string `json:"notice"`
 }
 
-// Params represents the query parameters for fetching data.
-type Params struct{}
+//
+//// Params represents the query parameters for fetching data.
+//type Params struct {
+//	Id          *string `json:"id,omitempty"`
+//	Slug        *string `json:"slug,omitempty"`
+//	Symbol      *string `json:"symbol,omitempty"`
+//	Address     *string `json:"address,omitempty"`
+//	SkipInvalid *bool   `json:"skip_invalid,omitempty"`
+//	Aux         []Aux
+//}

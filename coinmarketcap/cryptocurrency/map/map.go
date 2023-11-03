@@ -6,15 +6,6 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 )
 
-type Params struct {
-	ListingStatus string
-	Start         int
-	Limit         int
-	Sort          string
-	Symbol        string
-	Aux           string
-}
-
 type Map struct {
 	*client.Client
 }

@@ -19,3 +19,12 @@ type Response struct {
 		ErrorMessage string `json:"error_message"`
 	} `json:"status"`
 }
+
+type Params struct {
+	ListingStatus string
+	Start         int
+	Limit         int
+	Sort          string
+	Symbol        string
+	Aux           string
+}

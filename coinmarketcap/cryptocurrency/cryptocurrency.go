@@ -3,14 +3,14 @@ package cryptocurrency
 import (
 	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	gainer "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/gainer-looser"
-	info "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/info"
+	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/info"
 	idmap "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/map"
 )
 
 type Cryptocurrency interface {
-	GetMapID(params *idmap.Params) ([]idmap.Data, error)
-	FetchGainersLosers(params *gainer.Params) ([]gainer.CryptocurrencyData, error)
-	FetchMetadata(params *info.Params) (map[string]info.CryptoCurrency, error)
+	Map() *idmap.Map
+	GainersAndLosers() *gainer.GainersAndLosers
+	Info() *info.Metadata
 }
 
 type cryptocurrencyImpl struct {
@@ -23,15 +23,17 @@ func New(client *client.Client) Cryptocurrency {
 	}
 }
 
-func (c *cryptocurrencyImpl) GetMapID(params *idmap.Params) ([]idmap.Data, error) {
-	idMap := idmap.New(c.client)
-	return idMap.GetID(params)
+func (c *cryptocurrencyImpl) Map() *idmap.Map {
+	return idmap.New(c.client)
+
 }
-func (c *cryptocurrencyImpl) FetchGainersLosers(params *gainer.Params) ([]gainer.CryptocurrencyData, error) {
-	gainer := gainer.New(c.client)
-	return gainer.FetchGainersLosers(params)
+
+func (c *cryptocurrencyImpl) GainersAndLosers() *gainer.GainersAndLosers {
+	return gainer.New(c.client)
+
 }
-func (c *cryptocurrencyImpl) FetchMetadata(params *info.Params) (map[string]info.CryptoCurrency, error) {
-	info_ := info.New(c.client)
-	return info_.GetMetadata(params)
+
+func (c *cryptocurrencyImpl) Info() *info.Metadata {
+	return info.New(c.client)
+
 }

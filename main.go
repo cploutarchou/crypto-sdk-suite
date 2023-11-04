@@ -2,7 +2,8 @@ package main
 
 func main() {
 	//bybitExamples()
-	//GetGainersAndLosers()
+	GetIDMap()
+	GetGainersAndLosers()
 	GetMetadata()
 
 }

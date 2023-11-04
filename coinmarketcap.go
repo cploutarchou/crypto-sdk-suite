@@ -20,7 +20,7 @@ func init() {
 
 func GetIDMap() {
 
-	resp, err := cr.GetMapID(nil)
+	resp, err := cr.Map().GetID(nil)
 	if err != nil {
 		logrus.Fatal(err)
 		return
@@ -32,7 +32,7 @@ func GetIDMap() {
 }
 
 func GetGainersAndLosers() {
-	resp, err := cr.FetchGainersLosers(nil)
+	resp, err := cr.GainersAndLosers().FetchGainersLosers(nil)
 	if err != nil {
 		logrus.Fatal(err)
 		return
@@ -44,7 +44,7 @@ func GetGainersAndLosers() {
 }
 func GetMetadata() {
 	parameters := info.Params{Symbols: []string{"BTC", "ETH"}}
-	resp, err := cr.FetchMetadata(&parameters)
+	resp, err := cr.Info().GetMetadata(&parameters)
 	if err != nil {
 		logrus.Fatal(err)
 		return

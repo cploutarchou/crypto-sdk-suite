@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/info"
 	"os"
 
 	coinmarketcap "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
@@ -19,7 +20,7 @@ func init() {
 
 func GetIDMap() {
 
-	resp, err := cr.GetMapID(nil)
+	resp, err := cr.Map().GetID(nil)
 	if err != nil {
 		logrus.Fatal(err)
 		return
@@ -31,7 +32,19 @@ func GetIDMap() {
 }
 
 func GetGainersAndLosers() {
-	resp, err := cr.FetchGainersLosers(nil)
+	resp, err := cr.GainersAndLosers().FetchGainersLosers(nil)
+	if err != nil {
+		logrus.Fatal(err)
+		return
+	}
+
+	for _, coin := range resp {
+		logrus.Infof("%+v\n", coin)
+	}
+}
+func GetMetadata() {
+	parameters := info.Params{Symbols: []string{"BTC", "ETH"}}
+	resp, err := cr.Info().GetMetadata(&parameters)
 	if err != nil {
 		logrus.Fatal(err)
 		return

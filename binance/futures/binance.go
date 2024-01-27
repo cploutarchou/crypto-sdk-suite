@@ -19,14 +19,15 @@ const (
 	testnetWSURL      = "wss://fstream.testnet.binancefuture.com"
 )
 
-// Endpoints
+// API endpoints
 const (
 	pingEndpoint         = "/fapi/v1/ping"
 	serverTimeEndpoint   = "/fapi/v1/time"
 	exchangeInfoEndpoint = "/fapi/v1/exchangeInfo"
+	orderBookEndpoint    = "/fapi/v1/depth"
+	recentTradesEndpoint = "/fapi/v1/trades"
 )
 
-// BinanceClient struct holds API credentials and URLs.
 type BinanceClient struct {
 	APIKey    string
 	APISecret string
@@ -34,14 +35,12 @@ type BinanceClient struct {
 	WSBaseURL string
 }
 
-// NewBinanceClient creates a new Binance client instance.
 func NewBinanceClient(apiKey, apiSecret string, isTestnet bool) *BinanceClient {
-	baseURL := productionBaseURL
-	wsBaseURL := productionWSURL
-
+	var baseURL, wsBaseURL string
 	if isTestnet {
-		baseURL = testnetBaseURL
-		wsBaseURL = testnetWSURL
+		baseURL, wsBaseURL = testnetBaseURL, testnetWSURL
+	} else {
+		baseURL, wsBaseURL = productionBaseURL, productionWSURL
 	}
 
 	return &BinanceClient{
@@ -88,8 +87,7 @@ func (b *BinanceClient) makeAuthenticatedRequest(method, endpoint, bodyData stri
 	req.Header.Set("X-MBX-APIKEY", b.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	return client.Do(req)
+	return http.DefaultClient.Do(req)
 }
 
 func (b *BinanceClient) Ping() error {

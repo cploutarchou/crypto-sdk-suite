@@ -139,3 +139,23 @@ func (b *BinanceClient) GetRecentTrades(symbol string, limit int) ([]Trade, erro
 
 	return trades, nil
 }
+
+// GetHistoricalTrades retrieves older market historical trades for a specific symbol.
+func (b *BinanceClient) GetHistoricalTrades(symbol string, limit int, fromId int64) ([]Trade, error) {
+	endpoint := fmt.Sprintf("/fapi/v1/historicalTrades?symbol=%s", symbol)
+
+	// Adding limit and fromId to the endpoint if they are provided
+	if limit > 0 {
+		endpoint += fmt.Sprintf("&limit=%d", limit)
+	}
+	if fromId > 0 {
+		endpoint += fmt.Sprintf("&fromId=%d", fromId)
+	}
+
+	var trades []Trade
+	if err := b.makeRequest(http.MethodGet, endpoint, &trades); err != nil {
+		return nil, err
+	}
+
+	return trades, nil
+}

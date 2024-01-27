@@ -159,3 +159,29 @@ func (b *BinanceClient) GetHistoricalTrades(symbol string, limit int, fromId int
 
 	return trades, nil
 }
+
+// GetAggregateTrades retrieves compressed, aggregate market trades for a specific symbol.
+func (b *BinanceClient) GetAggregateTrades(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
+	endpoint := fmt.Sprintf("/fapi/v1/aggTrades?symbol=%s", symbol)
+
+	// Add additional parameters if provided
+	if fromId > 0 {
+		endpoint += fmt.Sprintf("&fromId=%d", fromId)
+	}
+	if startTime > 0 {
+		endpoint += fmt.Sprintf("&startTime=%d", startTime)
+	}
+	if endTime > 0 {
+		endpoint += fmt.Sprintf("&endTime=%d", endTime)
+	}
+	if limit > 0 {
+		endpoint += fmt.Sprintf("&limit=%d", limit)
+	}
+
+	var aggTrades []AggregateTrade
+	if err := b.makeRequest(http.MethodGet, endpoint, &aggTrades); err != nil {
+		return nil, err
+	}
+
+	return aggTrades, nil
+}

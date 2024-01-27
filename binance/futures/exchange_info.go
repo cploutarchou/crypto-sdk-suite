@@ -46,3 +46,14 @@ type Trade struct {
 	Time         int64  `json:"time"`
 	IsBuyerMaker bool   `json:"isBuyerMaker"`
 }
+
+// AggregateTrade represents a single aggregate trade.
+type AggregateTrade struct {
+	AggregateTradeID int64  `json:"a"` // Aggregate tradeId
+	Price            string `json:"p"` // Price
+	Quantity         string `json:"q"` // Quantity
+	FirstTradeID     int64  `json:"f"` // First tradeId
+	LastTradeID      int64  `json:"l"` // Last tradeId
+	Timestamp        int64  `json:"T"` // Timestamp
+	WasBuyerMaker    bool   `json:"m"` // Was the buyer the maker?
+}

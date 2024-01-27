@@ -36,3 +36,13 @@ type OrderBookResponse struct {
 	Bids            [][]string `json:"bids"`
 	Asks            [][]string `json:"asks"`
 }
+
+// Trade represents a single trade from the recent trades list.
+type Trade struct {
+	ID           int64  `json:"id"`
+	Price        string `json:"price"`
+	Qty          string `json:"qty"`
+	QuoteQty     string `json:"quoteQty"`
+	Time         int64  `json:"time"`
+	IsBuyerMaker bool   `json:"isBuyerMaker"`
+}

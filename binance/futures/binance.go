@@ -129,3 +129,15 @@ func (b *BinanceClient) GetOrderBook(symbol string, limit int) (*OrderBookRespon
 
 	return &response, nil
 }
+
+// GetRecentTrades retrieves the recent trades for a specific symbol.
+func (b *BinanceClient) GetRecentTrades(symbol string, limit int) ([]Trade, error) {
+	endpoint := fmt.Sprintf("/fapi/v1/trades?symbol=%s&limit=%d", symbol, limit)
+
+	var trades []Trade
+	if err := b.makeRequest(http.MethodGet, endpoint, &trades); err != nil {
+		return nil, err
+	}
+
+	return trades, nil
+}

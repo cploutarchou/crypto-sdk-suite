@@ -28,4 +28,11 @@ type Symbol struct {
 	// Add more fields as needed
 }
 
-// ... other structs and types ...
+// OrderBookResponse represents the response for the order book.
+type OrderBookResponse struct {
+	LastUpdateID    int64      `json:"lastUpdateId"`
+	EventTime       int64      `json:"E"` // Message output time
+	TransactionTime int64      `json:"T"` // Transaction time
+	Bids            [][]string `json:"bids"`
+	Asks            [][]string `json:"asks"`
+}

@@ -117,3 +117,15 @@ func (b *BinanceClient) GetExchangeInfo() (*ExchangeInfo, error) {
 
 	return &response, nil
 }
+
+// GetOrderBook retrieves the order book for a specific symbol.
+func (b *BinanceClient) GetOrderBook(symbol string, limit int) (*OrderBookResponse, error) {
+	endpoint := fmt.Sprintf("/fapi/v1/depth?symbol=%s&limit=%d", symbol, limit)
+
+	var response OrderBookResponse
+	if err := b.makeRequest(http.MethodGet, endpoint, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}

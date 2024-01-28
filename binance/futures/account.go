@@ -4,17 +4,28 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/requests"
 )
 
 const (
 	changePositionModeEndpoint = "/fapi/v1/positionSide/dual"
 )
 
-func (b *Client) ChangePositionMode(enable bool) error {
+type Account struct {
+	*requests.Client
+}
+
+func NewAccount(client *requests.Client) *Account {
+	return &Account{
+		Client: client,
+	}
+}
+func (b *Account) ChangePositionMode(enable bool) error {
 	endpoint := changePositionModeEndpoint
 	data := fmt.Sprintf("dualSidePosition=%v", enable)
 
-	resp, err := b.makeAuthenticatedRequest(http.MethodPost, endpoint, data)
+	resp, err := b.MakeAuthenticatedRequest(http.MethodPost, endpoint, data)
 	if err != nil {
 		return err
 	}

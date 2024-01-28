@@ -10,7 +10,7 @@ const (
 	changePositionModeEndpoint = "/fapi/v1/positionSide/dual"
 )
 
-func (b *BinanceClient) ChangePositionMode(enable bool) error {
+func (b *Client) ChangePositionMode(enable bool) error {
 	endpoint := changePositionModeEndpoint
 	data := fmt.Sprintf("dualSidePosition=%v", enable)
 

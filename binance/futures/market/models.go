@@ -1,4 +1,4 @@
-package binance
+package market
 
 type ExchangeInfo struct {
 	ExchangeFilters []interface{} `json:"exchangeFilters"`
@@ -58,5 +58,5 @@ type AggregateTrade struct {
 	WasBuyerMaker    bool   `json:"m"` // Was the buyer the maker?
 }
 type ServerTimeResponse struct {
-	ServerTime int64 `json:"serverTime"` // UNIX timestamp in milliseconds
+	ServerTime int64 `json:"serverTime"`
 }

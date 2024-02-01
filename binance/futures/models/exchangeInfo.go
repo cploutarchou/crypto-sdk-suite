@@ -1,4 +1,4 @@
-package binance
+package models
 
 type ExchangeInfo struct {
 	ExchangeFilters []interface{} `json:"exchangeFilters"`
@@ -25,7 +25,6 @@ type Asset struct {
 type Symbol struct {
 	Symbol string `json:"symbol"`
 	Pair   string `json:"pair"`
-	// Add more fields as needed
 }
 
 // OrderBookResponse represents the response for the order book.

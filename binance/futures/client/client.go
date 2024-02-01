@@ -56,7 +56,7 @@ func (c *Client) MakeRequest(method, endpoint string, responseData interface{}) 
 	c.Lock()
 	defer c.Unlock()
 
-	resp, err := c.makeAuthenticatedRequest(method, endpoint, "")
+	resp, err := c.MakeAuthenticatedRequest(method, endpoint, "")
 	if err != nil {
 		log.Printf("Error making authenticated request: %v", err)
 		return err
@@ -72,8 +72,8 @@ func (c *Client) MakeRequest(method, endpoint string, responseData interface{}) 
 	return json.Unmarshal(body, &responseData)
 }
 
-// makeAuthenticatedRequest creates an authenticated request to the API.
-func (c *Client) makeAuthenticatedRequest(method, endpoint, bodyData string) (*http.Response, error) {
+// MakeAuthenticatedRequest creates an authenticated request to the API.
+func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string) (*http.Response, error) {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
 	data := fmt.Sprintf("%s&timestamp=%d", bodyData, timestamp)
 	signature := c.createSignature(data)

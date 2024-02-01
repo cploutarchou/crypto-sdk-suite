@@ -1,28 +1,41 @@
-package binance
+package futures
 
 import (
 	"net/http"
 
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/client"
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/constants"
-	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/requests"
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
 )
 
-type Generic struct {
-	*requests.Client
+// Generic defines an interface for generic API operations.
+type Generic interface {
+	Ping() error
+	CheckServerTime() (int64, error)
+	GetExchangeInfo() (*models.ExchangeInfo, error)
 }
 
-func NewGeneric(client *requests.Client) *Generic {
-	return &Generic{
-		Client: client,
+// genericServiceImpl implements GenericService using a Binance futures client.
+type genericServiceImpl struct {
+	*client.Client
+}
+
+// NewGeneric creates a new instance of GenericService.
+func NewGeneric(client *client.Client) Generic {
+	return &genericServiceImpl{
+		client,
 	}
 }
-func (g *Generic) Ping() error {
+
+// Ping checks the connectivity to the Binance API server.
+func (g *genericServiceImpl) Ping() error {
 	var responseData struct{}
 	return g.MakeRequest(http.MethodGet, constants.PingEndpoint, &responseData)
 }
 
-func (g *Generic) CheckServerTime() (int64, error) {
-	var responseData ServerTimeResponse
+// CheckServerTime retrieves the server time from the Binance API.
+func (g *genericServiceImpl) CheckServerTime() (int64, error) {
+	var responseData models.ServerTimeResponse
 
 	if err := g.MakeRequest(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
 		return 0, err
@@ -31,8 +44,9 @@ func (g *Generic) CheckServerTime() (int64, error) {
 	return responseData.ServerTime, nil
 }
 
-func (g *Generic) GetExchangeInfo() (*ExchangeInfo, error) {
-	var response ExchangeInfo
+// GetExchangeInfo fetches exchange information from the Binance API.
+func (g *genericServiceImpl) GetExchangeInfo() (*models.ExchangeInfo, error) {
+	var response models.ExchangeInfo
 	if err := g.MakeRequest(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
 		return nil, err
 	}

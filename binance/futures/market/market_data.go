@@ -2,87 +2,79 @@ package market
 
 import (
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/requests"
 	"net/http"
+
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/client"
 )
 
-// Client wraps the requests.Client for local method definitions.
-type Client struct {
-	*requests.Client
+// Market defines the interface for market operations.
+type Market interface {
+	GetOrderBook(symbol string, limit int) (*OrderBookResponse, error)
+	GetRecentTrades(symbol string, limit int) ([]Trade, error)
+	GetHistoricalTrades(symbol string, limit int, fromId int64) ([]Trade, error)
+	GetAggregateTrades(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error)
 }
 
-// NewBinanceClient creates a new Binance futures client.
-func NewBinanceClient(apiKey, apiSecret string, isTestnet bool) *Client {
-	client := requests.NewFuturesClient(apiKey, apiSecret, isTestnet)
-	return &Client{client}
+type marketImpl struct {
+	client *client.Client
+}
+
+// NewMarket creates a new Market instance.
+func NewMarket(client *client.Client) Market {
+	return &marketImpl{client: client}
+}
+
+// buildEndpoint creates a formatted API endpoint string.
+func buildEndpoint(base string, symbol string, params ...string) string {
+	endpoint := fmt.Sprintf(base, symbol)
+	for _, param := range params {
+		endpoint += param
+	}
+	return endpoint
 }
 
 // GetOrderBook retrieves the order book for a specific symbol.
-func (c *Client) GetOrderBook(symbol string, limit int) (*OrderBookResponse, error) {
-	endpoint := fmt.Sprintf("/fapi/v1/depth?symbol=%s&limit=%d", symbol, limit)
-
-	var response OrderBookResponse
-	if err := c.MakeRequest(http.MethodGet, endpoint, &response); err != nil {
-		return nil, err
+func (m *marketImpl) GetOrderBook(symbol string, limit int) (*OrderBookResponse, error) {
+	endpoint := buildEndpoint("/fapi/v1/depth?symbol=%s&limit=%d", symbol, fmt.Sprintf("%d", limit))
+	response := new(OrderBookResponse)
+	if err := m.client.MakeRequest(http.MethodGet, endpoint, response); err != nil {
+		return nil, fmt.Errorf("failed to get order book: %w", err)
 	}
-
-	return &response, nil
+	return response, nil
 }
 
 // GetRecentTrades retrieves the recent trades for a specific symbol.
-func (c *Client) GetRecentTrades(symbol string, limit int) ([]Trade, error) {
-	endpoint := fmt.Sprintf("/fapi/v1/trades?symbol=%s&limit=%d", symbol, limit)
-
+func (m *marketImpl) GetRecentTrades(symbol string, limit int) ([]Trade, error) {
+	endpoint := buildEndpoint("/fapi/v1/trades?symbol=%s&limit=%d", symbol, fmt.Sprintf("%d", limit))
 	var trades []Trade
-	if err := c.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
-		return nil, err
+	if err := m.client.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
+		return nil, fmt.Errorf("failed to get recent trades: %w", err)
 	}
-
 	return trades, nil
 }
 
 // GetHistoricalTrades retrieves older market historical trades for a specific symbol.
-func (c *Client) GetHistoricalTrades(symbol string, limit int, fromId int64) ([]Trade, error) {
-	endpoint := fmt.Sprintf("/fapi/v1/historicalTrades?symbol=%s", symbol)
-
-	// Adding limit and fromId to the endpoint if they are provided
-	if limit > 0 {
-		endpoint += fmt.Sprintf("&limit=%d", limit)
-	}
-	if fromId > 0 {
-		endpoint += fmt.Sprintf("&fromId=%d", fromId)
-	}
-
+func (m *marketImpl) GetHistoricalTrades(symbol string, limit int, fromId int64) ([]Trade, error) {
+	endpoint := buildEndpoint("/fapi/v1/historicalTrades?symbol=%s", symbol,
+		fmt.Sprintf("&limit=%d", limit),
+		fmt.Sprintf("&fromId=%d", fromId))
 	var trades []Trade
-	if err := c.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
-		return nil, err
+	if err := m.client.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
+		return nil, fmt.Errorf("failed to get historical trades: %w", err)
 	}
-
 	return trades, nil
 }
 
 // GetAggregateTrades retrieves compressed, aggregate market trades for a specific symbol.
-func (c *Client) GetAggregateTrades(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
-	endpoint := fmt.Sprintf("/fapi/v1/aggTrades?symbol=%s", symbol)
-
-	// Add additional parameters if provided
-	if fromId > 0 {
-		endpoint += fmt.Sprintf("&fromId=%d", fromId)
-	}
-	if startTime > 0 {
-		endpoint += fmt.Sprintf("&startTime=%d", startTime)
-	}
-	if endTime > 0 {
-		endpoint += fmt.Sprintf("&endTime=%d", endTime)
-	}
-	if limit > 0 {
-		endpoint += fmt.Sprintf("&limit=%d", limit)
-	}
-
+func (m *marketImpl) GetAggregateTrades(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
+	endpoint := buildEndpoint("/fapi/v1/aggTrades?symbol=%s", symbol,
+		fmt.Sprintf("&fromId=%d", fromId),
+		fmt.Sprintf("&startTime=%d", startTime),
+		fmt.Sprintf("&endTime=%d", endTime),
+		fmt.Sprintf("&limit=%d", limit))
 	var aggTrades []AggregateTrade
-	if err := c.MakeRequest(http.MethodGet, endpoint, &aggTrades); err != nil {
-		return nil, err
+	if err := m.client.MakeRequest(http.MethodGet, endpoint, &aggTrades); err != nil {
+		return nil, fmt.Errorf("failed to get aggregate trades: %w", err)
 	}
-
 	return aggTrades, nil
 }

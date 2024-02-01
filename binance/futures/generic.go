@@ -10,7 +10,7 @@ import (
 
 // Generic defines an interface for generic API operations.
 type Generic interface {
-	Ping() error
+	Ping() (interface{}, error)
 	CheckServerTime() (int64, error)
 	GetExchangeInfo() (*models.ExchangeInfo, error)
 }
@@ -28,9 +28,9 @@ func NewGeneric(client *client.Client) Generic {
 }
 
 // Ping checks the connectivity to the Binance API server.
-func (g *genericServiceImpl) Ping() error {
+func (g *genericServiceImpl) Ping() (interface{}, error) {
 	var responseData struct{}
-	return g.MakeRequest(http.MethodGet, constants.PingEndpoint, &responseData)
+	return responseData, g.MakeRequest(http.MethodGet, constants.PingEndpoint, &responseData)
 }
 
 // CheckServerTime retrieves the server time from the Binance API.

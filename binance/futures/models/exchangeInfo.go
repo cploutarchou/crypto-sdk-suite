@@ -1,61 +1,77 @@
 package models
 
-type ExchangeInfo struct {
-	ExchangeFilters []interface{} `json:"exchangeFilters"`
-	RateLimits      []RateLimit   `json:"rateLimits"`
-	ServerTime      int64         `json:"serverTime"`
-	Assets          []Asset       `json:"assets"`
-	Symbols         []Symbol      `json:"symbols"`
-	Timezone        string        `json:"timezone"`
-}
+import "time"
 
 type RateLimit struct {
+	RateLimitType string `json:"rateLimitType"`
 	Interval      string `json:"interval"`
 	IntervalNum   int    `json:"intervalNum"`
 	Limit         int    `json:"limit"`
-	RateLimitType string `json:"rateLimitType"`
 }
 
-type Asset struct {
+type AssetInfo struct {
 	Asset             string `json:"asset"`
 	MarginAvailable   bool   `json:"marginAvailable"`
-	AutoAssetExchange int    `json:"autoAssetExchange"`
+	AutoAssetExchange string `json:"autoAssetExchange"`
 }
 
-type Symbol struct {
-	Symbol string `json:"symbol"`
-	Pair   string `json:"pair"`
+type SymbolFilter struct {
+	TickSize          string `json:"tickSize,omitempty"`
+	MinPrice          string `json:"minPrice,omitempty"`
+	MaxPrice          string `json:"maxPrice,omitempty"`
+	FilterType        string `json:"filterType"`
+	StepSize          string `json:"stepSize,omitempty"`
+	MaxQty            string `json:"maxQty,omitempty"`
+	MinQty            string `json:"minQty,omitempty"`
+	Limit             int    `json:"limit,omitempty"`
+	Notional          string `json:"notional,omitempty"`
+	MultiplierDecimal string `json:"multiplierDecimal,omitempty"`
+	MultiplierDown    string `json:"multiplierDown,omitempty"`
+	MultiplierUp      string `json:"multiplierUp,omitempty"`
 }
 
-// OrderBookResponse represents the response for the order book.
-type OrderBookResponse struct {
-	LastUpdateID    int64      `json:"lastUpdateId"`
-	EventTime       int64      `json:"E"` // Message output time
-	TransactionTime int64      `json:"T"` // Transaction time
-	Bids            [][]string `json:"bids"`
-	Asks            [][]string `json:"asks"`
+type SymbolInfo struct {
+	Symbol                string         `json:"symbol"`
+	Pair                  string         `json:"pair"`
+	ContractType          string         `json:"contractType"`
+	DeliveryDate          int64          `json:"deliveryDate"`
+	OnboardDate           int64          `json:"onboardDate"`
+	Status                string         `json:"status"`
+	MaintMarginPercent    string         `json:"maintMarginPercent"`
+	RequiredMarginPercent string         `json:"requiredMarginPercent"`
+	BaseAsset             string         `json:"baseAsset"`
+	QuoteAsset            string         `json:"quoteAsset"`
+	MarginAsset           string         `json:"marginAsset"`
+	PricePrecision        int            `json:"pricePrecision"`
+	QuantityPrecision     int            `json:"quantityPrecision"`
+	BaseAssetPrecision    int            `json:"baseAssetPrecision"`
+	QuotePrecision        int            `json:"quotePrecision"`
+	UnderlyingType        string         `json:"underlyingType"`
+	UnderlyingSubType     []interface{}  `json:"underlyingSubType"`
+	SettlePlan            int            `json:"settlePlan"`
+	TriggerProtect        string         `json:"triggerProtect"`
+	LiquidationFee        string         `json:"liquidationFee"`
+	MarketTakeBound       string         `json:"marketTakeBound"`
+	MaxMoveOrderLimit     int            `json:"maxMoveOrderLimit"`
+	Filters               []SymbolFilter `json:"filters"`
+	OrderTypes            []string       `json:"orderTypes"`
+	TimeInForce           []string       `json:"timeInForce"`
 }
 
-// Trade represents a single trade from the recent trades list.
-type Trade struct {
-	ID           int64  `json:"id"`
-	Price        string `json:"price"`
-	Qty          string `json:"qty"`
-	QuoteQty     string `json:"quoteQty"`
-	Time         int64  `json:"time"`
-	IsBuyerMaker bool   `json:"isBuyerMaker"`
+type ExchangeInfo struct {
+	Timezone        string        `json:"timezone"`
+	ServerTime      int64         `json:"serverTime"`
+	FuturesType     string        `json:"futuresType"`
+	RateLimits      []RateLimit   `json:"rateLimits"`
+	ExchangeFilters []interface{} `json:"exchangeFilters"`
+	Assets          []AssetInfo   `json:"assets"`
+	Symbols         []SymbolInfo  `json:"symbols"`
 }
 
-// AggregateTrade represents a single aggregate trade.
-type AggregateTrade struct {
-	AggregateTradeID int64  `json:"a"` // Aggregate tradeId
-	Price            string `json:"p"` // Price
-	Quantity         string `json:"q"` // Quantity
-	FirstTradeID     int64  `json:"f"` // First tradeId
-	LastTradeID      int64  `json:"l"` // Last tradeId
-	Timestamp        int64  `json:"T"` // Timestamp
-	WasBuyerMaker    bool   `json:"m"` // Was the buyer the maker?
-}
 type ServerTimeResponse struct {
-	ServerTime int64 `json:"serverTime"` // UNIX timestamp in milliseconds
+	ServerTime int64 `json:"serverTime"`
+}
+
+func (r ServerTimeResponse) Format(layout string) string {
+	return time.Unix(r.ServerTime/1000, 0).Format(layout)
 }

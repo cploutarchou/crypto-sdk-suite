@@ -23,12 +23,12 @@ type Market interface {
 }
 
 type marketImpl struct {
-	client *client.Client
+	*client.Client
 }
 
 // NewMarket creates a new Market instance.
 func NewMarket(client *client.Client) Market {
-	return &marketImpl{client: client}
+	return &marketImpl{client}
 }
 
 // buildEndpoint creates a formatted API endpoint string.
@@ -44,7 +44,7 @@ func buildEndpoint(base string, symbol string, params ...interface{}) string {
 func (m *marketImpl) GetOrderBook(symbol string, limit int) (*OrderBookResponse, error) {
 	endpoint := buildEndpoint("/fapi/v1/depth?symbol=%s&limit=%d", symbol, fmt.Sprintf("limit=%d", limit))
 	response := new(OrderBookResponse)
-	if err := m.client.MakeRequest(http.MethodGet, endpoint, response); err != nil {
+	if err := m.MakeRequest(http.MethodGet, endpoint, response); err != nil {
 		return nil, fmt.Errorf("failed to get order book: %w", err)
 	}
 	return response, nil
@@ -54,7 +54,7 @@ func (m *marketImpl) GetOrderBook(symbol string, limit int) (*OrderBookResponse,
 func (m *marketImpl) GetRecentTrades(symbol string, limit int) ([]Trade, error) {
 	endpoint := buildEndpoint("/fapi/v1/trades?symbol=%s&limit=%d", symbol, fmt.Sprintf("limit=%d", limit))
 	var trades []Trade
-	if err := m.client.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
+	if err := m.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
 		return nil, fmt.Errorf("failed to get recent trades: %w", err)
 	}
 	return trades, nil
@@ -66,7 +66,7 @@ func (m *marketImpl) GetHistoricalTrades(symbol string, limit int, fromId int64)
 		fmt.Sprintf("limit=%d", limit),
 		fmt.Sprintf("fromId=%d", fromId))
 	var trades []Trade
-	if err := m.client.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
+	if err := m.MakeRequest(http.MethodGet, endpoint, &trades); err != nil {
 		return nil, fmt.Errorf("failed to get historical trades: %w", err)
 	}
 	return trades, nil
@@ -80,7 +80,7 @@ func (m *marketImpl) GetAggregateTrades(symbol string, fromId, startTime, endTim
 		fmt.Sprintf("endTime=%d", endTime),
 		fmt.Sprintf("limit=%d", limit))
 	var aggTrades []AggregateTrade
-	if err := m.client.MakeRequest(http.MethodGet, endpoint, &aggTrades); err != nil {
+	if err := m.MakeRequest(http.MethodGet, endpoint, &aggTrades); err != nil {
 		return nil, fmt.Errorf("failed to get aggregate trades: %w", err)
 	}
 	return aggTrades, nil

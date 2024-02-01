@@ -20,13 +20,13 @@ type Account interface {
 
 // accountImpl implements Account interface using Binance futures API.
 type accountImpl struct {
-	client *client.Client
+	*client.Client
 }
 
 // NewAccount creates a new Account instance.
 func NewAccount(client *client.Client) Account {
 	return &accountImpl{
-		client: client,
+		client,
 	}
 }
 
@@ -35,7 +35,7 @@ func (a *accountImpl) ChangePositionMode(enable bool) error {
 	endpoint := changePositionModeEndpoint
 	data := fmt.Sprintf("dualSidePosition=%v", enable)
 
-	resp, err := a.client.MakeAuthenticatedRequest(http.MethodPost, endpoint, data)
+	resp, err := a.MakeAuthenticatedRequest(http.MethodPost, endpoint, data)
 	if err != nil {
 		return fmt.Errorf("error making authenticated request: %w", err)
 	}

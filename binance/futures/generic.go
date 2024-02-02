@@ -30,14 +30,14 @@ func NewGeneric(client *client.Client) Generic {
 // Ping checks the connectivity to the Binance API server.
 func (g *genericServiceImpl) Ping() (interface{}, error) {
 	var responseData struct{}
-	return responseData, g.MakeRequest(http.MethodGet, constants.PingEndpoint, &responseData)
+	return responseData, g.MakeRequestWithoutSignature(http.MethodGet, constants.PingEndpoint, &responseData)
 }
 
 // CheckServerTime retrieves the server time from the Binance API.
 func (g *genericServiceImpl) CheckServerTime() (int64, error) {
 	var responseData models.ServerTimeResponse
 
-	if err := g.MakeRequest(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
+	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
 		return 0, err
 	}
 
@@ -47,7 +47,7 @@ func (g *genericServiceImpl) CheckServerTime() (int64, error) {
 // GetExchangeInfo fetches exchange information from the Binance API.
 func (g *genericServiceImpl) GetExchangeInfo() (*models.ExchangeInfo, error) {
 	var response models.ExchangeInfo
-	if err := g.MakeRequest(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
+	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
 		return nil, err
 	}
 

@@ -2,7 +2,6 @@ package futures
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/client"
@@ -34,21 +33,11 @@ func NewAccount(client *client.Client) Account {
 func (a *accountImpl) ChangePositionMode(enable bool) error {
 	endpoint := changePositionModeEndpoint
 	data := fmt.Sprintf("dualSidePosition=%v", enable)
-
-	resp, err := a.MakeAuthenticatedRequest(http.MethodPost, endpoint, data)
+	var resp interface{}
+	err := a.MakeAuthenticatedRequest(http.MethodPost, endpoint, data, resp)
 	if err != nil {
-		return fmt.Errorf("error making authenticated request: %w", err)
+		return fmt.Errorf("failed to change position mode: %w", err)
 	}
-	defer resp.Body.Close()
-
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("error reading response body: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("request failed with status code: %d, response: %s", resp.StatusCode, responseBody)
-	}
-
 	return nil
+
 }

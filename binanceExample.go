@@ -11,7 +11,8 @@ import (
 
 var b futures.Futures
 
-var dsd = binance.New("",
+var dsd = binance.New(
+	"",
 	"",
 	true)
 
@@ -20,6 +21,7 @@ func init() {
 
 }
 
+// testPing tests the ping endpoint.
 func testPing() {
 	data, err := b.Generic().Ping()
 	if err != nil {
@@ -46,12 +48,65 @@ func testGetServerTime() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	formated := models.ServerTimeResponse{ServerTime: data}
+	formatted := models.ServerTimeResponse{ServerTime: data}
 	// marshal the data
-	formatedTime := formated.Format("2024-01-02 15:04:05")
-	pretty, err := json.MarshalIndent(formatedTime, "", "  ")
+	formattedTime := formatted.Format("2024-01-02 15:04:05")
+	pretty, err := json.MarshalIndent(formattedTime, "", "  ")
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(string(pretty))
+}
+
+func MarketOrderBook() {
+	data, err := b.Market().OrderBook("BTCUSDT", 100)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// marshal the data
+	pretty, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(pretty))
+}
+
+func RecentTradesList() {
+	data, err := b.Market().RecentTradesList("BTCUSDT", 100)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// marshal the data
+	pretty, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(pretty))
+}
+
+func OldTradesLookup() {
+	data, err := b.Market().OldTradesLookup("BTCUSDT", -1, -1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// marshal the data
+	pretty, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(pretty))
+}
+
+func CompressedAggregateTradesList() {
+	data, err := b.Market().CompressedAggregateTradesList("BTCUSDT", -1, -1, -1, -1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// marshal the data
+	pretty, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(pretty))
+
 }

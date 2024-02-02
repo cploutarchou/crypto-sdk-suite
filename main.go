@@ -1,12 +1,11 @@
 package main
 
 func main() {
-	testPing()
-	testGetServerTime()
-	testGetExchangeInfo()
-	//bybitExamples()
-	// GetIDMap()
-	// GetGainersAndLosers()
-	// GetMetadata()
-
+	//testPing()
+	//testGetServerTime()
+	//testGetExchangeInfo()
+	//MarketOrderBook()
+	//RecentTradesList()
+	OldTradesLookup()
+	//CompressedAggregateTradesList()
 }

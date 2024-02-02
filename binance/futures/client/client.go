@@ -51,14 +51,29 @@ func NewFuturesClient(apiKey, apiSecret string, isTestnet bool) *Client {
 	}
 }
 
-// MakeRequest handles making an API request.
-func (c *Client) MakeRequest(method, endpoint string, responseData interface{}) error {
-	c.Lock()
-	defer c.Unlock()
+// MakeAuthenticatedRequest creates an authenticated request to the API.
+func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string, responseData interface{}) error {
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	var data, signature string
+	signature = c.createSignature(data)
+	if len(bodyData) > 0 {
+		data = fmt.Sprintf("%s&timestamp=%d", bodyData, timestamp)
 
-	resp, err := c.MakeAuthenticatedRequest(method, endpoint, "")
+	}
+	reqURL := fmt.Sprintf("%s%s%s&signature=%s", c.config.BaseURL, endpoint, data, signature)
+	fmt.Println(reqURL)
+	req, err := http.NewRequest(method, reqURL, bytes.NewBufferString(bodyData))
 	if err != nil {
-		log.Printf("Error making authenticated request: %v", err)
+		log.Printf("Error creating new request: %v", err)
+		return err
+	}
+
+	req.Header.Set("X-MBX-APIKEY", c.config.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Error sending request: %v", err)
 		return err
 	}
 	defer resp.Body.Close()
@@ -72,24 +87,33 @@ func (c *Client) MakeRequest(method, endpoint string, responseData interface{}) 
 	return json.Unmarshal(body, &responseData)
 }
 
-// MakeAuthenticatedRequest creates an authenticated request to the API.
-func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string) (*http.Response, error) {
-	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
-	data := fmt.Sprintf("%s&timestamp=%d", bodyData, timestamp)
-	signature := c.createSignature(data)
+// MakeRequestWithoutSignature handles making a non-authenticated API request.
+func (c *Client) MakeRequestWithoutSignature(method, endpoint string, responseData interface{}) error {
+	c.Lock()
+	defer c.Unlock()
 
-	reqURL := fmt.Sprintf("%s%s?%s&signature=%s", c.config.BaseURL, endpoint, data, signature)
+	reqURL := fmt.Sprintf("%s%s", c.config.BaseURL, endpoint)
 
-	req, err := http.NewRequest(method, reqURL, bytes.NewBufferString(bodyData))
+	req, err := http.NewRequest(method, reqURL, nil)
 	if err != nil {
 		log.Printf("Error creating new request: %v", err)
-		return nil, err
+		return err
 	}
 
-	req.Header.Set("X-MBX-APIKEY", c.config.APIKey)
-	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Error sending request: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
 
-	return http.DefaultClient.Do(req)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading response body: %v", err)
+		return err
+	}
+
+	return json.Unmarshal(body, &responseData)
 }
 
 // createSignature generates the HMAC SHA256 signature for the request.

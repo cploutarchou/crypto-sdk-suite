@@ -111,3 +111,15 @@ func CompressedAggregateTradesList() {
 	fmt.Println(string(pretty))
 
 }
+func KlineCandlestickData() {
+	data, err := b.Market().KlineCandlestickData("BTCUSDT", "1m", -1, -1, -1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// marshal the data
+	pretty, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(pretty))
+}

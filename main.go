@@ -8,4 +8,5 @@ func main() {
 	RecentTradesList()
 	OldTradesLookup()
 	CompressedAggregateTradesList()
+	KlineCandlestickData()
 }

@@ -18,6 +18,7 @@ type Market interface {
 	RecentTradesList(symbol string, limit int) ([]Trade, error)
 	OldTradesLookup(symbol string, limit int, fromId int64) ([]Trade, error)
 	CompressedAggregateTradesList(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error)
+	KlineCandlestickData(symbol string, interval Interval, startTime, endTime int64, limit int) ([][]any, error)
 }
 
 type marketImpl struct {
@@ -131,4 +132,31 @@ func (m *marketImpl) CompressedAggregateTradesList(symbol string, fromId, startT
 	}
 
 	return aggTrades, nil
+}
+
+// KlineCandlestickData retrieves kline candlestick data for a specific symbol.
+func (m *marketImpl) KlineCandlestickData(symbol string, interval Interval, startTime, endTime int64, limit int) ([][]any, error) {
+	var params []interface{}
+
+	if interval != "" {
+		params = append(params, fmt.Sprintf("interval=%s", interval))
+	}
+	if startTime != -1 {
+		params = append(params, fmt.Sprintf("startTime=%d", startTime))
+	}
+	if endTime != -1 {
+		params = append(params, fmt.Sprintf("endTime=%d", endTime))
+	}
+	if limit != -1 {
+		params = append(params, fmt.Sprintf("limit=%d", limit))
+	}
+
+	endpoint := buildEndpoint("/fapi/v1/klines?symbol=%s", symbol, params...)
+	var klines [][]any
+
+	if err := m.MakeRequestWithoutSignature(http.MethodGet, endpoint, &klines); err != nil {
+		return nil, fmt.Errorf("failed to get kline candlestick data: %w", err)
+	}
+
+	return klines, nil
 }

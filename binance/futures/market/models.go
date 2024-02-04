@@ -1,5 +1,13 @@
 package market
 
+type Interval string
+
+const (
+	OneMinute Interval = "1m"
+	OneHour   Interval = "1h"
+	OneDay    Interval = "1d"
+)
+
 // ExchangeInfo represents information about the exchange, including rate limits, server time, available assets, symbols, and timezone.
 type ExchangeInfo struct {
 	ExchangeFilters []interface{} `json:"exchangeFilters"` // Filters applied to the exchange.

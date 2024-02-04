@@ -2,11 +2,11 @@ package market
 
 import (
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/constants"
-	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
 	"net/http"
 
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/client"
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/constants"
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
 )
 
 // Market defines the interface for market operations.
@@ -14,16 +14,9 @@ type Market interface {
 	Ping() (interface{}, error)
 	CheckServerTime() (int64, error)
 	GetExchangeInfo() (*models.ExchangeInfo, error)
-	// OrderBook retrieves the order book for a specific symbol.
 	OrderBook(symbol string, limit int) (*OrderBookResponse, error)
-
-	// RecentTradesList retrieves the recent trades for a specific symbol.
 	RecentTradesList(symbol string, limit int) ([]Trade, error)
-
-	// OldTradesLookup retrieves older market historical trades for a specific symbol.
 	OldTradesLookup(symbol string, limit int, fromId int64) ([]Trade, error)
-
-	// CompressedAggregateTradesList retrieves compressed, aggregate market trades for a specific symbol.
 	CompressedAggregateTradesList(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error)
 }
 
@@ -104,7 +97,7 @@ func (m *marketImpl) OldTradesLookup(symbol string, limit int, fromId int64) ([]
 	}
 
 	endpoint := buildEndpoint("/fapi/v1/historicalTrades?symbol=%s", symbol, params...)
-	var trades []Trade // Change this line
+	var trades []Trade
 
 	if err := m.MakeAuthenticatedRequest(http.MethodGet, endpoint, "", &trades); err != nil {
 		return nil, fmt.Errorf("failed to get historical trades: %w", err)

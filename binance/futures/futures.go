@@ -8,7 +8,6 @@ import (
 type Futures interface {
 	Market() market.Market
 	Account() Account
-	Generic() Generic
 }
 
 type futureImpl struct {
@@ -23,10 +22,6 @@ func New(apiKey, apiSecret string, isTestnet bool) Futures {
 
 func (f *futureImpl) Account() Account {
 	return NewAccount(f.client)
-}
-
-func (f *futureImpl) Generic() Generic {
-	return NewGeneric(f.client)
 }
 
 func (f *futureImpl) Market() market.Market {

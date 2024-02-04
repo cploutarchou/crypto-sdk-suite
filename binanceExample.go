@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cploutarchou/crypto-sdk-suite/binance"
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
+	"os"
 
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures"
 )
@@ -12,8 +13,8 @@ import (
 var b futures.Futures
 
 var dsd = binance.New(
-	"",
-	"",
+	os.Getenv("BINANCE_FUTURES_TESTNET_API_KEY"),
+	os.Getenv("BINANCE_FUTURES_TESTNET_API_SECRET"),
 	true)
 
 func init() {
@@ -23,14 +24,14 @@ func init() {
 
 // testPing tests the ping endpoint.
 func testPing() {
-	data, err := b.Generic().Ping()
+	data, err := b.Market().Ping()
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(data)
 }
 func testGetExchangeInfo() {
-	data, err := b.Generic().GetExchangeInfo()
+	data, err := b.Market().GetExchangeInfo()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -44,7 +45,7 @@ func testGetExchangeInfo() {
 }
 
 func testGetServerTime() {
-	data, err := b.Generic().CheckServerTime()
+	data, err := b.Market().CheckServerTime()
 	if err != nil {
 		fmt.Println(err)
 	}

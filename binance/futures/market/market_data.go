@@ -2,6 +2,8 @@ package market
 
 import (
 	"fmt"
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/constants"
+	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
 	"net/http"
 
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/client"
@@ -9,6 +11,9 @@ import (
 
 // Market defines the interface for market operations.
 type Market interface {
+	Ping() (interface{}, error)
+	CheckServerTime() (int64, error)
+	GetExchangeInfo() (*models.ExchangeInfo, error)
 	// OrderBook retrieves the order book for a specific symbol.
 	OrderBook(symbol string, limit int) (*OrderBookResponse, error)
 
@@ -38,6 +43,33 @@ func buildEndpoint(base string, symbol string, params ...interface{}) string {
 		endpoint += fmt.Sprintf("&%s", param)
 	}
 	return endpoint
+}
+
+// Ping checks the connectivity to the Binance API server.
+func (g *marketImpl) Ping() (interface{}, error) {
+	var responseData struct{}
+	return responseData, g.MakeRequestWithoutSignature(http.MethodGet, constants.PingEndpoint, &responseData)
+}
+
+// CheckServerTime retrieves the server time from the Binance API.
+func (g *marketImpl) CheckServerTime() (int64, error) {
+	var responseData models.ServerTimeResponse
+
+	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
+		return 0, err
+	}
+
+	return responseData.ServerTime, nil
+}
+
+// GetExchangeInfo fetches exchange information from the Binance API.
+func (g *marketImpl) GetExchangeInfo() (*models.ExchangeInfo, error) {
+	var response models.ExchangeInfo
+	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // OrderBook retrieves the order book for a specific symbol.

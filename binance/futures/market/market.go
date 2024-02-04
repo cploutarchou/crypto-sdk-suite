@@ -46,16 +46,16 @@ func buildEndpoint(base string, symbol string, params ...interface{}) string {
 }
 
 // Ping checks the connectivity to the Binance API server.
-func (g *marketImpl) Ping() (interface{}, error) {
+func (m *marketImpl) Ping() (interface{}, error) {
 	var responseData struct{}
-	return responseData, g.MakeRequestWithoutSignature(http.MethodGet, constants.PingEndpoint, &responseData)
+	return responseData, m.MakeRequestWithoutSignature(http.MethodGet, constants.PingEndpoint, &responseData)
 }
 
 // CheckServerTime retrieves the server time from the Binance API.
-func (g *marketImpl) CheckServerTime() (int64, error) {
+func (m *marketImpl) CheckServerTime() (int64, error) {
 	var responseData models.ServerTimeResponse
 
-	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
+	if err := m.MakeRequestWithoutSignature(http.MethodGet, constants.ServerTimeEndpoint, &responseData); err != nil {
 		return 0, err
 	}
 
@@ -63,9 +63,9 @@ func (g *marketImpl) CheckServerTime() (int64, error) {
 }
 
 // GetExchangeInfo fetches exchange information from the Binance API.
-func (g *marketImpl) GetExchangeInfo() (*models.ExchangeInfo, error) {
+func (m *marketImpl) GetExchangeInfo() (*models.ExchangeInfo, error) {
 	var response models.ExchangeInfo
-	if err := g.MakeRequestWithoutSignature(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
+	if err := m.MakeRequestWithoutSignature(http.MethodGet, constants.ExchangeInfoEndpoint, &response); err != nil {
 		return nil, err
 	}
 

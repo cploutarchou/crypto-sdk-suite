@@ -1,6 +1,5 @@
 package client
 
-import "C"
 import (
 	"bytes"
 	"crypto/hmac"
@@ -13,7 +12,6 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
-	"sync"
 	"time"
 )
 
@@ -32,7 +30,6 @@ type Client struct {
 	secretKey  string
 	httpClient *http.Client
 	IsTestNet  bool
-	lock       sync.RWMutex // Might be used for thread safety in the future
 }
 
 type Method string
@@ -163,7 +160,7 @@ func GenerateSignature(secretKey, apiKey string, params Params, timestamp string
 	for _, k := range keys {
 		queryParams.Set(k, params[k])
 	}
-	str += fmt.Sprintf("%s", queryParams.Encode())
+	str += queryParams.Encode()
 	// Generate HMAC-SHA256 signature
 	h := hmac.New(sha256.New, []byte(secretKey))
 	h.Write([]byte(str))

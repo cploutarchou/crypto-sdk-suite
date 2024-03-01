@@ -135,3 +135,27 @@ func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrde
 
 	return &response, nil
 }
+func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error) {
+	queryParams := ConvertGetOrderHistoryRequestToParams(req)
+
+	// Assuming the client.Get method constructs the query string from the provided params and sends a GET request.
+	resBytes, err := t.client.Get("/v5/order/history", queryParams)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response GetOrderHistoryResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}

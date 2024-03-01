@@ -214,3 +214,42 @@ func ConvertCancelAllOrdersRequestToParams(req *CancelAllOrdersRequest) client.P
 	}
 	return params
 }
+func ConvertGetOrderHistoryRequestToParams(req *GetOrderHistoryRequest) client.Params {
+	params := client.Params{
+		"category": req.Category,
+	}
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.BaseCoin != nil {
+		params["baseCoin"] = *req.BaseCoin
+	}
+	if req.SettleCoin != nil {
+		params["settleCoin"] = *req.SettleCoin
+	}
+	if req.OrderId != nil {
+		params["orderId"] = *req.OrderId
+	}
+	if req.OrderLinkId != nil {
+		params["orderLinkId"] = *req.OrderLinkId
+	}
+	if req.OrderFilter != nil {
+		params["orderFilter"] = *req.OrderFilter
+	}
+	if req.OrderStatus != nil {
+		params["orderStatus"] = *req.OrderStatus
+	}
+	if req.StartTime != nil {
+		params["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+	}
+	if req.EndTime != nil {
+		params["endTime"] = strconv.FormatInt(*req.EndTime, 10)
+	}
+	if req.Limit != nil {
+		params["limit"] = strconv.Itoa(*req.Limit)
+	}
+	if req.Cursor != nil {
+		params["cursor"] = *req.Cursor
+	}
+	return params
+}

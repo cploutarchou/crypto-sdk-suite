@@ -179,3 +179,28 @@ type CancelAllOrdersResponse struct {
 	RetExtInfo struct{} `json:"retExtInfo"`
 	Time       int64    `json:"time"`
 }
+type GetOrderHistoryRequest struct {
+	Category    string
+	Symbol      *string
+	BaseCoin    *string
+	SettleCoin  *string
+	OrderId     *string
+	OrderLinkId *string
+	OrderFilter *string
+	OrderStatus *string
+	StartTime   *int64
+	EndTime     *int64
+	Limit       *int
+	Cursor      *string
+}
+type GetOrderHistoryResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []OrderDetails `json:"list"`
+		NextPageCursor string         `json:"nextPageCursor"`
+		Category       string         `json:"category"`
+	} `json:"result"`
+	RetExtInfo struct{} `json:"retExtInfo"`
+	Time       int64    `json:"time"`
+}

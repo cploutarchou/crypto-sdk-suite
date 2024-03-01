@@ -11,6 +11,8 @@ type Trade interface {
 	PlaceOrder(req *PlaceOrderRequest) (*PlaceOrderResponse, error)
 	AmendOrder(req *AmendOrderRequest) (*AmendOrderResponse, error)
 	CancelOrder(req *CancelOrderRequest) (*CancelOrderResponse, error)
+	GetOpenOrders(req *GetOpenOrdersRequest) (*GetOpenOrdersResponse, error)
+	CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrdersResponse, error)
 }
 
 type tradeImpl struct {
@@ -99,6 +101,29 @@ func (t *tradeImpl) GetOpenOrders(req *GetOpenOrdersRequest) (*GetOpenOrdersResp
 		return nil, err
 	}
 	var response GetOpenOrdersResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}
+func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrdersResponse, error) {
+	params := ConvertCancelAllOrdersRequestToParams(req)
+
+	resBytes, err := t.client.Post("/v5/order/cancel-all", params)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response CancelAllOrdersResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err

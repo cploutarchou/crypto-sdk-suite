@@ -158,3 +158,24 @@ type OrderDetails struct {
 	CreatedTime        string `json:"createdTime"`
 	UpdatedTime        string `json:"updatedTime"`
 }
+type CancelAllOrdersRequest struct {
+	Category      string  `json:"category"`
+	Symbol        *string `json:"symbol,omitempty"`
+	BaseCoin      *string `json:"baseCoin,omitempty"`
+	SettleCoin    *string `json:"settleCoin,omitempty"`
+	OrderFilter   *string `json:"orderFilter,omitempty"`
+	StopOrderType *string `json:"stopOrderType,omitempty"`
+}
+type CancelAllOrdersResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List []struct {
+			OrderId     string `json:"orderId"`
+			OrderLinkId string `json:"orderLinkId"`
+		} `json:"list"`
+		Success string `json:"success"`
+	} `json:"result"`
+	RetExtInfo struct{} `json:"retExtInfo"`
+	Time       int64    `json:"time"`
+}

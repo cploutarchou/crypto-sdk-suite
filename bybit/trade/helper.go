@@ -193,3 +193,24 @@ func ConvertGetOpenOrdersRequestToParams(req *GetOpenOrdersRequest) client.Param
 
 	return params
 }
+func ConvertCancelAllOrdersRequestToParams(req *CancelAllOrdersRequest) client.Params {
+	params := client.Params{
+		"category": req.Category,
+	}
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.BaseCoin != nil {
+		params["baseCoin"] = *req.BaseCoin
+	}
+	if req.SettleCoin != nil {
+		params["settleCoin"] = *req.SettleCoin
+	}
+	if req.OrderFilter != nil {
+		params["orderFilter"] = *req.OrderFilter
+	}
+	if req.StopOrderType != nil {
+		params["stopOrderType"] = *req.StopOrderType
+	}
+	return params
+}

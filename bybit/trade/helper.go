@@ -82,3 +82,76 @@ func ConvertPlaceOrderRequestToParams(req *PlaceOrderRequest) client.Params {
 
 	return params
 }
+
+// ConvertAmendOrderRequestToParams converts an AmendOrderRequest to a client.Params map.
+func ConvertAmendOrderRequestToParams(req *AmendOrderRequest) client.Params {
+	params := client.Params{}
+
+	// Mandatory fields
+	params["category"] = req.Category
+	params["symbol"] = req.Symbol
+
+	// Optional fields
+	if req.OrderId != nil {
+		params["orderId"] = *req.OrderId
+	}
+	if req.OrderLinkId != nil {
+		params["orderLinkId"] = *req.OrderLinkId
+	}
+	if req.OrderIv != nil {
+		params["orderIv"] = *req.OrderIv
+	}
+	if req.TriggerPrice != nil {
+		params["triggerPrice"] = *req.TriggerPrice
+	}
+	if req.Qty != nil {
+		params["qty"] = *req.Qty
+	}
+	if req.Price != nil {
+		params["price"] = *req.Price
+	}
+	if req.TpslMode != nil {
+		params["tpslMode"] = *req.TpslMode
+	}
+	if req.TakeProfit != nil {
+		params["takeProfit"] = *req.TakeProfit
+	}
+	if req.StopLoss != nil {
+		params["stopLoss"] = *req.StopLoss
+	}
+	if req.TpTriggerBy != nil {
+		params["tpTriggerBy"] = *req.TpTriggerBy
+	}
+	if req.SlTriggerBy != nil {
+		params["slTriggerBy"] = *req.SlTriggerBy
+	}
+	if req.TriggerBy != nil {
+		params["triggerBy"] = *req.TriggerBy
+	}
+	if req.TpLimitPrice != nil {
+		params["tpLimitPrice"] = *req.TpLimitPrice
+	}
+	if req.SlLimitPrice != nil {
+		params["slLimitPrice"] = *req.SlLimitPrice
+	}
+
+	return params
+}
+func ConvertCancelOrderRequestToParams(req *CancelOrderRequest) client.Params {
+	params := client.Params{
+		"category": req.Category,
+		"symbol":   req.Symbol,
+	}
+
+	if req.OrderId != nil {
+		params["orderId"] = *req.OrderId
+	}
+	if req.OrderLinkId != nil {
+		params["orderLinkId"] = *req.OrderLinkId
+	}
+	if req.OrderFilter != nil {
+		params["orderFilter"] = *req.OrderFilter
+	}
+
+	return params
+}

@@ -204,3 +204,57 @@ type GetOrderHistoryResponse struct {
 	RetExtInfo struct{} `json:"retExtInfo"`
 	Time       int64    `json:"time"`
 }
+type GetTradeHistoryRequest struct {
+	Category    string
+	Symbol      *string
+	OrderId     *string
+	OrderLinkId *string
+	BaseCoin    *string
+	StartTime   *int64
+	EndTime     *int64
+	ExecType    *string
+	Limit       *int
+	Cursor      *string
+}
+type GetTradeHistoryResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []TradeDetails `json:"list"`
+		NextPageCursor string         `json:"nextPageCursor"`
+		Category       string         `json:"category"`
+	} `json:"result"`
+	RetExtInfo struct{} `json:"retExtInfo"`
+	Time       int64    `json:"time"`
+}
+
+type TradeDetails struct {
+	Symbol          string `json:"symbol"`
+	OrderId         string `json:"orderId"`
+	OrderLinkId     string `json:"orderLinkId"`
+	Side            string `json:"side"`
+	OrderPrice      string `json:"orderPrice"`
+	OrderQty        string `json:"orderQty"`
+	LeavesQty       string `json:"leavesQty"`
+	CreateType      string `json:"createType"`
+	OrderType       string `json:"orderType"`
+	StopOrderType   string `json:"stopOrderType"`
+	ExecFee         string `json:"execFee"`
+	ExecId          string `json:"execId"`
+	ExecPrice       string `json:"execPrice"`
+	ExecQty         string `json:"execQty"`
+	ExecType        string `json:"execType"`
+	ExecValue       string `json:"execValue"`
+	ExecTime        string `json:"execTime"`
+	FeeCurrency     string `json:"feeCurrency"`
+	IsMaker         bool   `json:"isMaker"`
+	FeeRate         string `json:"feeRate"`
+	TradeIv         string `json:"tradeIv"`
+	MarkIv          string `json:"markIv"`
+	MarkPrice       string `json:"markPrice"`
+	IndexPrice      string `json:"indexPrice"`
+	UnderlyingPrice string `json:"underlyingPrice"`
+	BlockTradeId    string `json:"blockTradeId"`
+	ClosedSize      string `json:"closedSize"`
+	Seq             int64  `json:"seq"`
+}

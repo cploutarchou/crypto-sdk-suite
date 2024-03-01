@@ -159,3 +159,27 @@ func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHisto
 
 	return &response, nil
 }
+func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error) {
+	queryParams := ConvertGetTradeHistoryRequestToParams(req)
+
+	// Assuming the client.Get method constructs the query string from the provided params and sends a GET request.
+	resBytes, err := t.client.Get("/v5/execution/list", queryParams)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response GetTradeHistoryResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}

@@ -86,3 +86,27 @@ func (t *tradeImpl) CancelOrder(req *CancelOrderRequest) (*CancelOrderResponse, 
 
 	return &response, nil
 }
+func (t *tradeImpl) GetOpenOrders(req *GetOpenOrdersRequest) (*GetOpenOrdersResponse, error) {
+	queryParams := ConvertGetOpenOrdersRequestToParams(req)
+
+	// Assuming the client.Get method constructs the query string from the provided params and sends a GET request.
+	resBytes, err := t.client.Get("/v5/order/realtime", queryParams)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response GetOpenOrdersResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}

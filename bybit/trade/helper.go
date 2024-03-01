@@ -137,6 +137,7 @@ func ConvertAmendOrderRequestToParams(req *AmendOrderRequest) client.Params {
 
 	return params
 }
+
 func ConvertCancelOrderRequestToParams(req *CancelOrderRequest) client.Params {
 	params := client.Params{
 		"category": req.Category,
@@ -151,6 +152,43 @@ func ConvertCancelOrderRequestToParams(req *CancelOrderRequest) client.Params {
 	}
 	if req.OrderFilter != nil {
 		params["orderFilter"] = *req.OrderFilter
+	}
+
+	return params
+}
+
+func ConvertGetOpenOrdersRequestToParams(req *GetOpenOrdersRequest) client.Params {
+	params := client.Params{
+		"category": req.Category, // Required field
+	}
+
+	// Check and add optional fields only if they are not nil
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.BaseCoin != nil {
+		params["baseCoin"] = *req.BaseCoin
+	}
+	if req.SettleCoin != nil {
+		params["settleCoin"] = *req.SettleCoin
+	}
+	if req.OrderId != nil {
+		params["orderId"] = *req.OrderId
+	}
+	if req.OrderLinkId != nil {
+		params["orderLinkId"] = *req.OrderLinkId
+	}
+	if req.OpenOnly != nil {
+		params["openOnly"] = strconv.Itoa(*req.OpenOnly) // Convert integer to string
+	}
+	if req.OrderFilter != nil {
+		params["orderFilter"] = *req.OrderFilter
+	}
+	if req.Limit != nil {
+		params["limit"] = strconv.Itoa(*req.Limit) // Convert integer to string for limit
+	}
+	if req.Cursor != nil {
+		params["cursor"] = *req.Cursor
 	}
 
 	return params

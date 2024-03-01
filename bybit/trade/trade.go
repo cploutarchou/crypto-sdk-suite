@@ -15,6 +15,7 @@ type Trade interface {
 	CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrdersResponse, error)
 	GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error)
 	GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error)
+	BatchPlaceOrder(req *BatchPlaceOrderRequest) (*BatchPlaceOrderResponse, error)
 }
 
 type tradeImpl struct {
@@ -196,6 +197,30 @@ func (t *tradeImpl) BatchPlaceOrder(req *BatchPlaceOrderRequest) (*BatchPlaceOrd
 		return nil, err
 	}
 	var response BatchPlaceOrderResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}
+
+func (t *tradeImpl) BatchAmendOrder(req *BatchAmendOrderRequest) (*BatchAmendOrderResponse, error) {
+	params := ConvertBatchAmendOrderRequestToParams(req)
+
+	resBytes, err := t.client.Post("/v5/order/amend-batch", params)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response BatchAmendOrderResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err

@@ -287,6 +287,7 @@ func ConvertGetTradeHistoryRequestToParams(req *GetTradeHistoryRequest) client.P
 	}
 	return params
 }
+
 func ConvertBatchPlaceOrderRequestToParams(req *BatchPlaceOrderRequest) client.Params {
 	params := client.Params{}
 	params["category"] = req.Category
@@ -362,6 +363,61 @@ func ConvertBatchPlaceOrderRequestToParams(req *BatchPlaceOrderRequest) client.P
 			params[prefix+"slOrderType"] = *order.SlOrderType
 		}
 
+	}
+
+	return params
+}
+func ConvertBatchAmendOrderRequestToParams(req *BatchAmendOrderRequest) client.Params {
+	params := client.Params{}
+	params["category"] = req.Category
+
+	for i, order := range req.Request {
+		base := fmt.Sprintf("request[%d].", i)
+		params[base+"symbol"] = order.Symbol
+
+		if order.OrderId != nil {
+			params[base+"orderId"] = *order.OrderId
+		}
+		if order.OrderLinkId != nil {
+			params[base+"orderLinkId"] = *order.OrderLinkId
+		}
+		if order.OrderIv != nil {
+			params[base+"orderIv"] = *order.OrderIv
+		}
+		if order.TriggerPrice != nil {
+			params[base+"triggerPrice"] = *order.TriggerPrice
+		}
+		if order.Qty != nil {
+			params[base+"qty"] = *order.Qty
+		}
+		if order.Price != nil {
+			params[base+"price"] = *order.Price
+		}
+		if order.TpslMode != nil {
+			params[base+"tpslMode"] = *order.TpslMode
+		}
+		if order.TakeProfit != nil {
+			params[base+"takeProfit"] = *order.TakeProfit
+		}
+		if order.StopLoss != nil {
+			params[base+"stopLoss"] = *order.StopLoss
+		}
+		if order.TpTriggerBy != nil {
+			params[base+"tpTriggerBy"] = *order.TpTriggerBy
+		}
+		if order.SlTriggerBy != nil {
+			params[base+"slTriggerBy"] = *order.SlTriggerBy
+		}
+		if order.TriggerBy != nil {
+			params[base+"triggerBy"] = *order.TriggerBy
+		}
+		if order.TpLimitPrice != nil {
+			params[base+"tpLimitPrice"] = *order.TpLimitPrice
+		}
+		if order.SlLimitPrice != nil {
+			params[base+"slLimitPrice"] = *order.SlLimitPrice
+		}
+		// Include additional fields following the same pattern
 	}
 
 	return params

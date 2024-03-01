@@ -362,7 +362,6 @@ func ConvertBatchPlaceOrderRequestToParams(req *BatchPlaceOrderRequest) client.P
 		if order.SlOrderType != nil {
 			params[prefix+"slOrderType"] = *order.SlOrderType
 		}
-
 	}
 
 	return params
@@ -417,7 +416,29 @@ func ConvertBatchAmendOrderRequestToParams(req *BatchAmendOrderRequest) client.P
 		if order.SlLimitPrice != nil {
 			params[base+"slLimitPrice"] = *order.SlLimitPrice
 		}
-		// Include additional fields following the same pattern
+	}
+
+	return params
+}
+
+// ConvertBatchCancelOrderRequestToParams creates a Params representation for logging/debugging.
+func ConvertBatchCancelOrderRequestToParams(req *BatchCancelOrderRequest) client.Params {
+	params := client.Params{}
+	params["category"] = req.Category
+
+	for i, orderReq := range req.Request {
+		index := fmt.Sprintf("request[%d]", i)
+		params[index+".symbol"] = orderReq.Symbol
+
+		if orderReq.OrderId != nil {
+			params[index+".orderId"] = *orderReq.OrderId
+		}
+		if orderReq.OrderLinkId != nil {
+			params[index+".orderLinkId"] = *orderReq.OrderLinkId
+		}
+		if orderReq.OrderFilter != nil {
+			params[index+".orderFilter"] = *orderReq.OrderFilter
+		}
 	}
 
 	return params

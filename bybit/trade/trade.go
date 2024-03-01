@@ -232,3 +232,26 @@ func (t *tradeImpl) BatchAmendOrder(req *BatchAmendOrderRequest) (*BatchAmendOrd
 
 	return &response, nil
 }
+func (t *tradeImpl) BatchCancelOrder(req *BatchCancelOrderRequest) (*BatchCancelOrderResponse, error) {
+	params := ConvertBatchCancelOrderRequestToParams(req)
+
+	resBytes, err := t.client.Post("/v5/order/cancel-batch", params)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response BatchCancelOrderResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}

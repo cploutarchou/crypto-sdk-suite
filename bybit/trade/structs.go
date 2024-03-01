@@ -335,3 +335,26 @@ type BatchAmendOrderResponse struct {
 	} `json:"retExtInfo"`
 	Time int64 `json:"time"`
 }
+type BatchCancelOrderRequest struct {
+	Category string               `json:"category"`
+	Request  []CancelOrderRequest `json:"request"`
+}
+type BatchCancelOrderResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List []struct {
+			Category    string `json:"category"`
+			Symbol      string `json:"symbol"`
+			OrderId     string `json:"orderId"`
+			OrderLinkId string `json:"orderLinkId"`
+		} `json:"list"`
+	} `json:"result"`
+	RetExtInfo struct {
+		List []struct {
+			Code int    `json:"code"`
+			Msg  string `json:"msg"`
+		} `json:"list"`
+	} `json:"retExtInfo"`
+	Time int64 `json:"time"`
+}

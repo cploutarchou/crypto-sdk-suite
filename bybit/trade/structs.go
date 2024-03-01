@@ -258,3 +258,56 @@ type TradeDetails struct {
 	ClosedSize      string `json:"closedSize"`
 	Seq             int64  `json:"seq"`
 }
+
+type BatchPlaceOrderRequest struct {
+	Category string         `json:"category"`
+	Request  []OrderRequest `json:"request"`
+}
+
+type OrderRequest struct {
+	Symbol           string  `json:"symbol"`
+	Side             string  `json:"side"`
+	OrderType        string  `json:"orderType"`
+	Qty              string  `json:"qty"`
+	Price            *string `json:"price,omitempty"`
+	TriggerDirection *int    `json:"triggerDirection,omitempty"`
+	TriggerPrice     *string `json:"triggerPrice,omitempty"`
+	TriggerBy        *string `json:"triggerBy,omitempty"`
+	OrderIv          *string `json:"orderIv,omitempty"`
+	TimeInForce      *string `json:"timeInForce,omitempty"`
+	PositionIdx      *int    `json:"positionIdx,omitempty"`
+	OrderLinkId      *string `json:"orderLinkId,omitempty"`
+	TakeProfit       *string `json:"takeProfit,omitempty"`
+	StopLoss         *string `json:"stopLoss,omitempty"`
+	TpTriggerBy      *string `json:"tpTriggerBy,omitempty"`
+	SlTriggerBy      *string `json:"slTriggerBy,omitempty"`
+	ReduceOnly       *bool   `json:"reduceOnly,omitempty"`
+	CloseOnTrigger   *bool   `json:"closeOnTrigger,omitempty"`
+	SmpType          *string `json:"smpType,omitempty"`
+	Mmp              *bool   `json:"mmp,omitempty"`
+	TpslMode         *string `json:"tpslMode,omitempty"`
+	TpLimitPrice     *string `json:"tpLimitPrice,omitempty"`
+	SlLimitPrice     *string `json:"slLimitPrice,omitempty"`
+	TpOrderType      *string `json:"tpOrderType,omitempty"`
+	SlOrderType      *string `json:"slOrderType,omitempty"`
+}
+type BatchPlaceOrderResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List []struct {
+			Category    string `json:"category"`
+			Symbol      string `json:"symbol"`
+			OrderId     string `json:"orderId"`
+			OrderLinkId string `json:"orderLinkId"`
+			CreateAt    string `json:"createAt"`
+		} `json:"list"`
+	} `json:"result"`
+	RetExtInfo struct {
+		List []struct {
+			Code int    `json:"code"`
+			Msg  string `json:"msg"`
+		} `json:"list"`
+	} `json:"retExtInfo"`
+	Time int64 `json:"time"`
+}

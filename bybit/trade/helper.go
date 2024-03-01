@@ -1,6 +1,7 @@
 package trade
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
@@ -284,5 +285,84 @@ func ConvertGetTradeHistoryRequestToParams(req *GetTradeHistoryRequest) client.P
 	if req.Cursor != nil {
 		params["cursor"] = *req.Cursor
 	}
+	return params
+}
+func ConvertBatchPlaceOrderRequestToParams(req *BatchPlaceOrderRequest) client.Params {
+	params := client.Params{}
+	params["category"] = req.Category
+
+	for i, order := range req.Request {
+		prefix := fmt.Sprintf("request[%d].", i)
+		params[prefix+"symbol"] = order.Symbol
+		params[prefix+"side"] = order.Side
+		params[prefix+"orderType"] = order.OrderType
+		params[prefix+"qty"] = order.Qty
+
+		if order.Price != nil {
+			params[prefix+"price"] = *order.Price
+		}
+		if order.TriggerDirection != nil {
+			params[prefix+"triggerDirection"] = strconv.Itoa(*order.TriggerDirection)
+		}
+		if order.TriggerPrice != nil {
+			params[prefix+"triggerPrice"] = *order.TriggerPrice
+		}
+		if order.TriggerBy != nil {
+			params[prefix+"triggerBy"] = *order.TriggerBy
+		}
+		if order.OrderIv != nil {
+			params[prefix+"orderIv"] = *order.OrderIv
+		}
+		if order.TimeInForce != nil {
+			params[prefix+"timeInForce"] = *order.TimeInForce
+		}
+		if order.PositionIdx != nil {
+			params[prefix+"positionIdx"] = strconv.Itoa(*order.PositionIdx)
+		}
+		if order.OrderLinkId != nil {
+			params[prefix+"orderLinkId"] = *order.OrderLinkId
+		}
+		if order.TakeProfit != nil {
+			params[prefix+"takeProfit"] = *order.TakeProfit
+		}
+		if order.StopLoss != nil {
+			params[prefix+"stopLoss"] = *order.StopLoss
+		}
+		if order.TpTriggerBy != nil {
+			params[prefix+"tpTriggerBy"] = *order.TpTriggerBy
+		}
+		if order.SlTriggerBy != nil {
+			params[prefix+"slTriggerBy"] = *order.SlTriggerBy
+		}
+		if order.ReduceOnly != nil {
+			params[prefix+"reduceOnly"] = strconv.FormatBool(*order.ReduceOnly)
+		}
+		if order.CloseOnTrigger != nil {
+			params[prefix+"closeOnTrigger"] = strconv.FormatBool(*order.CloseOnTrigger)
+		}
+		if order.SmpType != nil {
+			params[prefix+"smpType"] = *order.SmpType
+		}
+		if order.Mmp != nil {
+			params[prefix+"mmp"] = strconv.FormatBool(*order.Mmp)
+		}
+		if order.TpslMode != nil {
+			params[prefix+"tpslMode"] = *order.TpslMode
+		}
+		if order.TpLimitPrice != nil {
+			params[prefix+"tpLimitPrice"] = *order.TpLimitPrice
+		}
+		if order.SlLimitPrice != nil {
+			params[prefix+"slLimitPrice"] = *order.SlLimitPrice
+		}
+		if order.TpOrderType != nil {
+			params[prefix+"tpOrderType"] = *order.TpOrderType
+		}
+		if order.SlOrderType != nil {
+			params[prefix+"slOrderType"] = *order.SlOrderType
+		}
+
+	}
+
 	return params
 }

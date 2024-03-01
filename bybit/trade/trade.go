@@ -13,6 +13,8 @@ type Trade interface {
 	CancelOrder(req *CancelOrderRequest) (*CancelOrderResponse, error)
 	GetOpenOrders(req *GetOpenOrdersRequest) (*GetOpenOrdersResponse, error)
 	CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrdersResponse, error)
+	GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error)
+	GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error)
 }
 
 type tradeImpl struct {
@@ -172,6 +174,28 @@ func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHisto
 		return nil, err
 	}
 	var response GetTradeHistoryResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}
+func (t *tradeImpl) BatchPlaceOrder(req *BatchPlaceOrderRequest) (*BatchPlaceOrderResponse, error) {
+	params := ConvertBatchPlaceOrderRequestToParams(req)
+	resBytes, err := t.client.Post("/v5/order/create-batch", params)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+	var response BatchPlaceOrderResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err

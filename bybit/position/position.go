@@ -7,7 +7,8 @@ import (
 )
 
 type Position interface {
-	GetPositionInfo(params client.Params) (*PositionResponse, error)
+	GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error)
+	SetLeverage(req *SetLeverageRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -18,10 +19,11 @@ func New(c *client.Client) Position {
 }
 
 // GetPositionInfo fetches position information from Bybit.
-func (i *impl) GetPositionInfo(params client.Params) (*PositionResponse, error) {
-	response, err := i.client.Get("/v5/position/list", params)
+func (i *impl) GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error) {
+	requestParams := ConvertPositionRequestParams(params)
+	response, err := i.client.Get("/v5/position/list", requestParams)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching position info: %v", err)
+		return nil, fmt.Errorf("error fetching position info: %w", err)
 	}
 	data, err := json.Marshal(response)
 	if err != nil {
@@ -30,8 +32,32 @@ func (i *impl) GetPositionInfo(params client.Params) (*PositionResponse, error) 
 	// Parse the JSON response
 	var positionResponse PositionResponse
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
-		return nil, fmt.Errorf("error parsing position info response: %v", err)
+		return nil, fmt.Errorf("error parsing position info response: %w", err)
 	}
 
 	return &positionResponse, nil
+}
+
+// SetLeverage sets the leverage for a given symbol and account type.
+func (i *impl) SetLeverage(req *SetLeverageRequest) (*PositionResponse, error) {
+	params := ConvertSetLeverageRequestToParams(req)
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/set-leverage", params)
+	if err != nil {
+		return nil, fmt.Errorf("error setting leverage: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	// Optionally, check the response.RetCode here and handle any errors
+	var apiResponse PositionResponse
+	if err := json.Unmarshal(data, &apiResponse); err != nil {
+		return nil, fmt.Errorf("error parsing response: %w", err)
+	}
+	if apiResponse.RetCode != 0 {
+		return nil, fmt.Errorf("API returned error: %s", apiResponse.RetMsg)
+	}
+
+	return &apiResponse, nil
 }

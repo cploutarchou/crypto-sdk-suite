@@ -2,12 +2,12 @@ package position
 
 // PositionRequestParams represents the query parameters for fetching position information.
 type PositionRequestParams struct {
-	Category   string
-	Symbol     string
-	BaseCoin   string
-	SettleCoin string
-	Limit      int
-	Cursor     string
+	Category   *string `json:"category"`
+	Symbol     *string `json:"symbol"`
+	BaseCoin   *string `json:"baseCoin"`
+	SettleCoin *string `json:"settleCoin"`
+	Limit      *int    `json:"limit"`
+	Cursor     *string `json:"cursor"`
 }
 
 // PositionResponse represents the response structure for position information.
@@ -56,4 +56,12 @@ type PositionDetails struct {
 	LeverageSysUpdatedTime string `json:"leverageSysUpdatedTime"`
 	CreatedTime            string `json:"createdTime"`
 	UpdatedTime            string `json:"updatedTime"`
+}
+
+// SetLeverageRequest represents the payload for setting leverage.
+type SetLeverageRequest struct {
+	Category     *string `json:"category"`
+	Symbol       *string `json:"symbol"`
+	BuyLeverage  *string `json:"buyLeverage"`
+	SellLeverage *string `json:"sellLeverage"`
 }

@@ -69,3 +69,18 @@ func ConvertSwitchMarginModeRequestToParams(req *SwitchMarginModeRequest) client
 	return params
 
 }
+func ConvertSetTPSLModeRequestToParams(req *SetTPSLModeRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != nil {
+		params["category"] = *req.Category
+	}
+
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+
+	if req.TPSLMode != nil {
+		params["tpslMode"] = *req.TPSLMode
+	}
+	return params
+}

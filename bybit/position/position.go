@@ -10,6 +10,8 @@ type Position interface {
 	GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error)
 	SetLeverage(req *SetLeverageRequest) (*PositionResponse, error)
 	SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse, error)
+	// SetTPSLMode sets the TP/SL mode for a given symbol.
+	SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -85,4 +87,23 @@ func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse
 	}
 
 	return &apiResponse, nil
+}
+func (i *impl) SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error) {
+	params := ConvertSetTPSLModeRequestToParams(req)
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/set-tpsl-mode", params)
+	if err != nil {
+		return nil, fmt.Errorf("error setting TP/SL mode: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var positionResponse PositionResponse
+	if err := json.Unmarshal(data, &positionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing TP/SL mode response: %w", err)
+	}
+
+	return &positionResponse, nil
 }

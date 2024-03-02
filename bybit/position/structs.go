@@ -73,3 +73,10 @@ type SwitchMarginModeRequest struct {
 	BuyLeverage  *string `json:"buyLeverage"`
 	SellLeverage *string `json:"sellLeverage"`
 }
+
+// SetTPSLModeRequest represents the payload for setting the TP/SL mode.
+type SetTPSLModeRequest struct {
+	Category *string `json:"category"`
+	Symbol   *string `json:"symbol"`
+	TPSLMode *string `json:"tpSlMode"` // "Full" or "Partial"
+}

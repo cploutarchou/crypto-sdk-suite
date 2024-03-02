@@ -65,3 +65,11 @@ type SetLeverageRequest struct {
 	BuyLeverage  *string `json:"buyLeverage"`
 	SellLeverage *string `json:"sellLeverage"`
 }
+
+type SwitchMarginModeRequest struct {
+	Category     *string `json:"category"`
+	Symbol       *string `json:"symbol"`
+	TradeMode    *int    `json:"tradeMode"`
+	BuyLeverage  *string `json:"buyLeverage"`
+	SellLeverage *string `json:"sellLeverage"`
+}

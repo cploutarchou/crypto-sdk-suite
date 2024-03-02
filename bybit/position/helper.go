@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-// PreparePositionRequestParams prepares the request parameters for fetching position info.
+// ConvertPositionRequestParams prepares the request parameters for fetching position info.
 func ConvertPositionRequestParams(params *PositionRequestParams) client.Params {
 	paramsMap := make(client.Params)
 	if params.Category != nil {
@@ -46,4 +46,26 @@ func ConvertSetLeverageRequestToParams(req *SetLeverageRequest) client.Params {
 		params["sellLeverage"] = *req.SellLeverage
 	}
 	return params
+}
+
+func ConvertSwitchMarginModeRequestToParams(req *SwitchMarginModeRequest) client.Params {
+	params := make(client.Params)
+
+	if req.Category != nil {
+		params["category"] = *req.Category
+	}
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.TradeMode != nil {
+		params["tradeMode"] = strconv.Itoa(*req.TradeMode)
+	}
+	if req.BuyLeverage != nil {
+		params["buyLeverage"] = *req.BuyLeverage
+	}
+	if req.SellLeverage != nil {
+		params["sellLeverage"] = *req.SellLeverage
+	}
+	return params
+
 }

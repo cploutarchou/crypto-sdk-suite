@@ -9,6 +9,7 @@ import (
 type Position interface {
 	GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error)
 	SetLeverage(req *SetLeverageRequest) (*PositionResponse, error)
+	SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -45,6 +46,30 @@ func (i *impl) SetLeverage(req *SetLeverageRequest) (*PositionResponse, error) {
 	response, err := i.client.Post("/v5/position/set-leverage", params)
 	if err != nil {
 		return nil, fmt.Errorf("error setting leverage: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var apiResponse PositionResponse
+	if err := json.Unmarshal(data, &apiResponse); err != nil {
+		return nil, fmt.Errorf("error parsing response: %w", err)
+	}
+	if apiResponse.RetCode != 0 {
+		return nil, fmt.Errorf("API returned error: %s", apiResponse.RetMsg)
+	}
+
+	return &apiResponse, nil
+}
+
+// SwitchMarginMode switches between cross-margin mode and isolated margin mode for a symbol.
+func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse, error) {
+	// Convert payload to Params type expected by the client.Post method
+	params := ConvertSwitchMarginModeRequestToParams(req)
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/switch-isolated", params)
+	if err != nil {
+		return nil, fmt.Errorf("error switching margin mode: %w", err)
 	}
 	data, err := json.Marshal(response)
 	if err != nil {

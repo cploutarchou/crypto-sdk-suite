@@ -358,3 +358,23 @@ type BatchCancelOrderResponse struct {
 	} `json:"retExtInfo"`
 	Time int64 `json:"time"`
 }
+
+// Response struct for parsing the API response
+type BorrowQuotaResponse struct {
+	RetCode    int               `json:"retCode"`
+	RetMsg     string            `json:"retMsg"`
+	Result     BorrowQuotaResult `json:"result"`
+	RetExtInfo interface{}       `json:"retExtInfo"`
+	Time       int64             `json:"time"`
+}
+
+// BorrowQuotaResult holds the specific data of interest from the response
+type BorrowQuotaResult struct {
+	Symbol             string `json:"symbol"`
+	Side               string `json:"side"`
+	MaxTradeQty        string `json:"maxTradeQty"`
+	MaxTradeAmount     string `json:"maxTradeAmount"`
+	SpotMaxTradeQty    string `json:"spotMaxTradeQty"`
+	SpotMaxTradeAmount string `json:"spotMaxTradeAmount"`
+	BorrowCoin         string `json:"borrowCoin"`
+}

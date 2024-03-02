@@ -4,6 +4,7 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/account"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/market"
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/position"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/trade"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
 	client2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
@@ -14,6 +15,7 @@ type Bybit interface {
 	WebSocket() ws.WebSocket
 	Account() *account.Account
 	Trade() *trade.Trade
+	Position() *position.Position
 }
 
 type bybitImpl struct {
@@ -25,6 +27,7 @@ type bybitImpl struct {
 	secretKey string
 	account   account.Account
 	trade     trade.Trade
+	position  position.Position
 }
 
 func New(key, secretKey string, isTestNet bool) Bybit {
@@ -34,6 +37,7 @@ func New(key, secretKey string, isTestNet bool) Bybit {
 		market:    market.New(c),
 		account:   account.New(c),
 		trade:     trade.New(c),
+		position:  position.New(c),
 		client:    c,
 		isTestNet: isTestNet,
 		apiKey:    key,
@@ -57,4 +61,8 @@ func (b bybitImpl) Account() *account.Account {
 
 func (b bybitImpl) Trade() *trade.Trade {
 	return &b.trade
+}
+
+func (b bybitImpl) Position() *position.Position {
+	return &b.position
 }

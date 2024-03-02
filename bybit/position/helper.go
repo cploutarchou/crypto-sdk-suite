@@ -67,7 +67,6 @@ func ConvertSwitchMarginModeRequestToParams(req *SwitchMarginModeRequest) client
 		params["sellLeverage"] = *req.SellLeverage
 	}
 	return params
-
 }
 func ConvertSetTPSLModeRequestToParams(req *SetTPSLModeRequest) client.Params {
 	params := make(client.Params)
@@ -81,6 +80,22 @@ func ConvertSetTPSLModeRequestToParams(req *SetTPSLModeRequest) client.Params {
 
 	if req.TPSLMode != nil {
 		params["tpslMode"] = *req.TPSLMode
+	}
+	return params
+}
+func ConvertSwitchPositionModeRequestToParams(req *SwitchPositionModeRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != "" {
+		params["category"] = req.Category
+	}
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.Coin != nil {
+		params["coin"] = *req.Coin
+	}
+	if req.Mode != nil {
+		params["positionMode"] = strconv.Itoa(*req.Mode)
 	}
 	return params
 }

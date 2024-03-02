@@ -80,3 +80,11 @@ type SetTPSLModeRequest struct {
 	Symbol   *string `json:"symbol"`
 	TPSLMode *string `json:"tpSlMode"` // "Full" or "Partial"
 }
+
+// SwitchPositionModeRequest represents the payload for switching the position mode.
+type SwitchPositionModeRequest struct {
+	Category string  `json:"category"`         // Required: "linear" for USDT Perp, "inverse" for Inverse Futures
+	Symbol   *string `json:"symbol,omitempty"` // Optional: Symbol name; either symbol or coin is required
+	Coin     *string `json:"coin,omitempty"`   // Optional: Coin; either symbol or coin is required
+	Mode     *int    `json:"mode"`             // Required: 0 for Merged Single, 3 for Both Sides
+}

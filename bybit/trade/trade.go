@@ -16,6 +16,7 @@ type Trade interface {
 	GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error)
 	GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error)
 	BatchPlaceOrder(req *BatchPlaceOrderRequest) (*BatchPlaceOrderResponse, error)
+	GetBorrowQuotaSpot(symbol, side string) (*BorrowQuotaResponse, error)
 }
 
 type tradeImpl struct {
@@ -249,6 +250,60 @@ func (t *tradeImpl) BatchCancelOrder(req *BatchCancelOrderRequest) (*BatchCancel
 		return nil, err
 	}
 
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}
+func (t *tradeImpl) GetBorrowQuotaSpot(symbol, side string) (*BorrowQuotaResponse, error) {
+	params := client.Params{
+		"category": "spot",
+		"symbol":   symbol,
+		"side":     side,
+	}
+	resBytes, err := t.client.Get("/v5/order/spot-borrow-check", params)
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(resBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the JSON response
+	var response BorrowQuotaResponse
+	if err := json.Unmarshal(data, &response); err != nil {
+		return nil, err
+	}
+
+	// Check for API error
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}
+func (t *tradeImpl) SetDisconnectCancelAll(req *SetDisconnectCancelAllRequest) (*APIResponse, error) {
+	dcpRequest := NewDCPParams(req.TimeWindow)
+
+	// Send POST request to the Bybit API
+	responseBody, err := t.client.Post("/v5/order/disconnected-cancel-all", dcpRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request to API: %w", err)
+	}
+	data, err := json.Marshal(responseBody)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var response APIResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
+	}
+
+	// Check for API error
 	if response.RetCode != 0 {
 		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
 	}

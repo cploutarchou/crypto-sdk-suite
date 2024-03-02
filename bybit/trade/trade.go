@@ -284,3 +284,29 @@ func (t *tradeImpl) GetBorrowQuotaSpot(symbol, side string) (*BorrowQuotaRespons
 
 	return &response, nil
 }
+func (t *tradeImpl) SetDisconnectCancelAll(req *SetDisconnectCancelAllRequest) (*APIResponse, error) {
+	dcpRequest := NewDCPParams(req.TimeWindow)
+
+	// Send POST request to the Bybit API
+	responseBody, err := t.client.Post("/v5/order/disconnected-cancel-all", dcpRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request to API: %w", err)
+	}
+	data, err := json.Marshal(responseBody)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var response APIResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
+	}
+
+	// Check for API error
+	if response.RetCode != 0 {
+		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+	}
+
+	return &response, nil
+}

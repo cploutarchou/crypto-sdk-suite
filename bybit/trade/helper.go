@@ -443,3 +443,10 @@ func ConvertBatchCancelOrderRequestToParams(req *BatchCancelOrderRequest) client
 
 	return params
 }
+
+// NewDCPParams creates a new Params map for setting the DCP time window.
+func NewDCPParams(timeWindow int) client.Params {
+	params := make(client.Params)
+	params["timeWindow"] = strconv.Itoa(timeWindow) // Convert int to string
+	return params
+}

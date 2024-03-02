@@ -378,3 +378,14 @@ type BorrowQuotaResult struct {
 	SpotMaxTradeAmount string `json:"spotMaxTradeAmount"`
 	BorrowCoin         string `json:"borrowCoin"`
 }
+
+// SetDisconnectCancelAllRequest represents the request payload for setting DCP.
+type SetDisconnectCancelAllRequest struct {
+	TimeWindow int `json:"timeWindow"`
+}
+
+// APIResponse represents a generic response from the Bybit API.
+type APIResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+}

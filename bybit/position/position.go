@@ -18,6 +18,8 @@ type Position interface {
 	SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
 	// SetTradingStop sets take profit, stop loss, or trailing stop for the position.
 	SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, error)
+	// SetAutoAddMargin toggles auto-add-margin for an isolated margin position.
+	SetAutoAddMargin(req *SetAutoAddMarginRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -167,6 +169,25 @@ func (i *impl) SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, er
 	var positionResponse PositionResponse
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing set trading stop response: %w", err)
+	}
+
+	return &positionResponse, nil
+}
+func (i *impl) SetAutoAddMargin(req *SetAutoAddMarginRequest) (*PositionResponse, error) {
+	params := ConvertSetAutoAddMarginRequestToParams(req)
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/set-auto-add-margin", params)
+	if err != nil {
+		return nil, fmt.Errorf("error setting auto add margin: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var positionResponse PositionResponse
+	if err := json.Unmarshal(data, &positionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing set auto add margin response: %w", err)
 	}
 
 	return &positionResponse, nil

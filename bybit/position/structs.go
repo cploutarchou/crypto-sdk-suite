@@ -116,3 +116,11 @@ type SetTradingStopRequest struct {
 	SlOrderType  *string `json:"slOrderType,omitempty"`  // Optional
 	PositionIdx  int     `json:"positionIdx"`            // Required
 }
+
+// SetAutoAddMarginRequest represents the payload for toggling auto-add-margin.
+type SetAutoAddMarginRequest struct {
+	Category      string `json:"category"`              // Required: "linear" or "inverse"
+	Symbol        string `json:"symbol"`                // Required: Symbol name
+	AutoAddMargin int    `json:"autoAddMargin"`         // Required: 0 for off, 1 for on
+	PositionIdx   *int   `json:"positionIdx,omitempty"` // Optional: Position index for hedge mode
+}

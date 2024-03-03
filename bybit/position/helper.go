@@ -179,3 +179,20 @@ func ConvertSetTradingStopRequestToParams(req *SetTradingStopRequest) client.Par
 	}
 	return params
 }
+func ConvertSetAutoAddMarginRequestToParams(req *SetAutoAddMarginRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != "" {
+		params["category"] = req.Category
+	}
+	if req.Symbol != "" {
+		params["symbol"] = req.Symbol
+	}
+	if req.AutoAddMargin > 0 {
+		params["autoAddMargin"] = strconv.Itoa(req.AutoAddMargin)
+	}
+	if req.PositionIdx != nil {
+		params["positionIdx"] = strconv.Itoa(*req.PositionIdx)
+	}
+	return params
+
+}

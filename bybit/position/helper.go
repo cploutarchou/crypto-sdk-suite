@@ -232,4 +232,5 @@ func ConvertGetClosedPnLRequestToParams(req *GetClosedPnLRequest) client.Params 
 	if req.Cursor != nil {
 		params["cursor"] = *req.Cursor
 	}
+	return params
 }

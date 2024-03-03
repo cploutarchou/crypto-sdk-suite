@@ -213,7 +213,7 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 
 	return &positionResponse, nil
 }
-func (i *impl) GetClosedPnL(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
+func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
 	params := ConvertGetClosedPnLRequestToParams(req)
 	var allRecords []interface{}
 	finalResponse := &ClosedPnLResponse{}

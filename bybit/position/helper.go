@@ -278,3 +278,14 @@ func ConvertGetMovePositionHistoryRequestToParams(req *GetMovePositionHistoryReq
 	}
 	return params
 }
+
+func ConvertConfirmNewRiskLimitRequestToParams(req *ConfirmNewRiskLimitRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != "" {
+		params["category"] = req.Category
+	}
+	if req.Symbol != "" {
+		params["symbol"] = req.Symbol
+	}
+	return params
+}

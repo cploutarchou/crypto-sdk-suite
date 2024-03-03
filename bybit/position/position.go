@@ -30,6 +30,8 @@ type Position interface {
 	MovePositions(req *MovePositionRequest) (*MovePositionResponse, error)
 	// GetMovePositionHistory queries the history of moved positions.
 	GetMovePositionHistory(req *GetMovePositionHistoryRequest) (*GetMovePositionHistoryResponse, error)
+	// ConfirmNewRiskLimit confirms the new risk limit for a position, removing the reduceOnly mark if successful.
+	ConfirmNewRiskLimit(req *ConfirmNewRiskLimitRequest) (*Response, error)
 }
 type impl struct {
 	client *client.Client
@@ -321,4 +323,24 @@ func (i *impl) GetMovePositionHistory(req *GetMovePositionHistoryRequest) (*GetM
 	}
 
 	return &finalResponse, nil
+}
+func (i *impl) ConfirmNewRiskLimit(req *ConfirmNewRiskLimitRequest) (*Response, error) {
+	params := ConvertConfirmNewRiskLimitRequestToParams(req)
+
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/confirm-pending-mmr", params)
+	if err != nil {
+		return nil, fmt.Errorf("error confirming new risk limit: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var positionResponse Response
+	if err := json.Unmarshal(data, &positionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing confirm new risk limit response: %w", err)
+	}
+
+	return &positionResponse, nil
 }

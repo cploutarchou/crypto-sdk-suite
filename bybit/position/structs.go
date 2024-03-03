@@ -226,3 +226,9 @@ type GetMovePositionHistoryResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// ConfirmNewRiskLimitRequest represents the payload for confirming a new risk limit.
+type ConfirmNewRiskLimitRequest struct {
+	Category string `json:"category"` // Required: "linear" or "inverse"
+	Symbol   string `json:"symbol"`   // Required: Symbol name
+}

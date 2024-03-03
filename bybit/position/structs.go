@@ -88,3 +88,11 @@ type SwitchPositionModeRequest struct {
 	Coin     *string `json:"coin,omitempty"`   // Optional: Coin; either symbol or coin is required
 	Mode     *int    `json:"mode"`             // Required: 0 for Merged Single, 3 for Both Sides
 }
+
+// SetRiskLimitRequest represents the payload for setting the risk limit of a position.
+type SetRiskLimitRequest struct {
+	Category    string `json:"category"`    // Required: "linear" or "inverse"
+	Symbol      string `json:"symbol"`      // Required: Symbol name
+	RiskID      int    `json:"riskId"`      // Required: Risk limit ID
+	PositionIdx *int   `json:"positionIdx"` // Optional: Position index (for hedge mode)
+}

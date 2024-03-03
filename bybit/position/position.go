@@ -14,6 +14,8 @@ type Position interface {
 	SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error)
 	// SwitchPositionMode switches the position mode for USDT perpetual and Inverse futures.
 	SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResponse, error)
+	// SetRiskLimit sets the risk limit for a specific symbol.
+	SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -125,5 +127,26 @@ func (i *impl) SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResp
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing switch position mode response: %w", err)
 	}
+	return &positionResponse, nil
+}
+
+func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error) {
+	params := ConvertSetRiskLimitRequestToParams(req)
+
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/set-risk-limit", params)
+	if err != nil {
+		return nil, fmt.Errorf("error setting risk limit: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	// Parse the JSON response
+	var positionResponse PositionResponse
+	if err := json.Unmarshal(data, &positionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing set risk limit response: %w", err)
+	}
+
 	return &positionResponse, nil
 }

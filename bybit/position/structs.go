@@ -182,3 +182,47 @@ type MovePositionResponse struct {
 		RejectParty  string `json:"rejectParty"`
 	} `json:"result"`
 }
+
+// GetMovePositionHistoryRequest represents the query parameters for fetching move position history.
+type GetMovePositionHistoryRequest struct {
+	Category     *string `json:"category,omitempty"`     // Optional: Product type
+	Symbol       *string `json:"symbol,omitempty"`       // Optional: Symbol name
+	StartTime    *int64  `json:"startTime,omitempty"`    // Optional: Start timestamp
+	EndTime      *int64  `json:"endTime,omitempty"`      // Optional: End timestamp
+	Status       *string `json:"status,omitempty"`       // Optional: Order status
+	BlockTradeId *string `json:"blockTradeId,omitempty"` // Optional: Block trade ID
+	Limit        *int    `json:"limit,omitempty"`        // Optional: Data size limit per page
+	Cursor       *string `json:"cursor,omitempty"`       // Optional: Pagination cursor
+}
+
+// MovePositionHistoryEntry represents a single entry in the move position history.
+type MovePositionHistoryEntry struct {
+	BlockTradeId  string `json:"blockTradeId"`
+	Category      string `json:"category"`
+	OrderId       string `json:"orderId"`
+	UserId        int    `json:"userId"`
+	Symbol        string `json:"symbol"`
+	Side          string `json:"side"`
+	Price         string `json:"price"`
+	Qty           string `json:"qty"`
+	ExecFee       string `json:"execFee"`
+	Status        string `json:"status"`
+	ExecId        string `json:"execId"`
+	ResultCode    int    `json:"resultCode"`
+	ResultMessage string `json:"resultMessage"`
+	CreatedAt     int64  `json:"createdAt"`
+	UpdatedAt     int64  `json:"updatedAt"`
+	RejectParty   string `json:"rejectParty"`
+}
+
+// GetMovePositionHistoryResponse represents the response from fetching move position history.
+type GetMovePositionHistoryResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []MovePositionHistoryEntry `json:"list"`
+		NextPageCursor string                     `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

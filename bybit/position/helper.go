@@ -1,8 +1,9 @@
 package position
 
 import (
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"strconv"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 // ConvertPositionRequestParams prepares the request parameters for fetching position info.
@@ -233,4 +234,19 @@ func ConvertGetClosedPnLRequestToParams(req *GetClosedPnLRequest) client.Params 
 		params["cursor"] = *req.Cursor
 	}
 	return params
+}
+func ConvertMovePositionRequestToParams(req *MovePositionRequest) client.Params {
+	params := make(client.Params)
+	if req.FromUID != "" {
+		params["fromUid"] = req.FromUID
+	}
+
+	if req.ToUID != "" {
+		params["toUid"] = req.ToUID
+	}
+	if len(req.List) > 0 {
+		params["list"] = req.List
+	}
+	return params
+
 }

@@ -33,7 +33,7 @@ type Client struct {
 }
 
 type Method string
-type Params map[string]string
+type Params map[string]interface{}
 
 type Request struct {
 	method Method
@@ -111,7 +111,7 @@ func (c *Client) do(req *Request) (Response, error) {
 func (c *Client) newGETRequest(baseURL string, req *Request) (*http.Request, error) {
 	queryParams := url.Values{}
 	for k, v := range req.params {
-		queryParams.Set(k, v)
+		queryParams.Set(k, v.(string))
 	}
 
 	return http.NewRequest(string(GET), baseURL+req.path+"?"+queryParams.Encode(), nil)
@@ -158,7 +158,7 @@ func GenerateSignature(secretKey, apiKey string, params Params, timestamp string
 	sort.Strings(keys)
 	queryParams := url.Values{}
 	for _, k := range keys {
-		queryParams.Set(k, params[k])
+		queryParams.Set(k, params[k].(string))
 	}
 	str += queryParams.Encode()
 	// Generate HMAC-SHA256 signature

@@ -155,3 +155,30 @@ type ClosedPnLResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// MovePositionRequestLeg represents a single leg of a move position request.
+type MovePositionRequestLeg struct {
+	Category string `json:"category"` // "linear", "spot", "option"
+	Symbol   string `json:"symbol"`
+	Price    string `json:"price"`
+	Side     string `json:"side"` // "Buy" or "Sell"
+	Qty      string `json:"qty"`
+}
+
+// MovePositionRequest encapsulates the payload for moving positions.
+type MovePositionRequest struct {
+	FromUID string                   `json:"fromUid"`
+	ToUID   string                   `json:"toUid"`
+	List    []MovePositionRequestLeg `json:"list"`
+}
+
+// MovePositionResponse represents the response from a move position request.
+type MovePositionResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		BlockTradeId string `json:"blockTradeId"`
+		Status       string `json:"status"`
+		RejectParty  string `json:"rejectParty"`
+	} `json:"result"`
+}

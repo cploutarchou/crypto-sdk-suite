@@ -3,12 +3,16 @@ package position
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 type Position interface {
+	// GetPositionInfo get position info
 	GetPositionInfo(params *RequestParams) (*Response, error)
+	// SetLeverage set leverage for position info request
 	SetLeverage(req *SetLeverageRequest) (*Response, error)
+	// GetLeverage get leverage for position info request
 	SwitchMarginMode(req *SwitchMarginModeRequest) (*Response, error)
 	// SetTPSLMode sets the TP/SL mode for a given symbol.
 	SetTPSLMode(req *SetTPSLModeRequest) (*Response, error)
@@ -22,11 +26,14 @@ type Position interface {
 	SetAutoAddMargin(req *SetAutoAddMarginRequest) (*Response, error)
 	// AddOrReduceMargin manually adds or reduces margin for an isolated margin position.
 	AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
+	// MovePositions transfers positions between UIDs.
+	MovePositions(req *MovePositionRequest) (*MovePositionResponse, error)
 }
 type impl struct {
 	client *client.Client
 }
 
+// New creates a new instance of the Position interface, which can be used to interact with the Bybit API.
 func New(c *client.Client) Position {
 	return &impl{client: c}
 }
@@ -249,4 +256,22 @@ func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLRespons
 	}
 
 	return finalResponse, nil
+}
+func (i *impl) MovePositions(req *MovePositionRequest) (*MovePositionResponse, error) {
+	params := ConvertMovePositionRequestToParams(req)
+	// Perform the POST request
+	response, err := i.client.Post("/v5/position/move-positions", params)
+	if err != nil {
+		return nil, fmt.Errorf("error moving positions: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var movePositionResponse MovePositionResponse
+	if err := json.Unmarshal(data, &movePositionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing move position response: %w", err)
+	}
+
+	return &movePositionResponse, nil
 }

@@ -16,6 +16,8 @@ type Position interface {
 	SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResponse, error)
 	// SetRiskLimit sets the risk limit for a specific symbol.
 	SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
+	// SetTradingStop sets take profit, stop loss, or trailing stop for the position.
+	SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -146,6 +148,25 @@ func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
 	var positionResponse PositionResponse
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing set risk limit response: %w", err)
+	}
+
+	return &positionResponse, nil
+}
+
+func (i *impl) SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, error) {
+	params := ConvertSetTradingStopRequestToParams(req)
+
+	response, err := i.client.Post("/v5/position/trading-stop", params)
+	if err != nil {
+		return nil, fmt.Errorf("error setting trading stop: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var positionResponse PositionResponse
+	if err := json.Unmarshal(data, &positionResponse); err != nil {
+		return nil, fmt.Errorf("error parsing set trading stop response: %w", err)
 	}
 
 	return &positionResponse, nil

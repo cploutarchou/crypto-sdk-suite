@@ -96,3 +96,23 @@ type SetRiskLimitRequest struct {
 	RiskID      int    `json:"riskId"`      // Required: Risk limit ID
 	PositionIdx *int   `json:"positionIdx"` // Optional: Position index (for hedge mode)
 }
+
+// SetTradingStopRequest represents the payload for setting trading stops (TP, SL, TS).
+type SetTradingStopRequest struct {
+	Category     string  `json:"category"`               // Required
+	Symbol       string  `json:"symbol"`                 // Required
+	TakeProfit   *string `json:"takeProfit,omitempty"`   // Optional, 0 to cancel
+	StopLoss     *string `json:"stopLoss,omitempty"`     // Optional, 0 to cancel
+	TrailingStop *string `json:"trailingStop,omitempty"` // Optional, 0 to cancel
+	TpTriggerBy  *string `json:"tpTriggerBy,omitempty"`  // Optional
+	SlTriggerBy  *string `json:"slTriggerBy,omitempty"`  // Optional
+	ActivePrice  *string `json:"activePrice,omitempty"`  // Optional
+	TPSLMode     string  `json:"tpslMode"`               // Required
+	TpSize       *string `json:"tpSize,omitempty"`       // Optional
+	SlSize       *string `json:"slSize,omitempty"`       // Optional
+	TpLimitPrice *string `json:"tpLimitPrice,omitempty"` // Optional
+	SlLimitPrice *string `json:"slLimitPrice,omitempty"` // Optional
+	TpOrderType  *string `json:"tpOrderType,omitempty"`  // Optional
+	SlOrderType  *string `json:"slOrderType,omitempty"`  // Optional
+	PositionIdx  int     `json:"positionIdx"`            // Required
+}

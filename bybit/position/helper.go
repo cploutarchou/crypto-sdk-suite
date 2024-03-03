@@ -116,3 +116,66 @@ func ConvertSetRiskLimitRequestToParams(req *SetRiskLimitRequest) client.Params 
 	}
 	return params
 }
+
+func ConvertSetTradingStopRequestToParams(req *SetTradingStopRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != "" {
+		params["category"] = req.Category
+	}
+	if req.Symbol != "" {
+		params["symbol"] = req.Symbol
+	}
+
+	if req.TakeProfit != nil {
+		params["takeProfit"] = *req.TakeProfit
+	}
+
+	if req.StopLoss != nil {
+		params["stopLoss"] = *req.StopLoss
+	}
+
+	if req.TrailingStop != nil {
+		params["trailingStop"] = *req.TrailingStop
+	}
+
+	if req.TpTriggerBy != nil {
+		params["tpTriggerBy"] = *req.TpTriggerBy
+	}
+
+	if req.SlTriggerBy != nil {
+		params["slTriggerBy"] = *req.SlTriggerBy
+	}
+
+	if req.ActivePrice != nil {
+		params["activePrice"] = *req.ActivePrice
+	}
+
+	if req.TPSLMode != "" {
+		params["tpslMode"] = req.TPSLMode
+	}
+
+	if req.TpSize != nil {
+		params["tpSize"] = *req.TpSize
+	}
+	if req.SlSize != nil {
+		params["slSize"] = *req.SlSize
+	}
+	if req.TpLimitPrice != nil {
+		params["tpLimitPrice"] = *req.TpLimitPrice
+	}
+
+	if req.SlLimitPrice != nil {
+		params["slLimitPrice"] = *req.SlLimitPrice
+	}
+	if req.TpOrderType != nil {
+		params["tpOrderType"] = *req.TpOrderType
+	}
+
+	if req.SlOrderType != nil {
+		params["slOrderType"] = *req.SlOrderType
+	}
+	if req.PositionIdx > 0 {
+		params["positionIdx"] = strconv.Itoa(req.PositionIdx)
+	}
+	return params
+}

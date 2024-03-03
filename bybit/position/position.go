@@ -213,3 +213,40 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 
 	return &positionResponse, nil
 }
+func (i *impl) GetClosedPnL(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
+	params := ConvertGetClosedPnLRequestToParams(req)
+	var allRecords []interface{}
+	finalResponse := &ClosedPnLResponse{}
+	for {
+		responseData, err := i.client.Get("/v5/position/closed-pnl", params)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching closed PnL records: %w", err)
+		}
+		data, err := json.Marshal(responseData)
+		if err != nil {
+			return nil, err
+		}
+		var response ClosedPnLResponse
+		if err := json.Unmarshal(data, &response); err != nil {
+			return nil, fmt.Errorf("error parsing closed PnL response: %w", err)
+		}
+
+		allRecords = append(allRecords, response.Result.List...)
+
+		if response.Result.NextPageCursor == "" {
+			break
+		}
+
+		params["cursor"] = response.Result.NextPageCursor
+		finalResponse = &ClosedPnLResponse{
+			RetCode:    response.RetCode,
+			RetMsg:     response.RetMsg,
+			Result:     response.Result,
+			RetExtInfo: response.RetExtInfo,
+			Time:       response.Time,
+		}
+		finalResponse.Result.List = allRecords
+	}
+
+	return finalResponse, nil
+}

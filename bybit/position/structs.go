@@ -132,3 +132,26 @@ type AddReduceMarginRequest struct {
 	Margin      string `json:"margin"`      // Required: Amount to add (positive) or reduce (negative)
 	PositionIdx *int   `json:"positionIdx"` // Optional: Position index for hedge mode
 }
+
+// GetClosedPnLRequest represents the query parameters for fetching closed PnL records.
+type GetClosedPnLRequest struct {
+	Category  string  `json:"category"`            // Required: "linear" or "inverse"
+	Symbol    *string `json:"symbol,omitempty"`    // Optional: Symbol name
+	StartTime *int64  `json:"startTime,omitempty"` // Optional: The start timestamp (ms)
+	EndTime   *int64  `json:"endTime,omitempty"`   // Optional: The end timestamp (ms)
+	Limit     *int    `json:"limit,omitempty"`     // Optional: Limit for data size per page
+	Cursor    *string `json:"cursor,omitempty"`    // Optional: Cursor for pagination
+}
+
+// ClosedPnLResponse represents the response structure for closed PnL records.
+type ClosedPnLResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		NextPageCursor string        `json:"nextPageCursor"`
+		Category       string        `json:"category"`
+		List           []interface{} `json:"list"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

@@ -212,3 +212,24 @@ func ConvertAddReduceMarginRequestToParams(req *AddReduceMarginRequest) client.P
 	}
 	return params
 }
+func ConvertGetClosedPnLRequestToParams(req *GetClosedPnLRequest) client.Params {
+	params := make(client.Params)
+	if req.Category != "" {
+		params["category"] = req.Category
+	}
+	if req.Symbol != nil {
+		params["symbol"] = *req.Symbol
+	}
+	if req.StartTime != nil {
+		params["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+	}
+	if req.EndTime != nil {
+		params["endTime"] = strconv.FormatInt(*req.EndTime, 10)
+	}
+	if req.Limit != nil {
+		params["limit"] = strconv.Itoa(*req.Limit)
+	}
+	if req.Cursor != nil {
+		params["cursor"] = *req.Cursor
+	}
+}

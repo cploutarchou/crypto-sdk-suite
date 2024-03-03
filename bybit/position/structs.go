@@ -124,3 +124,11 @@ type SetAutoAddMarginRequest struct {
 	AutoAddMargin int    `json:"autoAddMargin"`         // Required: 0 for off, 1 for on
 	PositionIdx   *int   `json:"positionIdx,omitempty"` // Optional: Position index for hedge mode
 }
+
+// AddReduceMarginRequest represents the payload for adding or reducing margin.
+type AddReduceMarginRequest struct {
+	Category    string `json:"category"`    // Required: "linear" or "inverse"
+	Symbol      string `json:"symbol"`      // Required: Symbol name
+	Margin      string `json:"margin"`      // Required: Amount to add (positive) or reduce (negative)
+	PositionIdx *int   `json:"positionIdx"` // Optional: Position index for hedge mode
+}

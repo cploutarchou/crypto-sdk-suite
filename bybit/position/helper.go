@@ -6,7 +6,7 @@ import (
 )
 
 // ConvertPositionRequestParams prepares the request parameters for fetching position info.
-func ConvertPositionRequestParams(params *PositionRequestParams) client.Params {
+func ConvertPositionRequestParams(params *RequestParams) client.Params {
 	paramsMap := make(client.Params)
 	if params.Category != nil {
 		paramsMap["category"] = *params.Category

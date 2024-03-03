@@ -7,21 +7,21 @@ import (
 )
 
 type Position interface {
-	GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error)
-	SetLeverage(req *SetLeverageRequest) (*PositionResponse, error)
-	SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse, error)
+	GetPositionInfo(params *RequestParams) (*Response, error)
+	SetLeverage(req *SetLeverageRequest) (*Response, error)
+	SwitchMarginMode(req *SwitchMarginModeRequest) (*Response, error)
 	// SetTPSLMode sets the TP/SL mode for a given symbol.
-	SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error)
+	SetTPSLMode(req *SetTPSLModeRequest) (*Response, error)
 	// SwitchPositionMode switches the position mode for USDT perpetual and Inverse futures.
-	SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResponse, error)
+	SwitchPositionMode(req *SwitchPositionModeRequest) (*Response, error)
 	// SetRiskLimit sets the risk limit for a specific symbol.
-	SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
+	SetRiskLimit(req *SetRiskLimitRequest) (*Response, error)
 	// SetTradingStop sets take profit, stop loss, or trailing stop for the position.
-	SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, error)
+	SetTradingStop(req *SetTradingStopRequest) (*Response, error)
 	// SetAutoAddMargin toggles auto-add-margin for an isolated margin position.
-	SetAutoAddMargin(req *SetAutoAddMarginRequest) (*PositionResponse, error)
+	SetAutoAddMargin(req *SetAutoAddMarginRequest) (*Response, error)
 	// AddOrReduceMargin manually adds or reduces margin for an isolated margin position.
-	AddOrReduceMargin(req *AddReduceMarginRequest) (*PositionResponse, error)
+	AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 }
 type impl struct {
 	client *client.Client
@@ -32,7 +32,7 @@ func New(c *client.Client) Position {
 }
 
 // GetPositionInfo fetches position information from Bybit.
-func (i *impl) GetPositionInfo(params *PositionRequestParams) (*PositionResponse, error) {
+func (i *impl) GetPositionInfo(params *RequestParams) (*Response, error) {
 	requestParams := ConvertPositionRequestParams(params)
 	response, err := i.client.Get("/v5/position/list", requestParams)
 	if err != nil {
@@ -43,7 +43,7 @@ func (i *impl) GetPositionInfo(params *PositionRequestParams) (*PositionResponse
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing position info response: %w", err)
 	}
@@ -52,7 +52,7 @@ func (i *impl) GetPositionInfo(params *PositionRequestParams) (*PositionResponse
 }
 
 // SetLeverage sets the leverage for a given symbol and account type.
-func (i *impl) SetLeverage(req *SetLeverageRequest) (*PositionResponse, error) {
+func (i *impl) SetLeverage(req *SetLeverageRequest) (*Response, error) {
 	params := ConvertSetLeverageRequestToParams(req)
 	// Perform the POST request
 	response, err := i.client.Post("/v5/position/set-leverage", params)
@@ -63,7 +63,7 @@ func (i *impl) SetLeverage(req *SetLeverageRequest) (*PositionResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	var apiResponse PositionResponse
+	var apiResponse Response
 	if err := json.Unmarshal(data, &apiResponse); err != nil {
 		return nil, fmt.Errorf("error parsing response: %w", err)
 	}
@@ -75,7 +75,7 @@ func (i *impl) SetLeverage(req *SetLeverageRequest) (*PositionResponse, error) {
 }
 
 // SwitchMarginMode switches between cross-margin mode and isolated margin mode for a symbol.
-func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse, error) {
+func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*Response, error) {
 	// Convert payload to Params type expected by the client.Post method
 	params := ConvertSwitchMarginModeRequestToParams(req)
 	// Perform the POST request
@@ -88,7 +88,7 @@ func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse
 		return nil, err
 	}
 	// Optionally, check the response.RetCode here and handle any errors
-	var apiResponse PositionResponse
+	var apiResponse Response
 	if err := json.Unmarshal(data, &apiResponse); err != nil {
 		return nil, fmt.Errorf("error parsing response: %w", err)
 	}
@@ -98,7 +98,7 @@ func (i *impl) SwitchMarginMode(req *SwitchMarginModeRequest) (*PositionResponse
 
 	return &apiResponse, nil
 }
-func (i *impl) SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error) {
+func (i *impl) SetTPSLMode(req *SetTPSLModeRequest) (*Response, error) {
 	params := ConvertSetTPSLModeRequestToParams(req)
 	// Perform the POST request
 	response, err := i.client.Post("/v5/position/set-tpsl-mode", params)
@@ -110,14 +110,14 @@ func (i *impl) SetTPSLMode(req *SetTPSLModeRequest) (*PositionResponse, error) {
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing TP/SL mode response: %w", err)
 	}
 
 	return &positionResponse, nil
 }
-func (i *impl) SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResponse, error) {
+func (i *impl) SwitchPositionMode(req *SwitchPositionModeRequest) (*Response, error) {
 	params := ConvertSwitchPositionModeRequestToParams(req)
 	// Perform the POST request
 	response, err := i.client.Post("/v5/position/switch-mode", params)
@@ -129,14 +129,14 @@ func (i *impl) SwitchPositionMode(req *SwitchPositionModeRequest) (*PositionResp
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing switch position mode response: %w", err)
 	}
 	return &positionResponse, nil
 }
 
-func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error) {
+func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*Response, error) {
 	params := ConvertSetRiskLimitRequestToParams(req)
 
 	// Perform the POST request
@@ -149,7 +149,7 @@ func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing set risk limit response: %w", err)
 	}
@@ -157,7 +157,7 @@ func (i *impl) SetRiskLimit(req *SetRiskLimitRequest) (*PositionResponse, error)
 	return &positionResponse, nil
 }
 
-func (i *impl) SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, error) {
+func (i *impl) SetTradingStop(req *SetTradingStopRequest) (*Response, error) {
 	params := ConvertSetTradingStopRequestToParams(req)
 
 	response, err := i.client.Post("/v5/position/trading-stop", params)
@@ -168,14 +168,14 @@ func (i *impl) SetTradingStop(req *SetTradingStopRequest) (*PositionResponse, er
 	if err != nil {
 		return nil, err
 	}
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing set trading stop response: %w", err)
 	}
 
 	return &positionResponse, nil
 }
-func (i *impl) SetAutoAddMargin(req *SetAutoAddMarginRequest) (*PositionResponse, error) {
+func (i *impl) SetAutoAddMargin(req *SetAutoAddMarginRequest) (*Response, error) {
 	params := ConvertSetAutoAddMarginRequestToParams(req)
 	// Perform the POST request
 	response, err := i.client.Post("/v5/position/set-auto-add-margin", params)
@@ -187,14 +187,14 @@ func (i *impl) SetAutoAddMargin(req *SetAutoAddMarginRequest) (*PositionResponse
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing set auto add margin response: %w", err)
 	}
 
 	return &positionResponse, nil
 }
-func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*PositionResponse, error) {
+func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error) {
 	params := ConvertAddReduceMarginRequestToParams(req)
 	// Perform the POST request
 	response, err := i.client.Post("/v5/position/add-margin", params)
@@ -206,7 +206,7 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*PositionResponse
 		return nil, err
 	}
 	// Parse the JSON response
-	var positionResponse PositionResponse
+	var positionResponse Response
 	if err := json.Unmarshal(data, &positionResponse); err != nil {
 		return nil, fmt.Errorf("error parsing add or reduce margin response: %w", err)
 	}

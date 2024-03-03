@@ -1,7 +1,7 @@
 package position
 
-// PositionRequestParams represents the query parameters for fetching position information.
-type PositionRequestParams struct {
+// RequestParams represents the query parameters for fetching position information.
+type RequestParams struct {
 	Category   *string `json:"category"`
 	Symbol     *string `json:"symbol"`
 	BaseCoin   *string `json:"baseCoin"`
@@ -10,21 +10,21 @@ type PositionRequestParams struct {
 	Cursor     *string `json:"cursor"`
 }
 
-// PositionResponse represents the response structure for position information.
-type PositionResponse struct {
+// Response represents the response structure for position information.
+type Response struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
-		List           []PositionDetails `json:"list"`
-		NextPageCursor string            `json:"nextPageCursor"`
-		Category       string            `json:"category"`
+		List           []Details `json:"list"`
+		NextPageCursor string    `json:"nextPageCursor"`
+		Category       string    `json:"category"`
 	} `json:"result"`
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
 
-// PositionDetails represents the details of a single position.
-type PositionDetails struct {
+// Details represent the details of a single position.
+type Details struct {
 	PositionIdx            int    `json:"positionIdx"`
 	RiskID                 int    `json:"riskId"`
 	RiskLimitValue         string `json:"riskLimitValue"`

@@ -2,6 +2,7 @@ package bybit
 
 import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/account"
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/asset"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/market"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/position"
@@ -28,6 +29,7 @@ type bybitImpl struct {
 	account   account.Account
 	trade     trade.Trade
 	position  position.Position
+	asset     asset.Asset
 }
 
 func New(key, secretKey string, isTestNet bool) Bybit {
@@ -38,6 +40,7 @@ func New(key, secretKey string, isTestNet bool) Bybit {
 		account:   account.New(c),
 		trade:     trade.New(c),
 		position:  position.New(c),
+		asset:     asset.New(c),
 		client:    c,
 		isTestNet: isTestNet,
 		apiKey:    key,

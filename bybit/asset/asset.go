@@ -10,6 +10,8 @@ import (
 type Asset interface {
 	// GetCoinExchangeRecords queries the coin exchange records.
 	GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetCoinExchangeRecordsResponse, error)
+	// GetDeliveryRecords queries the delivery records of USDC futures and Options.
+	GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRecordResponse, error)
 }
 
 type impl struct {
@@ -71,4 +73,42 @@ func (i *impl) GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetC
 	finalResponse.Result.OrderBody = allRecords
 	finalResponse.Result.NextPageCursor = ""
 	return &finalResponse, nil
+}
+func (i *impl) GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRecordResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["category"] = req.Category
+	if req.Symbol != nil {
+		queryParams["symbol"] = *req.Symbol
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = strconv.FormatInt(*req.EndTime, 10)
+	}
+	if req.ExpDate != nil {
+		queryParams["expDate"] = *req.ExpDate
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = strconv.Itoa(*req.Limit)
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/delivery-record", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching delivery records: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var deliveryRecordsResponse GetDeliveryRecordResponse
+	if err := json.Unmarshal(data, &deliveryRecordsResponse); err != nil {
+		return nil, fmt.Errorf("error parsing delivery records response: %w", err)
+	}
+
+	return &deliveryRecordsResponse, nil
 }

@@ -2,6 +2,7 @@ package asset
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -23,6 +24,7 @@ type Asset interface {
 	GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error)
 	// GetTransferableCoin queries the list of transferable coins between account types.
 	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
+	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
 }
 
 type impl struct {
@@ -224,6 +226,69 @@ func (i *impl) GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, er
 
 	return &assetInfoResponse, nil
 }
+
+func (i *impl) GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error) {
+	queryParams := make(client.Params)
+	if req.MemberID != nil {
+		queryParams["memberId"] = *req.MemberID
+	}
+	if req.ToMemberID != nil {
+		queryParams["toMemberId"] = *req.ToMemberID
+	}
+	queryParams["accountType"] = req.AccountType
+	if req.ToAccountType != nil {
+		queryParams["toAccountType"] = *req.ToAccountType
+	}
+	queryParams["coin"] = req.Coin
+	if req.WithBonus != nil {
+		queryParams["withBonus"] = strconv.Itoa(*req.WithBonus)
+	}
+	if req.WithTransferSafeAmount != nil {
+		queryParams["withTransferSafeAmount"] = strconv.Itoa(*req.WithTransferSafeAmount)
+	}
+	if req.WithLtvTransferSafeAmount != nil {
+		queryParams["withLtvTransferSafeAmount"] = strconv.Itoa(*req.WithLtvTransferSafeAmount)
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-account-coin-balance", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching single coin balance: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var coinBalanceResponse GetSingleCoinBalanceResponse
+	if err := json.Unmarshal(data, &coinBalanceResponse); err != nil {
+		return nil, fmt.Errorf("error parsing single coin balance response: %w", err)
+	}
+
+	return &coinBalanceResponse, nil
+}
+func (i *impl) GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error) {
+	// Prepare query parameters
+	queryParams := make(client.Params)
+	queryParams["fromAccountType"] = req.FromAccountType
+	queryParams["toAccountType"] = req.ToAccountType
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-transfer-coin-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching transferable coin list: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferableCoinResponse GetTransferableCoinResponse
+	if err := json.Unmarshal(data, &transferableCoinResponse); err != nil {
+		return nil, fmt.Errorf("error parsing transferable coin list response: %w", err)
+	}
+
+	return &transferableCoinResponse, nil
+}
+
 func (i *impl) GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsBalanceResponse, error) {
 	queryParams := make(client.Params)
 	if req.MemberID != nil {
@@ -255,66 +320,36 @@ func (i *impl) GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsB
 
 	return &coinsBalanceResponse, nil
 }
-func (i *impl) GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error) {
-	queryParams := make(client.Params)
-	if req.MemberID != nil {
-		queryParams["memberId"] = *req.MemberID
-	}
-	if req.ToMemberID != nil {
-		queryParams["toMemberId"] = *req.ToMemberID
-	}
-	queryParams["accountType"] = req.AccountType
-	if req.ToAccountType != nil {
-		queryParams["toAccountType"] = *req.ToAccountType
-	}
-	queryParams["coin"] = req.Coin
-	if req.WithBonus != nil {
-		queryParams["withBonus"] = strconv.Itoa(*req.WithBonus)
-	}
-	if req.WithTransferSafeAmount != nil {
-		queryParams["withTransferSafeAmount"] = strconv.Itoa(*req.WithTransferSafeAmount)
-	}
-	if req.WithLtvTransferSafeAmount != nil {
-		queryParams["withLtvTransferSafeAmount"] = strconv.Itoa(*req.WithLtvTransferSafeAmount)
+func (i *impl) CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error) {
+	// Initialize Params and populate with request data
+	params := client.Params{
+		"transferId":      req.TransferID,
+		"coin":            req.Coin,
+		"amount":          req.Amount,
+		"fromAccountType": req.FromAccountType,
+		"toAccountType":   req.ToAccountType,
 	}
 
-	// Perform the GET request
-	response, err := i.client.Get("/v5/asset/transfer/query-account-coin-balance", queryParams)
+	// Ensure all required fields are provided
+	if req.TransferID == "" || req.Coin == "" || req.Amount == "" || req.FromAccountType == "" || req.ToAccountType == "" {
+		return nil, errors.New("missing required fields in request")
+	}
+
+	// Perform the POST request
+	response, err := i.client.Post("/v5/asset/transfer/inter-transfer", params)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching single coin balance: %w", err)
+		return nil, fmt.Errorf("error creating internal transfer: %w", err)
 	}
-
 	data, err := json.Marshal(response)
 	if err != nil {
 		return nil, err
 	}
 
-	var coinBalanceResponse GetSingleCoinBalanceResponse
-	if err := json.Unmarshal(data, &coinBalanceResponse); err != nil {
-		return nil, fmt.Errorf("error parsing single coin balance response: %w", err)
+	// Unmarshal the response body into the CreateInternalTransferResponse struct
+	var transferResponse CreateInternalTransferResponse
+	if err := json.Unmarshal(data, &transferResponse); err != nil {
+		return nil, fmt.Errorf("error parsing internal transfer response: %w", err)
 	}
 
-	return &coinBalanceResponse, nil
-}
-func (i *impl) GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error) {
-	// Prepare query parameters
-	queryParams := make(client.Params)
-	queryParams["fromAccountType"] = req.FromAccountType
-	queryParams["toAccountType"] = req.ToAccountType
-
-	// Perform the GET request
-	response, err := i.client.Get("/v5/asset/transfer/query-transfer-coin-list", queryParams)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching transferable coin list: %w", err)
-	}
-	data, err := json.Marshal(response)
-	if err != nil {
-		return nil, err
-	}
-	var transferableCoinResponse GetTransferableCoinResponse
-	if err := json.Unmarshal(data, &transferableCoinResponse); err != nil {
-		return nil, fmt.Errorf("error parsing transferable coin list response: %w", err)
-	}
-
-	return &transferableCoinResponse, nil
+	return &transferResponse, nil
 }

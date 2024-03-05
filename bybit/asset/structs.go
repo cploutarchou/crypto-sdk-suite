@@ -211,3 +211,23 @@ type GetTransferableCoinResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// CreateInternalTransferRequest represents the payload for creating an internal transfer.
+type CreateInternalTransferRequest struct {
+	TransferID      string `json:"transferId"`      // Required: UUID, manually generate a UUID
+	Coin            string `json:"coin"`            // Required: Coin
+	Amount          string `json:"amount"`          // Required: Amount
+	FromAccountType string `json:"fromAccountType"` // Required: From account type
+	ToAccountType   string `json:"toAccountType"`   // Required: To account type
+}
+
+// CreateInternalTransferResponse represents the response from creating an internal transfer.
+type CreateInternalTransferResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		TransferID string `json:"transferId"` // UUID
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

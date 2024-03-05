@@ -21,6 +21,8 @@ type Asset interface {
 	GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsBalanceResponse, error)
 	// GetSingleCoinBalance queries the balance of a specific coin in a specific account type.
 	GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error)
+	// GetTransferableCoin queries the list of transferable coins between account types.
+	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
 }
 
 type impl struct {
@@ -293,4 +295,26 @@ func (i *impl) GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingl
 	}
 
 	return &coinBalanceResponse, nil
+}
+func (i *impl) GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error) {
+	// Prepare query parameters
+	queryParams := make(client.Params)
+	queryParams["fromAccountType"] = req.FromAccountType
+	queryParams["toAccountType"] = req.ToAccountType
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-transfer-coin-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching transferable coin list: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferableCoinResponse GetTransferableCoinResponse
+	if err := json.Unmarshal(data, &transferableCoinResponse); err != nil {
+		return nil, fmt.Errorf("error parsing transferable coin list response: %w", err)
+	}
+
+	return &transferableCoinResponse, nil
 }

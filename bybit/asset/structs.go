@@ -194,3 +194,20 @@ type GetSingleCoinBalanceResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetTransferableCoinRequest represents the query parameters for fetching the transferable coin list.
+type GetTransferableCoinRequest struct {
+	FromAccountType string `json:"fromAccountType"` // Required: From account type
+	ToAccountType   string `json:"toAccountType"`   // Required: To account type
+}
+
+// GetTransferableCoinResponse represents the response from fetching the transferable coin list.
+type GetTransferableCoinResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List []string `json:"list"` // A list of coins
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

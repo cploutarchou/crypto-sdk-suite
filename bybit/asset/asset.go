@@ -3,8 +3,9 @@ package asset
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"strconv"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 type Asset interface {
@@ -75,40 +76,63 @@ func (i *impl) GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetC
 	return &finalResponse, nil
 }
 func (i *impl) GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRecordResponse, error) {
-	queryParams := make(client.Params)
-	queryParams["category"] = req.Category
-	if req.Symbol != nil {
-		queryParams["symbol"] = *req.Symbol
-	}
-	if req.StartTime != nil {
-		queryParams["startTime"] = strconv.FormatInt(*req.StartTime, 10)
-	}
-	if req.EndTime != nil {
-		queryParams["endTime"] = strconv.FormatInt(*req.EndTime, 10)
-	}
-	if req.ExpDate != nil {
-		queryParams["expDate"] = *req.ExpDate
-	}
-	if req.Limit != nil {
-		queryParams["limit"] = strconv.Itoa(*req.Limit)
-	}
-	if req.Cursor != nil {
-		queryParams["cursor"] = *req.Cursor
+	var allRecords []DeliveryRecordEntry
+	var finalResponse GetDeliveryRecordResponse
+
+	for {
+		// Prepare query parameters for each request
+		queryParams := make(client.Params)
+		queryParams["category"] = req.Category
+		if req.Symbol != nil {
+			queryParams["symbol"] = *req.Symbol
+		}
+		if req.StartTime != nil {
+			queryParams["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+		}
+		if req.EndTime != nil {
+			queryParams["endTime"] = strconv.FormatInt(*req.EndTime, 10)
+		}
+		if req.ExpDate != nil {
+			queryParams["expDate"] = *req.ExpDate
+		}
+		if req.Limit != nil {
+			queryParams["limit"] = strconv.Itoa(*req.Limit)
+		}
+		if req.Cursor != nil {
+			queryParams["cursor"] = *req.Cursor
+		}
+
+		// Perform the GET request
+		response, err := i.client.Get("/v5/asset/delivery-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching delivery records: %w", err)
+		}
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		var currentPageResponse GetDeliveryRecordResponse
+		if err := json.Unmarshal(data, &currentPageResponse); err != nil {
+			return nil, fmt.Errorf("error parsing delivery records response: %w", err)
+		}
+
+		// Accumulate records from the current page
+		allRecords = append(allRecords, currentPageResponse.Result.List...)
+
+		// Check if there's a next page
+		if currentPageResponse.Result.NextPageCursor == "" {
+			break // Exit loop if there's no next page cursor
+		} else {
+			// Update the cursor for the next request
+			req.Cursor = &currentPageResponse.Result.NextPageCursor
+		}
 	}
 
-	// Perform the GET request
-	response, err := i.client.Get("/v5/asset/delivery-record", queryParams)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching delivery records: %w", err)
-	}
-	data, err := json.Marshal(response)
-	if err != nil {
-		return nil, err
-	}
-	var deliveryRecordsResponse GetDeliveryRecordResponse
-	if err := json.Unmarshal(data, &deliveryRecordsResponse); err != nil {
-		return nil, fmt.Errorf("error parsing delivery records response: %w", err)
-	}
+	// Prepare the final consolidated response
+	finalResponse.RetCode = 0 // Assuming success, or handle based on your logic
+	finalResponse.RetMsg = "OK"
+	finalResponse.Result.List = allRecords
+	// Note: Other fields in finalResponse may need to be populated or adjusted based on your requirements
 
-	return &deliveryRecordsResponse, nil
+	return &finalResponse, nil
 }

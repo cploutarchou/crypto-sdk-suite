@@ -66,3 +66,37 @@ type GetDeliveryRecordResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetSessionSettlementRecordRequest represents the query parameters for fetching session settlement records.
+type GetSessionSettlementRecordRequest struct {
+	Category  string  `json:"category"`            // Required: Product type, e.g., "linear"
+	Symbol    *string `json:"symbol,omitempty"`    // Optional: Symbol name
+	StartTime *int64  `json:"startTime,omitempty"` // Optional: Start timestamp (ms)
+	EndTime   *int64  `json:"endTime,omitempty"`   // Optional: End time (ms)
+	Limit     *int    `json:"limit,omitempty"`     // Optional: Limit for data size per page
+	Cursor    *string `json:"cursor,omitempty"`    // Optional: Cursor for pagination
+}
+
+// SessionSettlementRecord represents a single entry in the session settlement record list.
+type SessionSettlementRecord struct {
+	Symbol          string `json:"symbol"`          // Symbol name
+	Side            string `json:"side"`            // Buy or Sell
+	Size            string `json:"size"`            // Position size
+	SessionAvgPrice string `json:"sessionAvgPrice"` // Settlement price
+	MarkPrice       string `json:"markPrice"`       // Mark price
+	RealisedPnl     string `json:"realisedPnl"`     // Realised PnL
+	CreatedTime     string `json:"createdTime"`     // Created time (ms)
+}
+
+// GetSessionSettlementRecordResponse represents the response from fetching session settlement records.
+type GetSessionSettlementRecordResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		NextPageCursor string                    `json:"nextPageCursor"`
+		Category       string                    `json:"category"`
+		List           []SessionSettlementRecord `json:"list"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

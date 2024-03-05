@@ -13,6 +13,8 @@ type Asset interface {
 	GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetCoinExchangeRecordsResponse, error)
 	// GetDeliveryRecords queries the delivery records of USDC futures and Options.
 	GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRecordResponse, error)
+	// GetSessionSettlementRecords queries the session settlement records of USDC perpetual and futures.
+	GetSessionSettlementRecords(req *GetSessionSettlementRecordRequest) (*GetSessionSettlementRecordResponse, error)
 }
 
 type impl struct {
@@ -69,7 +71,7 @@ func (i *impl) GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetC
 		}
 		req.Cursor = &exchangeRecordsResponse.Result.NextPageCursor // Set cursor for next page
 	}
-	finalResponse.RetCode = 0 // Assume success or set based on your logic
+	finalResponse.RetCode = 0
 	finalResponse.RetMsg = "OK"
 	finalResponse.Result.OrderBody = allRecords
 	finalResponse.Result.NextPageCursor = ""
@@ -128,11 +130,66 @@ func (i *impl) GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRe
 		}
 	}
 
+	finalResponse.RetCode = 0
+	finalResponse.RetMsg = "OK"
+	finalResponse.Result.List = allRecords
+
+	return &finalResponse, nil
+}
+func (i *impl) GetSessionSettlementRecords(req *GetSessionSettlementRecordRequest) (*GetSessionSettlementRecordResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["category"] = req.Category
+	if req.Symbol != nil {
+		queryParams["symbol"] = *req.Symbol
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = strconv.FormatInt(*req.EndTime, 10)
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = strconv.Itoa(*req.Limit)
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request with pagination logic to fetch all records
+	var allRecords []SessionSettlementRecord
+	var finalResponse GetSessionSettlementRecordResponse
+
+	for {
+		response, err := i.client.Get("/v5/asset/settlement-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching session settlement records: %w", err)
+		}
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		var pageResponse GetSessionSettlementRecordResponse
+		if err := json.Unmarshal(data, &pageResponse); err != nil {
+			return nil, fmt.Errorf("error parsing session settlement records response: %w", err)
+		}
+
+		// Accumulate records from the current page
+		allRecords = append(allRecords, pageResponse.Result.List...)
+
+		// Check if there's a next page
+		if pageResponse.Result.NextPageCursor == "" {
+			break // Exit the loop if there's no next page cursor
+		} else {
+			// Update the cursor for the next request
+			queryParams["cursor"] = pageResponse.Result.NextPageCursor
+		}
+	}
+
 	// Prepare the final consolidated response
 	finalResponse.RetCode = 0 // Assuming success, or handle based on your logic
 	finalResponse.RetMsg = "OK"
 	finalResponse.Result.List = allRecords
-	// Note: Other fields in finalResponse may need to be populated or adjusted based on your requirements
+	finalResponse.Result.NextPageCursor = ""
 
 	return &finalResponse, nil
 }

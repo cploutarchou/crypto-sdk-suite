@@ -17,6 +17,8 @@ type Asset interface {
 	GetSessionSettlementRecords(req *GetSessionSettlementRecordRequest) (*GetSessionSettlementRecordResponse, error)
 	// GetAssetInfo queries the asset information for SPOT accounts.
 	GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, error)
+	// GetAllCoinsBalance retrieves all coin balances for specified account types.
+	GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsBalanceResponse, error)
 }
 
 type impl struct {
@@ -135,7 +137,7 @@ func (i *impl) GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRe
 	finalResponse.RetCode = 0
 	finalResponse.RetMsg = "OK"
 	finalResponse.Result.List = allRecords
-
+	finalResponse.Result.NextPageCursor = ""
 	return &finalResponse, nil
 }
 func (i *impl) GetSessionSettlementRecords(req *GetSessionSettlementRecordRequest) (*GetSessionSettlementRecordResponse, error) {
@@ -187,8 +189,7 @@ func (i *impl) GetSessionSettlementRecords(req *GetSessionSettlementRecordReques
 		}
 	}
 
-	// Prepare the final consolidated response
-	finalResponse.RetCode = 0 // Assuming success, or handle based on your logic
+	finalResponse.RetCode = 0
 	finalResponse.RetMsg = "OK"
 	finalResponse.Result.List = allRecords
 	finalResponse.Result.NextPageCursor = ""
@@ -218,4 +219,35 @@ func (i *impl) GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, er
 	}
 
 	return &assetInfoResponse, nil
+}
+func (i *impl) GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsBalanceResponse, error) {
+	queryParams := make(client.Params)
+	if req.MemberID != nil {
+		queryParams["memberId"] = *req.MemberID
+	}
+	queryParams["accountType"] = req.AccountType
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.WithBonus != nil {
+		queryParams["withBonus"] = strconv.Itoa(*req.WithBonus)
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-account-coins-balance", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching all coins balance: %w", err)
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+
+	var coinsBalanceResponse GetAllCoinsBalanceResponse
+	if err := json.Unmarshal(data, &coinsBalanceResponse); err != nil {
+		return nil, fmt.Errorf("error parsing all coins balance response: %w", err)
+	}
+
+	return &coinsBalanceResponse, nil
 }

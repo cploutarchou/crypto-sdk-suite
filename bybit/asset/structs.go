@@ -128,3 +128,32 @@ type GetAssetInfoResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetAllCoinsBalanceRequest represents the query parameters for fetching all coins' balances.
+type GetAllCoinsBalanceRequest struct {
+	MemberID    *string `json:"memberId,omitempty"`  // Optional: User Id, required for checking sub account coin balance with master API key
+	AccountType string  `json:"accountType"`         // Required: Account type
+	Coin        *string `json:"coin,omitempty"`      // Optional: Coin name(s), multiple coins separated by comma
+	WithBonus   *int    `json:"withBonus,omitempty"` // Optional: 0(default): not query bonus. 1: query bonus
+}
+
+// CoinBalanceEntry represents a single coin's balance information.
+type CoinBalanceEntry struct {
+	Coin            string `json:"coin"`            // Currency type
+	WalletBalance   string `json:"walletBalance"`   // Wallet balance
+	TransferBalance string `json:"transferBalance"` // Transferable balance
+	Bonus           string `json:"bonus,omitempty"` // The bonus (if queried)
+}
+
+// GetAllCoinsBalanceResponse represents the response from fetching all coins' balances.
+type GetAllCoinsBalanceResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		MemberID    string             `json:"memberId"`    // UserID
+		AccountType string             `json:"accountType"` // Account type
+		Balance     []CoinBalanceEntry `json:"balance"`     // Array of balance entries
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

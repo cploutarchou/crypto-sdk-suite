@@ -19,6 +19,8 @@ type Asset interface {
 	GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, error)
 	// GetAllCoinsBalance retrieves all coin balances for specified account types.
 	GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsBalanceResponse, error)
+	// GetSingleCoinBalance queries the balance of a specific coin in a specific account type.
+	GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error)
 }
 
 type impl struct {
@@ -250,4 +252,45 @@ func (i *impl) GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsB
 	}
 
 	return &coinsBalanceResponse, nil
+}
+func (i *impl) GetSingleCoinBalance(req *GetSingleCoinBalanceRequest) (*GetSingleCoinBalanceResponse, error) {
+	queryParams := make(client.Params)
+	if req.MemberID != nil {
+		queryParams["memberId"] = *req.MemberID
+	}
+	if req.ToMemberID != nil {
+		queryParams["toMemberId"] = *req.ToMemberID
+	}
+	queryParams["accountType"] = req.AccountType
+	if req.ToAccountType != nil {
+		queryParams["toAccountType"] = *req.ToAccountType
+	}
+	queryParams["coin"] = req.Coin
+	if req.WithBonus != nil {
+		queryParams["withBonus"] = strconv.Itoa(*req.WithBonus)
+	}
+	if req.WithTransferSafeAmount != nil {
+		queryParams["withTransferSafeAmount"] = strconv.Itoa(*req.WithTransferSafeAmount)
+	}
+	if req.WithLtvTransferSafeAmount != nil {
+		queryParams["withLtvTransferSafeAmount"] = strconv.Itoa(*req.WithLtvTransferSafeAmount)
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-account-coin-balance", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching single coin balance: %w", err)
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+
+	var coinBalanceResponse GetSingleCoinBalanceResponse
+	if err := json.Unmarshal(data, &coinBalanceResponse); err != nil {
+		return nil, fmt.Errorf("error parsing single coin balance response: %w", err)
+	}
+
+	return &coinBalanceResponse, nil
 }

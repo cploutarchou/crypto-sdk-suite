@@ -157,3 +157,40 @@ type GetAllCoinsBalanceResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetSingleCoinBalanceRequest represents the query parameters for fetching a single coin balance.
+type GetSingleCoinBalanceRequest struct {
+	MemberID                  *string `json:"memberId,omitempty"`                  // Optional: UID, required for querying sub UID balance with master API key
+	ToMemberID                *string `json:"toMemberId,omitempty"`                // Optional: UID, required for querying transferable balance between UIDs
+	AccountType               string  `json:"accountType"`                         // Required: Account type
+	ToAccountType             *string `json:"toAccountType,omitempty"`             // Optional: To account type, required for transferable balance queries
+	Coin                      string  `json:"coin"`                                // Required: Coin
+	WithBonus                 *int    `json:"withBonus,omitempty"`                 // Optional: Query bonus
+	WithTransferSafeAmount    *int    `json:"withTransferSafeAmount,omitempty"`    // Optional: Query delay withdraw/transfer safe amount
+	WithLtvTransferSafeAmount *int    `json:"withLtvTransferSafeAmount,omitempty"` // Optional: Query transferable amount for ins loan account
+}
+
+// SingleCoinBalanceEntry represents the balance information for a single coin.
+type SingleCoinBalanceEntry struct {
+	Coin                  string `json:"coin"`
+	WalletBalance         string `json:"walletBalance"`
+	TransferBalance       string `json:"transferBalance"`
+	Bonus                 string `json:"bonus,omitempty"`
+	TransferSafeAmount    string `json:"transferSafeAmount,omitempty"`
+	LtvTransferSafeAmount string `json:"ltvTransferSafeAmount,omitempty"`
+}
+
+// GetSingleCoinBalanceResponse represents the response from fetching a single coin balance.
+type GetSingleCoinBalanceResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		AccountType string                 `json:"accountType"`
+		BizType     int                    `json:"bizType"`
+		AccountID   string                 `json:"accountId"`
+		MemberID    string                 `json:"memberId"`
+		Balance     SingleCoinBalanceEntry `json:"balance"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

@@ -231,3 +231,39 @@ type CreateInternalTransferResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetUniversalTransferRecordsRequest represents the query parameters for fetching universal transfer records.
+type GetUniversalTransferRecordsRequest struct {
+	TransferID *string `json:"transferId,omitempty"` // Optional: UUID used in createTransfer
+	Coin       *string `json:"coin,omitempty"`       // Optional: Coin
+	Status     *string `json:"status,omitempty"`     // Optional: Transfer status (SUCCESS, FAILED, PENDING)
+	StartTime  *int64  `json:"startTime,omitempty"`  // Optional: Start timestamp (ms)
+	EndTime    *int64  `json:"endTime,omitempty"`    // Optional: End timestamp (ms)
+	Limit      *int    `json:"limit,omitempty"`      // Optional: Data size limit per page
+	Cursor     *string `json:"cursor,omitempty"`     // Optional: Pagination cursor
+}
+
+// UniversalTransferRecordEntry represents a single entry in the universal transfer record list.
+type UniversalTransferRecordEntry struct {
+	TransferID      string `json:"transferId"`
+	Coin            string `json:"coin"`
+	Amount          string `json:"amount"`
+	FromMemberID    string `json:"fromMemberId"`
+	ToMemberID      string `json:"toMemberId"`
+	FromAccountType string `json:"fromAccountType"`
+	ToAccountType   string `json:"toAccountType"`
+	Timestamp       string `json:"timestamp"`
+	Status          string `json:"status"`
+}
+
+// GetUniversalTransferRecordsResponse represents the response from fetching universal transfer records.
+type GetUniversalTransferRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []UniversalTransferRecordEntry `json:"list"`
+		NextPageCursor string                         `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

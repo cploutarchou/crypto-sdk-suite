@@ -25,6 +25,7 @@ type Asset interface {
 	// GetTransferableCoin queries the list of transferable coins between account types.
 	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
 	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
+	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
 }
 
 type impl struct {
@@ -352,4 +353,45 @@ func (i *impl) CreateInternalTransfer(req *CreateInternalTransferRequest) (*Crea
 	}
 
 	return &transferResponse, nil
+}
+
+func (i *impl) GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error) {
+	queryParams := client.Params{}
+	if req.TransferID != nil {
+		queryParams["transferId"] = *req.TransferID
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Status != nil {
+		queryParams["status"] = *req.Status
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-universal-transfer-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching universal transfer records: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferRecordsResponse GetUniversalTransferRecordsResponse
+	if err := json.Unmarshal(data, &transferRecordsResponse); err != nil {
+		return nil, fmt.Errorf("error parsing universal transfer records response: %w", err)
+	}
+
+	return &transferRecordsResponse, nil
 }

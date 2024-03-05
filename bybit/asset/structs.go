@@ -100,3 +100,31 @@ type GetSessionSettlementRecordResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetAssetInfoRequest represents the query parameters for fetching asset information.
+type GetAssetInfoRequest struct {
+	AccountType string  `json:"accountType"`    // Required: Account type, e.g., "SPOT"
+	Coin        *string `json:"coin,omitempty"` // Optional: Coin name
+}
+
+// AssetInfoEntry represents a single asset entry within the asset information list.
+type AssetInfoEntry struct {
+	Coin     string `json:"coin"`     // Coin
+	Frozen   string `json:"frozen"`   // Freeze amount
+	Free     string `json:"free"`     // Free balance
+	Withdraw string `json:"withdraw"` // Amount in withdrawing
+}
+
+// GetAssetInfoResponse represents the response from fetching asset information.
+type GetAssetInfoResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Spot struct {
+			Status string           `json:"status"` // account status
+			Assets []AssetInfoEntry `json:"assets"` // Assets array
+		} `json:"spot"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

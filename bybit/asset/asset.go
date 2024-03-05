@@ -15,6 +15,8 @@ type Asset interface {
 	GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRecordResponse, error)
 	// GetSessionSettlementRecords queries the session settlement records of USDC perpetual and futures.
 	GetSessionSettlementRecords(req *GetSessionSettlementRecordRequest) (*GetSessionSettlementRecordResponse, error)
+	// GetAssetInfo queries the asset information for SPOT accounts.
+	GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, error)
 }
 
 type impl struct {
@@ -192,4 +194,28 @@ func (i *impl) GetSessionSettlementRecords(req *GetSessionSettlementRecordReques
 	finalResponse.Result.NextPageCursor = ""
 
 	return &finalResponse, nil
+}
+
+func (i *impl) GetAssetInfo(req *GetAssetInfoRequest) (*GetAssetInfoResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["accountType"] = req.AccountType
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-asset-info", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching asset information: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var assetInfoResponse GetAssetInfoResponse
+	if err := json.Unmarshal(data, &assetInfoResponse); err != nil {
+		return nil, fmt.Errorf("error parsing asset information response: %w", err)
+	}
+
+	return &assetInfoResponse, nil
 }

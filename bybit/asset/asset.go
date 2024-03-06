@@ -26,6 +26,7 @@ type Asset interface {
 	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
 	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
 	GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error)
+	GetSubUIDs() (*GetSubUIDsResponse, error)
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
 }
 
@@ -454,4 +455,36 @@ func (i *impl) GetSubUIDs() (*GetSubUIDsResponse, error) {
 	}
 
 	return &subUIDsResponse, nil
+}
+func (i *impl) CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*CreateUniversalTransferResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["transferId"] = req.TransferID
+	queryParams["coin"] = req.Coin
+	queryParams["amount"] = req.Amount
+	queryParams["fromMemberId"] = req.FromMemberID
+	queryParams["toMemberId"] = req.ToMemberID
+	queryParams["fromAccountType"] = req.FromAccountType
+	queryParams["toAccountType"] = req.ToAccountType
+
+	// Ensure all required fields are populated
+	if req.TransferID == "" || req.Coin == "" || req.Amount == "" || req.FromMemberID == 0 || req.ToMemberID == 0 || req.FromAccountType == "" || req.ToAccountType == "" {
+		return nil, errors.New("missing required fields in request")
+	}
+
+	// Perform the POST request
+	response, err := i.client.Post("/v5/asset/transfer/universal-transfer", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error creating universal transfer: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferResponse CreateUniversalTransferResponse
+	err = json.Unmarshal(data, &transferResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing universal transfer response: %w", err)
+	}
+
+	return &transferResponse, nil
 }

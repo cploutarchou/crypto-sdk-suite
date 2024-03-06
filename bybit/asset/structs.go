@@ -313,3 +313,25 @@ type GetSubUIDsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// CreateUniversalTransferRequest represents the payload for creating a universal transfer.
+type CreateUniversalTransferRequest struct {
+	TransferID      string `json:"transferId"`      // Required: UUID, manually generate a UUID
+	Coin            string `json:"coin"`            // Required: Coin
+	Amount          string `json:"amount"`          // Required: Amount
+	FromMemberID    int    `json:"fromMemberId"`    // Required: From UID
+	ToMemberID      int    `json:"toMemberId"`      // Required: To UID
+	FromAccountType string `json:"fromAccountType"` // Required: From account type
+	ToAccountType   string `json:"toAccountType"`   // Required: To account type
+}
+
+// CreateUniversalTransferResponse represents the response from creating a universal transfer.
+type CreateUniversalTransferResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		TransferID string `json:"transferId"` // UUID
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

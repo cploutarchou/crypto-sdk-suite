@@ -29,6 +29,7 @@ type Asset interface {
 	GetSubUIDs() (*GetSubUIDsResponse, error)
 	CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*CreateUniversalTransferResponse, error)
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
+	GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error)
 }
 
 type impl struct {
@@ -521,4 +522,27 @@ func (i *impl) GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) 
 	}
 
 	return &allowedDepositCoinInfoResponse, nil
+}
+func (i *impl) SetDepositAccount(req *SetDepositAccountRequest) (*SetDepositAccountResponse, error) {
+	// Initialize Params and populate with request data
+	params := client.Params{
+		"accountType": req.AccountType, // Direct assignment since AccountType is required and assumed to be always provided
+	}
+
+	responseBytes, err := i.client.Post("/v5/asset/deposit/deposit-to-account", params)
+	if err != nil {
+		return nil, fmt.Errorf("error during POST request for setting deposit account: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	var response SetDepositAccountResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response from setting deposit account: %w", err)
+	}
+
+	return &response, nil
 }

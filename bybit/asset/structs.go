@@ -361,3 +361,16 @@ type GetAllowedDepositCoinInfoResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type SetDepositAccountRequest struct {
+	AccountType string `json:"accountType"` // Required: Account type (UNIFIED, SPOT, OPTION, CONTRACT, FUND)
+}
+
+type SetDepositAccountResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Status int `json:"status"` // Request result: 1 for SUCCESS, 0 for FAIL
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

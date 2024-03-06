@@ -267,3 +267,241 @@ type GetUniversalTransferRecordsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetInternalTransferRecordsRequest represents the query parameters for fetching internal transfer records.
+type GetInternalTransferRecordsRequest struct {
+	TransferID *string `json:"transferId,omitempty"` // Optional: UUID used in createTransfer
+	Coin       *string `json:"coin,omitempty"`       // Optional: Coin
+	Status     *string `json:"status,omitempty"`     // Optional: Transfer status
+	StartTime  *int64  `json:"startTime,omitempty"`  // Optional: Start timestamp (ms)
+	EndTime    *int64  `json:"endTime,omitempty"`    // Optional: End timestamp (ms)
+	Limit      *int    `json:"limit,omitempty"`      // Optional: Data size limit per page
+	Cursor     *string `json:"cursor,omitempty"`     // Optional: Pagination cursor
+}
+
+// InternalTransferRecordEntry represents a single entry in the internal transfer record list.
+type InternalTransferRecordEntry struct {
+	TransferID      string `json:"transferId"`
+	Coin            string `json:"coin"`
+	Amount          string `json:"amount"`
+	FromAccountType string `json:"fromAccountType"`
+	ToAccountType   string `json:"toAccountType"`
+	Timestamp       string `json:"timestamp"`
+	Status          string `json:"status"`
+}
+
+// GetInternalTransferRecordsResponse represents the response from fetching internal transfer records.
+type GetInternalTransferRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []InternalTransferRecordEntry `json:"list"`
+		NextPageCursor string                        `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+
+// GetSubUIDsResponse represents the response from fetching sub UIDs.
+type GetSubUIDsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		SubMemberIds             []string `json:"subMemberIds"`             // All sub UIDs under the main UID
+		TransferableSubMemberIds []string `json:"transferableSubMemberIds"` // All sub UIDs that have universal transfer enabled
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+
+// CreateUniversalTransferRequest represents the payload for creating a universal transfer.
+type CreateUniversalTransferRequest struct {
+	TransferID      string `json:"transferId"`      // Required: UUID, manually generate a UUID
+	Coin            string `json:"coin"`            // Required: Coin
+	Amount          string `json:"amount"`          // Required: Amount
+	FromMemberID    int    `json:"fromMemberId"`    // Required: From UID
+	ToMemberID      int    `json:"toMemberId"`      // Required: To UID
+	FromAccountType string `json:"fromAccountType"` // Required: From account type
+	ToAccountType   string `json:"toAccountType"`   // Required: To account type
+}
+
+// CreateUniversalTransferResponse represents the response from creating a universal transfer.
+type CreateUniversalTransferResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		TransferID string `json:"transferId"` // UUID
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetAllowedDepositCoinInfoRequest struct {
+	Coin   *string `json:"coin,omitempty"`   // Optional: Coin. coin and chain must be paired if passed
+	Chain  *string `json:"chain,omitempty"`  // Optional: Chain. coin and chain must be paired if passed
+	Limit  *int    `json:"limit,omitempty"`  // Optional: Limit for data size per page
+	Cursor *string `json:"cursor,omitempty"` // Optional: Pagination cursor
+}
+
+type DepositConfig struct {
+	Coin               string `json:"coin"`
+	Chain              string `json:"chain"`
+	CoinShowName       string `json:"coinShowName"`
+	ChainType          string `json:"chainType"`
+	BlockConfirmNumber int    `json:"blockConfirmNumber"`
+	MinDepositAmount   string `json:"minDepositAmount"`
+}
+
+type GetAllowedDepositCoinInfoResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		ConfigList     []DepositConfig `json:"configList"`
+		NextPageCursor string          `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type SetDepositAccountRequest struct {
+	AccountType string `json:"accountType"` // Required: Account type (UNIFIED, SPOT, OPTION, CONTRACT, FUND)
+}
+
+type SetDepositAccountResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Status int `json:"status"` // Request result: 1 for SUCCESS, 0 for FAIL
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetDepositRecordsRequest struct {
+	Coin      *string `json:"coin,omitempty"`      // Optional: Coin
+	StartTime *int64  `json:"startTime,omitempty"` // Optional: The start timestamp (ms)
+	EndTime   *int64  `json:"endTime,omitempty"`   // Optional: The end timestamp (ms)
+	Limit     *int    `json:"limit,omitempty"`     // Optional: Limit for data size per page
+	Cursor    *string `json:"cursor,omitempty"`    // Optional: Pagination cursor
+}
+
+type DepositRecordEntry struct {
+	Coin              string `json:"coin"`
+	Chain             string `json:"chain"`
+	Amount            string `json:"amount"`
+	TxID              string `json:"txID"`
+	Status            int    `json:"status"`
+	ToAddress         string `json:"toAddress"`
+	Tag               string `json:"tag"`
+	DepositFee        string `json:"depositFee"`
+	SuccessAt         string `json:"successAt"`
+	Confirmations     string `json:"confirmations"`
+	TxIndex           string `json:"txIndex"`
+	BlockHash         string `json:"blockHash"`
+	BatchReleaseLimit string `json:"batchReleaseLimit"`
+	DepositType       int    `json:"depositType"`
+}
+
+type GetDepositRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []DepositRecordEntry `json:"rows"`
+		NextPageCursor string               `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetSubDepositRecordsRequest struct {
+	SubMemberId string  `json:"subMemberId"`         // Required: Sub UID
+	Coin        *string `json:"coin,omitempty"`      // Optional: Coin
+	StartTime   *int64  `json:"startTime,omitempty"` // Optional: The start timestamp (ms)
+	EndTime     *int64  `json:"endTime,omitempty"`   // Optional: The end timestamp (ms)
+	Limit       *int    `json:"limit,omitempty"`     // Optional: Limit for data size per page
+	Cursor      *string `json:"cursor,omitempty"`    // Optional: Pagination cursor
+}
+
+type GetSubDepositRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []DepositRecordEntry `json:"rows"`
+		NextPageCursor string               `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetInternalDepositRecordsRequest struct {
+	TxID      *string `json:"txID,omitempty"`      // Optional: Internal transfer transaction ID
+	StartTime *int64  `json:"startTime,omitempty"` // Optional: Start time (ms)
+	EndTime   *int64  `json:"endTime,omitempty"`   // Optional: End time (ms)
+	Coin      *string `json:"coin,omitempty"`      // Optional: Coin name
+	Cursor    *string `json:"cursor,omitempty"`    // Optional: Pagination cursor
+	Limit     *int    `json:"limit,omitempty"`     // Optional: Number of items per page
+}
+
+type InternalDepositRecordEntry struct {
+	ID          string `json:"id"`
+	Type        int    `json:"type"`
+	Coin        string `json:"coin"`
+	Amount      string `json:"amount"`
+	Status      int    `json:"status"`
+	Address     string `json:"address"`
+	CreatedTime string `json:"createdTime"`
+	TxID        string `json:"txID"`
+}
+
+type GetInternalDepositRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []InternalDepositRecordEntry `json:"rows"`
+		NextPageCursor string                       `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetMasterDepositAddressRequest struct {
+	Coin      string  `json:"coin"`                // Required: Coin
+	ChainType *string `json:"chainType,omitempty"` // Optional: Chain type from coin-info endpoint
+}
+
+type DepositChainInfo struct {
+	ChainType         string `json:"chainType"`
+	AddressDeposit    string `json:"addressDeposit"`
+	TagDeposit        string `json:"tagDeposit"`
+	Chain             string `json:"chain"`
+	BatchReleaseLimit string `json:"batchReleaseLimit"`
+}
+
+type GetMasterDepositAddressResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Coin   string             `json:"coin"`
+		Chains []DepositChainInfo `json:"chains"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetSubDepositAddressRequest struct {
+	Coin        string `json:"coin"`        // Required: Coin
+	ChainType   string `json:"chainType"`   // Required: Chain type from the coin-info endpoint
+	SubMemberId string `json:"subMemberId"` // Required: Sub user ID
+}
+
+type SubDepositChainInfo struct {
+	ChainType         string `json:"chainType"`
+	AddressDeposit    string `json:"addressDeposit"`
+	TagDeposit        string `json:"tagDeposit,omitempty"`
+	Chain             string `json:"chain"`
+	BatchReleaseLimit string `json:"batchReleaseLimit"`
+}
+
+type GetSubDepositAddressResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Coin   string                `json:"coin"`
+		Chains []SubDepositChainInfo `json:"chains"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

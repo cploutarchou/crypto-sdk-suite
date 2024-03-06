@@ -25,7 +25,16 @@ type Asset interface {
 	// GetTransferableCoin queries the list of transferable coins between account types.
 	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
 	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
+	GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error)
+	GetSubUIDs() (*GetSubUIDsResponse, error)
+	CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*CreateUniversalTransferResponse, error)
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
+	GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error)
+	GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error)
+	GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error)
+	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
+	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
+	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
 }
 
 type impl struct {
@@ -394,4 +403,368 @@ func (i *impl) GetUniversalTransferRecords(req *GetUniversalTransferRecordsReque
 	}
 
 	return &transferRecordsResponse, nil
+}
+func (i *impl) GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error) {
+	queryParams := make(client.Params)
+	if req.TransferID != nil {
+		queryParams["transferId"] = *req.TransferID
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Status != nil {
+		queryParams["status"] = *req.Status
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-inter-transfer-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching internal transfer records: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferRecordsResponse GetInternalTransferRecordsResponse
+	err = json.Unmarshal(data, &transferRecordsResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing internal transfer records response: %w", err)
+	}
+
+	return &transferRecordsResponse, nil
+}
+func (i *impl) GetSubUIDs() (*GetSubUIDsResponse, error) {
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-sub-member-list", nil)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching sub UIDs: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var subUIDsResponse GetSubUIDsResponse
+	err = json.Unmarshal(data, &subUIDsResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing sub UIDs response: %w", err)
+	}
+
+	return &subUIDsResponse, nil
+}
+func (i *impl) CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*CreateUniversalTransferResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["transferId"] = req.TransferID
+	queryParams["coin"] = req.Coin
+	queryParams["amount"] = req.Amount
+	queryParams["fromMemberId"] = req.FromMemberID
+	queryParams["toMemberId"] = req.ToMemberID
+	queryParams["fromAccountType"] = req.FromAccountType
+	queryParams["toAccountType"] = req.ToAccountType
+
+	// Ensure all required fields are populated
+	if req.TransferID == "" || req.Coin == "" || req.Amount == "" || req.FromMemberID == 0 || req.ToMemberID == 0 || req.FromAccountType == "" || req.ToAccountType == "" {
+		return nil, errors.New("missing required fields in request")
+	}
+
+	// Perform the POST request
+	response, err := i.client.Post("/v5/asset/transfer/universal-transfer", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error creating universal transfer: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferResponse CreateUniversalTransferResponse
+	err = json.Unmarshal(data, &transferResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing universal transfer response: %w", err)
+	}
+
+	return &transferResponse, nil
+}
+func (i *impl) GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error) {
+	queryParams := make(client.Params)
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Chain != nil {
+		queryParams["chain"] = *req.Chain
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/deposit/query-allowed-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching allowed deposit coin information: %w", err)
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var allowedDepositCoinInfoResponse GetAllowedDepositCoinInfoResponse
+	err = json.Unmarshal(data, &allowedDepositCoinInfoResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing allowed deposit coin information response: %w", err)
+	}
+
+	return &allowedDepositCoinInfoResponse, nil
+}
+func (i *impl) SetDepositAccount(req *SetDepositAccountRequest) (*SetDepositAccountResponse, error) {
+	// Initialize Params and populate with request data
+	params := client.Params{
+		"accountType": req.AccountType, // Direct assignment since AccountType is required and assumed to be always provided
+	}
+
+	responseBytes, err := i.client.Post("/v5/asset/deposit/deposit-to-account", params)
+	if err != nil {
+		return nil, fmt.Errorf("error during POST request for setting deposit account: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	var response SetDepositAccountResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response from setting deposit account: %w", err)
+	}
+
+	return &response, nil
+}
+func (i *impl) GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error) {
+	allDepositRecords := []DepositRecordEntry{}
+	var finalResponse GetDepositRecordsResponse
+
+	// Initial queryParams setup
+	queryParams := make(client.Params)
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+
+	for {
+		// Perform the GET request
+		response, err := i.client.Get("/v5/asset/deposit/query-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching deposit records: %w", err)
+		}
+
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+
+		// Deserialize the current page of response
+		var currentPageResponse GetDepositRecordsResponse
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing deposit records response: %w", err)
+		}
+
+		// Accumulate records from the current page
+		allDepositRecords = append(allDepositRecords, currentPageResponse.Result.Rows...)
+
+		// Check if there's a next page. If not, break out of the loop
+		if currentPageResponse.Result.NextPageCursor == "" {
+			finalResponse = currentPageResponse // Use the last page's meta info for final response
+			break
+		}
+
+		// Set cursor for the next page
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor
+	}
+
+	// Populate finalResponse with all accumulated records
+	finalResponse.Result.Rows = allDepositRecords
+	finalResponse.Result.NextPageCursor = ""
+	finalResponse.RetCode = 0
+
+	return &finalResponse, nil
+}
+func (i *impl) GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error) {
+	var allRows []DepositRecordEntry
+	var finalResponse GetSubDepositRecordsResponse
+
+	queryParams := make(client.Params)
+	queryParams["subMemberId"] = req.SubMemberId
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	queryParams["cursor"] = req.Cursor // Start with nil or provided cursor
+
+	for {
+		response, err := i.client.Get("/v5/asset/deposit/query-sub-member-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching sub deposit records: %w", err)
+		}
+
+		// Assuming the response is already unmarshaled into the appropriate struct
+		var currentPageResponse GetSubDepositRecordsResponse
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing sub deposit records response: %w", err)
+		}
+		allRows = append(allRows, currentPageResponse.Result.Rows...)
+		if currentPageResponse.Result.NextPageCursor == "" {
+			break
+		}
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor // Prepare for the next iteration
+	}
+
+	// Assign collected rows and last page's meta to finalResponse
+	finalResponse.Result.Rows = allRows
+	finalResponse.Result.NextPageCursor = ""
+	finalResponse.RetCode = 0
+	return &finalResponse, nil
+}
+func (i *impl) GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error) {
+	var allRows []InternalDepositRecordEntry
+	var finalResponse GetInternalDepositRecordsResponse
+
+	queryParams := make(client.Params)
+	if req.TxID != nil {
+		queryParams["txID"] = *req.TxID
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	var currentPageResponse GetInternalDepositRecordsResponse
+	// Loop through pages to collect all records
+	for {
+		response, err := i.client.Get("/v5/asset/deposit/query-internal-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching internal deposit records: %w", err)
+		}
+
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		// Assuming response is a JSON body byte slice
+
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing internal deposit records response: %w", err)
+		}
+
+		allRows = append(allRows, currentPageResponse.Result.Rows...)
+		if currentPageResponse.Result.NextPageCursor == "" {
+			finalResponse = currentPageResponse
+			break
+		}
+
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor // Prepare for the next iteration
+	}
+
+	finalResponse.Result.Rows = allRows
+	finalResponse.Result.NextPageCursor = currentPageResponse.Result.NextPageCursor
+	finalResponse.RetCode = currentPageResponse.RetCode
+	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
+	finalResponse.RetMsg = currentPageResponse.RetMsg
+	return &finalResponse, nil
+}
+
+func (i *impl) GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	if req.ChainType != nil {
+		queryParams["chainType"] = *req.ChainType
+	}
+
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/deposit/query-address", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying master deposit address: %w", err)
+	}
+
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetMasterDepositAddressResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing master deposit address response: %w", err)
+	}
+
+	return &response, nil
+}
+func (i *impl) GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	queryParams["chainType"] = req.ChainType
+	queryParams["subMemberId"] = req.SubMemberId
+
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/deposit/query-sub-member-address", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying sub deposit address: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetSubDepositAddressResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing sub deposit address response: %w", err)
+	}
+
+	return &response, nil
 }

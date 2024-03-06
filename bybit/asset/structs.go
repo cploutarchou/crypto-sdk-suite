@@ -374,3 +374,38 @@ type SetDepositAccountResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetDepositRecordsRequest struct {
+    Coin      *string `json:"coin,omitempty"`      // Optional: Coin
+    StartTime *int64  `json:"startTime,omitempty"` // Optional: The start timestamp (ms)
+    EndTime   *int64  `json:"endTime,omitempty"`   // Optional: The end timestamp (ms)
+    Limit     *int    `json:"limit,omitempty"`     // Optional: Limit for data size per page
+    Cursor    *string `json:"cursor,omitempty"`    // Optional: Pagination cursor
+}
+
+type DepositRecordEntry struct {
+    Coin              string `json:"coin"`
+    Chain             string `json:"chain"`
+    Amount            string `json:"amount"`
+    TxID              string `json:"txID"`
+    Status            int    `json:"status"`
+    ToAddress         string `json:"toAddress"`
+    Tag               string `json:"tag"`
+    DepositFee        string `json:"depositFee"`
+    SuccessAt         string `json:"successAt"`
+    Confirmations     string `json:"confirmations"`
+    TxIndex           string `json:"txIndex"`
+    BlockHash         string `json:"blockHash"`
+    BatchReleaseLimit string `json:"batchReleaseLimit"`
+    DepositType       int    `json:"depositType"`
+}
+
+type GetDepositRecordsResponse struct {
+    RetCode         int                 `json:"retCode"`
+    RetMsg          string              `json:"retMsg"`
+    Result          struct {
+        Rows           []DepositRecordEntry `json:"rows"`
+        NextPageCursor string               `json:"nextPageCursor"`
+    } `json:"result"`
+    RetExtInfo      interface{}         `json:"retExtInfo"`
+    Time            int64               `json:"time"`
+}

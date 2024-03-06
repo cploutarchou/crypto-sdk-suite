@@ -267,3 +267,49 @@ type GetUniversalTransferRecordsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+// GetInternalTransferRecordsRequest represents the query parameters for fetching internal transfer records.
+type GetInternalTransferRecordsRequest struct {
+	TransferID *string `json:"transferId,omitempty"` // Optional: UUID used in createTransfer
+	Coin       *string `json:"coin,omitempty"`       // Optional: Coin
+	Status     *string `json:"status,omitempty"`     // Optional: Transfer status
+	StartTime  *int64  `json:"startTime,omitempty"`  // Optional: Start timestamp (ms)
+	EndTime    *int64  `json:"endTime,omitempty"`    // Optional: End timestamp (ms)
+	Limit      *int    `json:"limit,omitempty"`      // Optional: Data size limit per page
+	Cursor     *string `json:"cursor,omitempty"`     // Optional: Pagination cursor
+}
+
+// InternalTransferRecordEntry represents a single entry in the internal transfer record list.
+type InternalTransferRecordEntry struct {
+	TransferID      string `json:"transferId"`
+	Coin            string `json:"coin"`
+	Amount          string `json:"amount"`
+	FromAccountType string `json:"fromAccountType"`
+	ToAccountType   string `json:"toAccountType"`
+	Timestamp       string `json:"timestamp"`
+	Status          string `json:"status"`
+}
+
+// GetInternalTransferRecordsResponse represents the response from fetching internal transfer records.
+type GetInternalTransferRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		List           []InternalTransferRecordEntry `json:"list"`
+		NextPageCursor string                        `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+
+// GetSubUIDsResponse represents the response from fetching sub UIDs.
+type GetSubUIDsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		SubMemberIds             []string `json:"subMemberIds"`             // All sub UIDs under the main UID
+		TransferableSubMemberIds []string `json:"transferableSubMemberIds"` // All sub UIDs that have universal transfer enabled
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

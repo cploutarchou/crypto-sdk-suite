@@ -25,6 +25,7 @@ type Asset interface {
 	// GetTransferableCoin queries the list of transferable coins between account types.
 	GetTransferableCoin(req *GetTransferableCoinRequest) (*GetTransferableCoinResponse, error)
 	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
+	GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error)
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
 }
 
@@ -394,4 +395,63 @@ func (i *impl) GetUniversalTransferRecords(req *GetUniversalTransferRecordsReque
 	}
 
 	return &transferRecordsResponse, nil
+}
+func (i *impl) GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error) {
+	queryParams := make(client.Params)
+	if req.TransferID != nil {
+		queryParams["transferId"] = *req.TransferID
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Status != nil {
+		queryParams["status"] = *req.Status
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-inter-transfer-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching internal transfer records: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var transferRecordsResponse GetInternalTransferRecordsResponse
+	err = json.Unmarshal(data, &transferRecordsResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing internal transfer records response: %w", err)
+	}
+
+	return &transferRecordsResponse, nil
+}
+func (i *impl) GetSubUIDs() (*GetSubUIDsResponse, error) {
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/transfer/query-sub-member-list", nil)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching sub UIDs: %w", err)
+	}
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var subUIDsResponse GetSubUIDsResponse
+	err = json.Unmarshal(data, &subUIDsResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing sub UIDs response: %w", err)
+	}
+
+	return &subUIDsResponse, nil
 }

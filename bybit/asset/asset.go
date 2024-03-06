@@ -34,7 +34,7 @@ type Asset interface {
 	GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error)
 	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
 	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
-	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error) 
+	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
 }
 
 type impl struct {
@@ -744,27 +744,27 @@ func (i *impl) GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*Ge
 	return &response, nil
 }
 func (i *impl) GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error) {
-    queryParams := make(client.Params)
-    queryParams["coin"] = req.Coin
-    queryParams["chainType"] = req.ChainType
-    queryParams["subMemberId"] = req.SubMemberId
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	queryParams["chainType"] = req.ChainType
+	queryParams["subMemberId"] = req.SubMemberId
 
-    // Perform the GET request
-    responseBytes, err := i.client.Get("/v5/asset/deposit/query-sub-member-address", queryParams)
-    if err != nil {
-        return nil, fmt.Errorf("error querying sub deposit address: %w", err)
-    }
-	data , err := json.Marshal(responseBytes)
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/deposit/query-sub-member-address", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying sub deposit address: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
 
-    if err!= nil {
-        return nil, err
-    }
-    // Deserialize the response into the response struct
-    var response GetSubDepositAddressResponse
-    err = json.Unmarshal(data, &response)
-    if err != nil {
-        return nil, fmt.Errorf("error parsing sub deposit address response: %w", err)
-    }
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetSubDepositAddressResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing sub deposit address response: %w", err)
+	}
 
-    return &response, nil
+	return &response, nil
 }

@@ -481,3 +481,27 @@ type GetMasterDepositAddressResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetSubDepositAddressRequest struct {
+    Coin        string `json:"coin"`        // Required: Coin
+    ChainType   string `json:"chainType"`   // Required: Chain type from the coin-info endpoint
+    SubMemberId string `json:"subMemberId"` // Required: Sub user ID
+}
+
+type SubDepositChainInfo struct {
+    ChainType        string `json:"chainType"`
+    AddressDeposit   string `json:"addressDeposit"`
+    TagDeposit       string `json:"tagDeposit,omitempty"`
+    Chain            string `json:"chain"`
+    BatchReleaseLimit string `json:"batchReleaseLimit"`
+}
+
+type GetSubDepositAddressResponse struct {
+    RetCode int    `json:"retCode"`
+    RetMsg  string `json:"retMsg"`
+    Result  struct {
+        Coin   string               `json:"coin"`
+        Chains []SubDepositChainInfo `json:"chains"`
+    } `json:"result"`
+    RetExtInfo interface{} `json:"retExtInfo"`
+    Time       int64       `json:"time"`
+}

@@ -32,6 +32,7 @@ type Asset interface {
 	GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error)
 	GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error)
 	GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error)
+	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
 }
 
 type impl struct {
@@ -653,5 +654,63 @@ func (i *impl) GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDe
 	finalResponse.Result.Rows = allRows
 	finalResponse.Result.NextPageCursor = ""
 	finalResponse.RetCode = 0
+	return &finalResponse, nil
+}
+func (i *impl) GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error) {
+	var allRows []InternalDepositRecordEntry
+	var finalResponse GetInternalDepositRecordsResponse
+
+	queryParams := make(client.Params)
+	if req.TxID != nil {
+		queryParams["txID"] = *req.TxID
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	var currentPageResponse GetInternalDepositRecordsResponse
+	// Loop through pages to collect all records
+	for {
+		response, err := i.client.Get("/v5/asset/deposit/query-internal-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching internal deposit records: %w", err)
+		}
+
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		// Assuming response is a JSON body byte slice
+
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing internal deposit records response: %w", err)
+		}
+
+		allRows = append(allRows, currentPageResponse.Result.Rows...)
+		if currentPageResponse.Result.NextPageCursor == "" {
+			finalResponse = currentPageResponse
+			break
+		}
+
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor // Prepare for the next iteration
+	}
+
+	finalResponse.Result.Rows = allRows
+	finalResponse.Result.NextPageCursor = currentPageResponse.Result.NextPageCursor
+	finalResponse.RetCode = currentPageResponse.RetCode
+	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
+	finalResponse.RetMsg = currentPageResponse.RetMsg
 	return &finalResponse, nil
 }

@@ -428,3 +428,33 @@ type GetSubDepositRecordsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetInternalDepositRecordsRequest struct {
+	TxID      *string `json:"txID,omitempty"`      // Optional: Internal transfer transaction ID
+	StartTime *int64  `json:"startTime,omitempty"` // Optional: Start time (ms)
+	EndTime   *int64  `json:"endTime,omitempty"`   // Optional: End time (ms)
+	Coin      *string `json:"coin,omitempty"`      // Optional: Coin name
+	Cursor    *string `json:"cursor,omitempty"`    // Optional: Pagination cursor
+	Limit     *int    `json:"limit,omitempty"`     // Optional: Number of items per page
+}
+
+type InternalDepositRecordEntry struct {
+	ID          string `json:"id"`
+	Type        int    `json:"type"`
+	Coin        string `json:"coin"`
+	Amount      string `json:"amount"`
+	Status      int    `json:"status"`
+	Address     string `json:"address"`
+	CreatedTime string `json:"createdTime"`
+	TxID        string `json:"txID"`
+}
+
+type GetInternalDepositRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []InternalDepositRecordEntry `json:"rows"`
+		NextPageCursor string                       `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

@@ -33,6 +33,7 @@ type Asset interface {
 	GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error)
 	GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error)
 	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
+	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
 }
 
 type impl struct {
@@ -713,4 +714,31 @@ func (i *impl) GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) 
 	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
 	finalResponse.RetMsg = currentPageResponse.RetMsg
 	return &finalResponse, nil
+}
+
+func (i *impl) GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error) {
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	if req.ChainType != nil {
+		queryParams["chainType"] = *req.ChainType
+	}
+
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/deposit/query-address", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying master deposit address: %w", err)
+	}
+
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetMasterDepositAddressResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing master deposit address response: %w", err)
+	}
+
+	return &response, nil
 }

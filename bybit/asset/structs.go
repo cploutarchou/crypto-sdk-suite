@@ -458,3 +458,26 @@ type GetInternalDepositRecordsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetMasterDepositAddressRequest struct {
+	Coin      string  `json:"coin"`                // Required: Coin
+	ChainType *string `json:"chainType,omitempty"` // Optional: Chain type from coin-info endpoint
+}
+
+type DepositChainInfo struct {
+	ChainType         string `json:"chainType"`
+	AddressDeposit    string `json:"addressDeposit"`
+	TagDeposit        string `json:"tagDeposit"`
+	Chain             string `json:"chain"`
+	BatchReleaseLimit string `json:"batchReleaseLimit"`
+}
+
+type GetMasterDepositAddressResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Coin   string             `json:"coin"`
+		Chains []DepositChainInfo `json:"chains"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

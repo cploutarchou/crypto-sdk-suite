@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
-	"github.com/docker/cli/cli/compose/schema/data"
 )
 
 type Asset interface {
@@ -32,6 +31,7 @@ type Asset interface {
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
 	GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error)
 	GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error)
+	GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error)
 }
 
 type impl struct {
@@ -549,60 +549,109 @@ func (i *impl) SetDepositAccount(req *SetDepositAccountRequest) (*SetDepositAcco
 	return &response, nil
 }
 func (i *impl) GetDepositRecords(req *GetDepositRecordsRequest) (*GetDepositRecordsResponse, error) {
-    allDepositRecords := []DepositRecordEntry{}
-    var finalResponse GetDepositRecordsResponse
+	allDepositRecords := []DepositRecordEntry{}
+	var finalResponse GetDepositRecordsResponse
 
-    // Initial queryParams setup
-    queryParams := make(client.Params)
-    if req.Coin != nil {
-        queryParams["coin"] = *req.Coin
-    }
-    if req.StartTime != nil {
-        queryParams["startTime"] = *req.StartTime
-    }
-    if req.EndTime != nil {
-        queryParams["endTime"] = *req.EndTime
-    }
-    if req.Limit != nil {
-        queryParams["limit"] = *req.Limit
-    }
+	// Initial queryParams setup
+	queryParams := make(client.Params)
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
 
-    for {
-        // Perform the GET request
-        response, err := i.client.Get("/v5/asset/deposit/query-record", queryParams)
-        if err != nil {
-            return nil, fmt.Errorf("error fetching deposit records: %w", err)
-        }
+	for {
+		// Perform the GET request
+		response, err := i.client.Get("/v5/asset/deposit/query-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching deposit records: %w", err)
+		}
 
-        data, err := json.Marshal(response)
-        if err != nil {
-            return nil, err
-        }
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
 
-        // Deserialize the current page of response
-        var currentPageResponse GetDepositRecordsResponse
-        err = json.Unmarshal(data, &currentPageResponse)
-        if err != nil {
-            return nil, fmt.Errorf("error parsing deposit records response: %w", err)
-        }
+		// Deserialize the current page of response
+		var currentPageResponse GetDepositRecordsResponse
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing deposit records response: %w", err)
+		}
 
-        // Accumulate records from the current page
-        allDepositRecords = append(allDepositRecords, currentPageResponse.Result.Rows...)
+		// Accumulate records from the current page
+		allDepositRecords = append(allDepositRecords, currentPageResponse.Result.Rows...)
 
-        // Check if there's a next page. If not, break out of the loop
-        if currentPageResponse.Result.NextPageCursor == "" {
-            finalResponse = currentPageResponse // Use the last page's meta info for final response
-            break
-        }
+		// Check if there's a next page. If not, break out of the loop
+		if currentPageResponse.Result.NextPageCursor == "" {
+			finalResponse = currentPageResponse // Use the last page's meta info for final response
+			break
+		}
 
-        // Set cursor for the next page
-        queryParams["cursor"] = currentPageResponse.Result.NextPageCursor
-    }
+		// Set cursor for the next page
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor
+	}
 
-    // Populate finalResponse with all accumulated records
-    finalResponse.Result.Rows = allDepositRecords
+	// Populate finalResponse with all accumulated records
+	finalResponse.Result.Rows = allDepositRecords
 	finalResponse.Result.NextPageCursor = ""
 	finalResponse.RetCode = 0
 
-    return &finalResponse, nil
+	return &finalResponse, nil
+}
+func (i *impl) GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDepositRecordsResponse, error) {
+	var allRows []DepositRecordEntry
+	var finalResponse GetSubDepositRecordsResponse
+
+	queryParams := make(client.Params)
+	queryParams["subMemberId"] = req.SubMemberId
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	queryParams["cursor"] = req.Cursor // Start with nil or provided cursor
+
+	for {
+		response, err := i.client.Get("/v5/asset/deposit/query-sub-member-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching sub deposit records: %w", err)
+		}
+
+		// Assuming the response is already unmarshaled into the appropriate struct
+		var currentPageResponse GetSubDepositRecordsResponse
+		data, err := json.Marshal(response)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing sub deposit records response: %w", err)
+		}
+		allRows = append(allRows, currentPageResponse.Result.Rows...)
+		if currentPageResponse.Result.NextPageCursor == "" {
+			break
+		}
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor // Prepare for the next iteration
+	}
+
+	// Assign collected rows and last page's meta to finalResponse
+	finalResponse.Result.Rows = allRows
+	finalResponse.Result.NextPageCursor = ""
+	finalResponse.RetCode = 0
+	return &finalResponse, nil
 }

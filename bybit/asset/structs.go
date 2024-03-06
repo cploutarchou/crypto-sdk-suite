@@ -335,3 +335,29 @@ type CreateUniversalTransferResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetAllowedDepositCoinInfoRequest struct {
+	Coin   *string `json:"coin,omitempty"`   // Optional: Coin. coin and chain must be paired if passed
+	Chain  *string `json:"chain,omitempty"`  // Optional: Chain. coin and chain must be paired if passed
+	Limit  *int    `json:"limit,omitempty"`  // Optional: Limit for data size per page
+	Cursor *string `json:"cursor,omitempty"` // Optional: Pagination cursor
+}
+
+type DepositConfig struct {
+	Coin               string `json:"coin"`
+	Chain              string `json:"chain"`
+	CoinShowName       string `json:"coinShowName"`
+	ChainType          string `json:"chainType"`
+	BlockConfirmNumber int    `json:"blockConfirmNumber"`
+	MinDepositAmount   string `json:"minDepositAmount"`
+}
+
+type GetAllowedDepositCoinInfoResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		ConfigList     []DepositConfig `json:"configList"`
+		NextPageCursor string          `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

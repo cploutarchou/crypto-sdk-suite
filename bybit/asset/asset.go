@@ -27,6 +27,7 @@ type Asset interface {
 	CreateInternalTransfer(req *CreateInternalTransferRequest) (*CreateInternalTransferResponse, error)
 	GetInternalTransferRecords(req *GetInternalTransferRecordsRequest) (*GetInternalTransferRecordsResponse, error)
 	GetSubUIDs() (*GetSubUIDsResponse, error)
+	CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*CreateUniversalTransferResponse, error)
 	GetUniversalTransferRecords(req *GetUniversalTransferRecordsRequest) (*GetUniversalTransferRecordsResponse, error)
 }
 
@@ -487,4 +488,37 @@ func (i *impl) CreateUniversalTransfer(req *CreateUniversalTransferRequest) (*Cr
 	}
 
 	return &transferResponse, nil
+}
+func (i *impl) GetAllowedDepositCoinInfo(req *GetAllowedDepositCoinInfoRequest) (*GetAllowedDepositCoinInfoResponse, error) {
+	queryParams := make(client.Params)
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.Chain != nil {
+		queryParams["chain"] = *req.Chain
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	if req.Cursor != nil {
+		queryParams["cursor"] = *req.Cursor
+	}
+
+	// Perform the GET request
+	response, err := i.client.Get("/v5/asset/deposit/query-allowed-list", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching allowed deposit coin information: %w", err)
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	var allowedDepositCoinInfoResponse GetAllowedDepositCoinInfoResponse
+	err = json.Unmarshal(data, &allowedDepositCoinInfoResponse)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing allowed deposit coin information response: %w", err)
+	}
+
+	return &allowedDepositCoinInfoResponse, nil
 }

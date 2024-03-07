@@ -39,6 +39,7 @@ type Asset interface {
 	GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error)
 	GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error)
 	Withdraw(req *WithdrawRequest) (*WithdrawResponse, error)
+	CancelWithdrawal(req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error)
 }
 
 type impl struct {
@@ -921,6 +922,30 @@ func (i *impl) Withdraw(req *WithdrawRequest) (*WithdrawResponse, error) {
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing withdraw response: %w", err)
+	}
+
+	return &response, nil
+}
+
+func (i *impl) CancelWithdrawal(req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error) {
+	// Construct the queryParams from the CancelWithdrawalRequest struct
+	queryParams := make(client.Params)
+	queryParams["id"] = req.ID
+
+	// Perform the POST request
+	responseBytes, err := i.client.Post("/v5/asset/withdraw/cancel", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error cancelling withdrawal: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response
+	var response CancelWithdrawalResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing cancel withdrawal response: %w", err)
 	}
 
 	return &response, nil

@@ -613,3 +613,16 @@ type WithdrawResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type CancelWithdrawalRequest struct {
+	ID string `json:"id"` // Required: Withdrawal ID
+}
+
+type CancelWithdrawalResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Status int `json:"status"` // 0: fail, 1: success
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

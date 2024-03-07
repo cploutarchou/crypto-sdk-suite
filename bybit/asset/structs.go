@@ -505,3 +505,124 @@ type GetSubDepositAddressResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type CoinChainInfo struct {
+	Chain                 string `json:"chain"`
+	ChainType             string `json:"chainType"`
+	Confirmation          string `json:"confirmation"`
+	WithdrawFee           string `json:"withdrawFee"`
+	DepositMin            string `json:"depositMin"`
+	WithdrawMin           string `json:"withdrawMin"`
+	MinAccuracy           string `json:"minAccuracy"`
+	ChainDeposit          string `json:"chainDeposit"`
+	ChainWithdraw         string `json:"chainWithdraw"`
+	WithdrawPercentageFee string `json:"withdrawPercentageFee"`
+}
+
+type CoinInfoEntry struct {
+	Name         string          `json:"name"`
+	Coin         string          `json:"coin"`
+	RemainAmount string          `json:"remainAmount"`
+	Chains       []CoinChainInfo `json:"chains"`
+}
+
+type GetCoinInfoResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows []CoinInfoEntry `json:"rows"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type GetWithdrawalRecordsRequest struct {
+	WithdrawID   *string `json:"withdrawID,omitempty"`
+	TxID         *string `json:"txID,omitempty"`
+	Coin         *string `json:"coin,omitempty"`
+	WithdrawType *int    `json:"withdrawType,omitempty"` // 0: on chain, 1: off chain, 2: all
+	StartTime    *int64  `json:"startTime,omitempty"`
+	EndTime      *int64  `json:"endTime,omitempty"`
+	Limit        *int    `json:"limit,omitempty"`
+	Cursor       *string `json:"cursor,omitempty"`
+}
+
+type WithdrawalRecord struct {
+	WithdrawId   string `json:"withdrawId"`
+	TxID         string `json:"txID"`
+	WithdrawType int    `json:"withdrawType"`
+	Coin         string `json:"coin"`
+	Chain        string `json:"chain"`
+	Amount       string `json:"amount"`
+	WithdrawFee  string `json:"withdrawFee"`
+	Status       string `json:"status"`
+	ToAddress    string `json:"toAddress"`
+	Tag          string `json:"tag"`
+	CreateTime   string `json:"createTime"`
+	UpdateTime   string `json:"updateTime"`
+}
+
+type GetWithdrawalRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []WithdrawalRecord `json:"rows"`
+		NextPageCursor string             `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+
+type GetWithdrawableAmountRequest struct {
+	Coin string `json:"coin"` // Required: Coin name
+}
+
+type WalletWithdrawableAmount struct {
+	Coin               string `json:"coin"`
+	WithdrawableAmount string `json:"withdrawableAmount"`
+	AvailableBalance   string `json:"availableBalance"`
+}
+
+type GetWithdrawableAmountResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		LimitAmountUsd     string                              `json:"limitAmountUsd"`
+		WithdrawableAmount map[string]WalletWithdrawableAmount `json:"withdrawableAmount"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type WithdrawRequest struct {
+	Coin        string  `json:"coin"`                  // Required
+	Chain       *string `json:"chain,omitempty"`       // Optional based on forceChain
+	Address     string  `json:"address"`               // Required
+	Tag         *string `json:"tag,omitempty"`         // Optional based on the address
+	Amount      string  `json:"amount"`                // Required
+	Timestamp   int64   `json:"timestamp"`             // Required
+	ForceChain  *int    `json:"forceChain,omitempty"`  // Optional
+	AccountType *string `json:"accountType,omitempty"` // Optional
+	FeeType     *int    `json:"feeType,omitempty"`     // Optional
+	RequestId   *string `json:"requestId,omitempty"`   // Optional for idempotency
+}
+
+type WithdrawResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Id string `json:"id"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}
+type CancelWithdrawalRequest struct {
+	ID string `json:"id"` // Required: Withdrawal ID
+}
+
+type CancelWithdrawalResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Status int `json:"status"` // 0: fail, 1: success
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

@@ -35,6 +35,11 @@ type Asset interface {
 	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
 	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
 	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
+	GetCoinInfo(coin *string) (*GetCoinInfoResponse, error)
+	GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error)
+	GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error)
+	Withdraw(req *WithdrawRequest) (*WithdrawResponse, error)
+	CancelWithdrawal(req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error)
 }
 
 type impl struct {
@@ -764,6 +769,183 @@ func (i *impl) GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDe
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing sub deposit address response: %w", err)
+	}
+
+	return &response, nil
+}
+func (i *impl) GetCoinInfo(coin *string) (*GetCoinInfoResponse, error) {
+	queryParams := make(client.Params)
+	if coin != nil {
+		queryParams["coin"] = *coin
+	}
+
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/coin/query-info", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying coin information: %w", err)
+	}
+
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetCoinInfoResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing coin information response: %w", err)
+	}
+
+	return &response, nil
+}
+
+func (i *impl) GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error) {
+	allRecords := []WithdrawalRecord{}
+	var finalResponse GetWithdrawalRecordsResponse
+
+	queryParams := make(client.Params)
+	// Populate queryParams based on request
+	if req.WithdrawID != nil {
+		queryParams["withdrawID"] = *req.WithdrawID
+	}
+	if req.TxID != nil {
+		queryParams["txID"] = *req.TxID
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.WithdrawType != nil {
+		queryParams["withdrawType"] = *req.WithdrawType
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	queryParams["cursor"] = req.Cursor // Initialize cursor for pagination
+	var currentPageResponse GetWithdrawalRecordsResponse
+	for {
+		responseBytes, err := i.client.Get("/v5/asset/withdraw/query-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error querying withdrawal records: %w", err)
+		}
+		data, err := json.Marshal(responseBytes)
+		if err != nil {
+			return nil, err
+		}
+		var currentPageResponse GetWithdrawalRecordsResponse
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing withdrawal records response: %w", err)
+		}
+
+		// Aggregate records
+		allRecords = append(allRecords, currentPageResponse.Result.Rows...)
+
+		// Check for the next page
+		if currentPageResponse.Result.NextPageCursor == "" {
+			break
+		}
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor
+	}
+
+	// Set aggregated records to the final response
+	finalResponse.Result.Rows = allRecords
+	finalResponse.Result.NextPageCursor = currentPageResponse.Result.NextPageCursor
+	finalResponse.RetCode = currentPageResponse.RetCode
+	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
+
+	return &finalResponse, nil
+}
+func (i *impl) GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error) {
+	queryParams := client.Params{
+		"coin": req.Coin,
+	}
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/withdraw/withdrawable-amount", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying withdrawable amount: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetWithdrawableAmountResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing withdrawable amount response: %w", err)
+	}
+	return &response, nil
+}
+func (i *impl) Withdraw(req *WithdrawRequest) (*WithdrawResponse, error) {
+	// Construct the queryParams from the WithdrawRequest struct
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	if req.Chain != nil {
+		queryParams["chain"] = *req.Chain
+	}
+	queryParams["address"] = req.Address
+	if req.Tag != nil {
+		queryParams["tag"] = *req.Tag
+	}
+	queryParams["amount"] = req.Amount
+	queryParams["timestamp"] = req.Timestamp
+	if req.ForceChain != nil {
+		queryParams["forceChain"] = *req.ForceChain
+	}
+	if req.AccountType != nil {
+		queryParams["accountType"] = *req.AccountType
+	}
+	if req.FeeType != nil {
+		queryParams["feeType"] = *req.FeeType
+	}
+	if req.RequestId != nil {
+		queryParams["requestId"] = *req.RequestId
+	}
+
+	// Perform the POST request
+	responseBytes, err := i.client.Post("/v5/asset/withdraw/create", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error creating withdraw request: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response
+	var response WithdrawResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing withdraw response: %w", err)
+	}
+
+	return &response, nil
+}
+
+func (i *impl) CancelWithdrawal(req *CancelWithdrawalRequest) (*CancelWithdrawalResponse, error) {
+	// Construct the queryParams from the CancelWithdrawalRequest struct
+	queryParams := make(client.Params)
+	queryParams["id"] = req.ID
+
+	// Perform the POST request
+	responseBytes, err := i.client.Post("/v5/asset/withdraw/cancel", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error cancelling withdrawal: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response
+	var response CancelWithdrawalResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing cancel withdrawal response: %w", err)
 	}
 
 	return &response, nil

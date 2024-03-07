@@ -36,6 +36,7 @@ type Asset interface {
 	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
 	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
 	GetCoinInfo(coin *string) (*GetCoinInfoResponse, error)
+	GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error)
 }
 
 type impl struct {
@@ -793,4 +794,67 @@ func (i *impl) GetCoinInfo(coin *string) (*GetCoinInfoResponse, error) {
 	}
 
 	return &response, nil
+}
+
+func (i *impl) GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error) {
+	allRecords := []WithdrawalRecord{}
+	var finalResponse GetWithdrawalRecordsResponse
+
+	queryParams := make(client.Params)
+	// Populate queryParams based on request
+	if req.WithdrawID != nil {
+		queryParams["withdrawID"] = *req.WithdrawID
+	}
+	if req.TxID != nil {
+		queryParams["txID"] = *req.TxID
+	}
+	if req.Coin != nil {
+		queryParams["coin"] = *req.Coin
+	}
+	if req.WithdrawType != nil {
+		queryParams["withdrawType"] = *req.WithdrawType
+	}
+	if req.StartTime != nil {
+		queryParams["startTime"] = *req.StartTime
+	}
+	if req.EndTime != nil {
+		queryParams["endTime"] = *req.EndTime
+	}
+	if req.Limit != nil {
+		queryParams["limit"] = *req.Limit
+	}
+	queryParams["cursor"] = req.Cursor // Initialize cursor for pagination
+	var currentPageResponse GetWithdrawalRecordsResponse
+	for {
+		responseBytes, err := i.client.Get("/v5/asset/withdraw/query-record", queryParams)
+		if err != nil {
+			return nil, fmt.Errorf("error querying withdrawal records: %w", err)
+		}
+		data, err := json.Marshal(responseBytes)
+		if err != nil {
+			return nil, err
+		}
+		var currentPageResponse GetWithdrawalRecordsResponse
+		err = json.Unmarshal(data, &currentPageResponse)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing withdrawal records response: %w", err)
+		}
+
+		// Aggregate records
+		allRecords = append(allRecords, currentPageResponse.Result.Rows...)
+
+		// Check for the next page
+		if currentPageResponse.Result.NextPageCursor == "" {
+			break
+		}
+		queryParams["cursor"] = currentPageResponse.Result.NextPageCursor
+	}
+
+	// Set aggregated records to the final response
+	finalResponse.Result.Rows = allRecords
+	finalResponse.Result.NextPageCursor = currentPageResponse.Result.NextPageCursor
+	finalResponse.RetCode = currentPageResponse.RetCode
+	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
+
+	return &finalResponse, nil
 }

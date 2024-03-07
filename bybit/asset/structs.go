@@ -534,3 +534,39 @@ type GetCoinInfoResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type GetWithdrawalRecordsRequest struct {
+	WithdrawID   *string `json:"withdrawID,omitempty"`
+	TxID         *string `json:"txID,omitempty"`
+	Coin         *string `json:"coin,omitempty"`
+	WithdrawType *int    `json:"withdrawType,omitempty"` // 0: on chain, 1: off chain, 2: all
+	StartTime    *int64  `json:"startTime,omitempty"`
+	EndTime      *int64  `json:"endTime,omitempty"`
+	Limit        *int    `json:"limit,omitempty"`
+	Cursor       *string `json:"cursor,omitempty"`
+}
+
+type WithdrawalRecord struct {
+	WithdrawId   string `json:"withdrawId"`
+	TxID         string `json:"txID"`
+	WithdrawType int    `json:"withdrawType"`
+	Coin         string `json:"coin"`
+	Chain        string `json:"chain"`
+	Amount       string `json:"amount"`
+	WithdrawFee  string `json:"withdrawFee"`
+	Status       string `json:"status"`
+	ToAddress    string `json:"toAddress"`
+	Tag          string `json:"tag"`
+	CreateTime   string `json:"createTime"`
+	UpdateTime   string `json:"updateTime"`
+}
+
+type GetWithdrawalRecordsResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows           []WithdrawalRecord `json:"rows"`
+		NextPageCursor string             `json:"nextPageCursor"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

@@ -37,6 +37,7 @@ type Asset interface {
 	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
 	GetCoinInfo(coin *string) (*GetCoinInfoResponse, error)
 	GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error)
+	GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error)
 }
 
 type impl struct {
@@ -857,4 +858,25 @@ func (i *impl) GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithd
 	finalResponse.RetExtInfo = currentPageResponse.RetExtInfo
 
 	return &finalResponse, nil
+}
+func (i *impl) GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error) {
+	queryParams := client.Params{
+		"coin": req.Coin,
+	}
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/withdraw/withdrawable-amount", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying withdrawable amount: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetWithdrawableAmountResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing withdrawable amount response: %w", err)
+	}
+	return &response, nil
 }

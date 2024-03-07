@@ -570,3 +570,24 @@ type GetWithdrawalRecordsResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+
+type GetWithdrawableAmountRequest struct {
+	Coin string `json:"coin"` // Required: Coin name
+}
+
+type WalletWithdrawableAmount struct {
+	Coin               string `json:"coin"`
+	WithdrawableAmount string `json:"withdrawableAmount"`
+	AvailableBalance   string `json:"availableBalance"`
+}
+
+type GetWithdrawableAmountResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		LimitAmountUsd     string                              `json:"limitAmountUsd"`
+		WithdrawableAmount map[string]WalletWithdrawableAmount `json:"withdrawableAmount"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

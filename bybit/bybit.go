@@ -17,6 +17,7 @@ type Bybit interface {
 	Account() *account.Account
 	Trade() *trade.Trade
 	Position() *position.Position
+	Asset() *asset.Asset
 }
 
 type bybitImpl struct {
@@ -68,4 +69,8 @@ func (b bybitImpl) Trade() *trade.Trade {
 
 func (b bybitImpl) Position() *position.Position {
 	return &b.position
+}
+
+func (b bybitImpl) Asset() *asset.Asset {
+	return &b.asset
 }

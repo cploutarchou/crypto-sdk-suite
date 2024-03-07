@@ -38,6 +38,7 @@ type Asset interface {
 	GetCoinInfo(coin *string) (*GetCoinInfoResponse, error)
 	GetWithdrawalRecords(req *GetWithdrawalRecordsRequest) (*GetWithdrawalRecordsResponse, error)
 	GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWithdrawableAmountResponse, error)
+	Withdraw(req *WithdrawRequest) (*WithdrawResponse, error)
 }
 
 type impl struct {
@@ -878,5 +879,49 @@ func (i *impl) GetWithdrawableAmount(req *GetWithdrawableAmountRequest) (*GetWit
 	if err != nil {
 		return nil, fmt.Errorf("error parsing withdrawable amount response: %w", err)
 	}
+	return &response, nil
+}
+func (i *impl) Withdraw(req *WithdrawRequest) (*WithdrawResponse, error) {
+	// Construct the queryParams from the WithdrawRequest struct
+	queryParams := make(client.Params)
+	queryParams["coin"] = req.Coin
+	if req.Chain != nil {
+		queryParams["chain"] = *req.Chain
+	}
+	queryParams["address"] = req.Address
+	if req.Tag != nil {
+		queryParams["tag"] = *req.Tag
+	}
+	queryParams["amount"] = req.Amount
+	queryParams["timestamp"] = req.Timestamp
+	if req.ForceChain != nil {
+		queryParams["forceChain"] = *req.ForceChain
+	}
+	if req.AccountType != nil {
+		queryParams["accountType"] = *req.AccountType
+	}
+	if req.FeeType != nil {
+		queryParams["feeType"] = *req.FeeType
+	}
+	if req.RequestId != nil {
+		queryParams["requestId"] = *req.RequestId
+	}
+
+	// Perform the POST request
+	responseBytes, err := i.client.Post("/v5/asset/withdraw/create", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error creating withdraw request: %w", err)
+	}
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response
+	var response WithdrawResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing withdraw response: %w", err)
+	}
+
 	return &response, nil
 }

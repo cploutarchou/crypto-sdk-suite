@@ -591,3 +591,25 @@ type GetWithdrawableAmountResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type WithdrawRequest struct {
+	Coin        string  `json:"coin"`                  // Required
+	Chain       *string `json:"chain,omitempty"`       // Optional based on forceChain
+	Address     string  `json:"address"`               // Required
+	Tag         *string `json:"tag,omitempty"`         // Optional based on the address
+	Amount      string  `json:"amount"`                // Required
+	Timestamp   int64   `json:"timestamp"`             // Required
+	ForceChain  *int    `json:"forceChain,omitempty"`  // Optional
+	AccountType *string `json:"accountType,omitempty"` // Optional
+	FeeType     *int    `json:"feeType,omitempty"`     // Optional
+	RequestId   *string `json:"requestId,omitempty"`   // Optional for idempotency
+}
+
+type WithdrawResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Id string `json:"id"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

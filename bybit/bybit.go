@@ -14,10 +14,10 @@ import (
 type Bybit interface {
 	Market() market.Market
 	WebSocket() ws.WebSocket
-	Account() *account.Account
-	Trade() *trade.Trade
-	Position() *position.Position
-	Asset() *asset.Asset
+	Account() account.Account
+	Trade() trade.Trade
+	Position() position.Position
+	Asset() asset.Asset
 }
 
 type bybitImpl struct {
@@ -59,18 +59,18 @@ func (b bybitImpl) WebSocket() ws.WebSocket {
 	return b.webSocket
 }
 
-func (b bybitImpl) Account() *account.Account {
-	return &b.account
+func (b bybitImpl) Account() account.Account {
+	return b.account
 }
 
-func (b bybitImpl) Trade() *trade.Trade {
-	return &b.trade
+func (b bybitImpl) Trade() trade.Trade {
+	return b.trade
 }
 
-func (b bybitImpl) Position() *position.Position {
-	return &b.position
+func (b bybitImpl) Position() position.Position {
+	return b.position
 }
 
-func (b bybitImpl) Asset() *asset.Asset {
-	return &b.asset
+func (b bybitImpl) Asset() asset.Asset {
+	return b.asset
 }

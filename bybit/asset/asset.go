@@ -35,6 +35,7 @@ type Asset interface {
 	GetInternalDepositRecords(req *GetInternalDepositRecordsRequest) (*GetInternalDepositRecordsResponse, error)
 	GetMasterDepositAddress(req *GetMasterDepositAddressRequest) (*GetMasterDepositAddressResponse, error)
 	GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDepositAddressResponse, error)
+	GetCoinInfo(coin *string) (*GetCoinInfoResponse, error)
 }
 
 type impl struct {
@@ -764,6 +765,31 @@ func (i *impl) GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDe
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing sub deposit address response: %w", err)
+	}
+
+	return &response, nil
+}
+func (i *impl) GetCoinInfo(coin *string) (*GetCoinInfoResponse, error) {
+	queryParams := make(client.Params)
+	if coin != nil {
+		queryParams["coin"] = *coin
+	}
+
+	// Perform the GET request
+	responseBytes, err := i.client.Get("/v5/asset/coin/query-info", queryParams)
+	if err != nil {
+		return nil, fmt.Errorf("error querying coin information: %w", err)
+	}
+
+	data, err := json.Marshal(responseBytes)
+	if err != nil {
+		return nil, err
+	}
+	// Deserialize the response into the response struct
+	var response GetCoinInfoResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing coin information response: %w", err)
 	}
 
 	return &response, nil

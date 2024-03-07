@@ -505,3 +505,32 @@ type GetSubDepositAddressResponse struct {
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
+type CoinChainInfo struct {
+	Chain                 string `json:"chain"`
+	ChainType             string `json:"chainType"`
+	Confirmation          string `json:"confirmation"`
+	WithdrawFee           string `json:"withdrawFee"`
+	DepositMin            string `json:"depositMin"`
+	WithdrawMin           string `json:"withdrawMin"`
+	MinAccuracy           string `json:"minAccuracy"`
+	ChainDeposit          string `json:"chainDeposit"`
+	ChainWithdraw         string `json:"chainWithdraw"`
+	WithdrawPercentageFee string `json:"withdrawPercentageFee"`
+}
+
+type CoinInfoEntry struct {
+	Name         string          `json:"name"`
+	Coin         string          `json:"coin"`
+	RemainAmount string          `json:"remainAmount"`
+	Chains       []CoinChainInfo `json:"chains"`
+}
+
+type GetCoinInfoResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		Rows []CoinInfoEntry `json:"rows"`
+	} `json:"result"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
+}

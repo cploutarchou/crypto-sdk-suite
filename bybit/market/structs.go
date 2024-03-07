@@ -8,6 +8,16 @@ type ApiResponse struct {
 	Time       int64       `json:"time"`
 }
 
+// KlineRequest represents a request for querying historical klines
+type KlineRequest struct {
+	Category string `json:"category,omitempty"` // Optional: 'spot', 'linear', 'inverse'. Defaults to 'linear' if not specified.
+	Symbol   string `json:"symbol"`             // Required: Symbol name.
+	Interval string `json:"interval"`           // Required: Kline interval. Accepts '1', '3', '5', '15', '30', '60', '120', '240', '360', '720', 'D', 'M', 'W'.
+	Start    *int64 `json:"start,omitempty"`    // Optional: The start timestamp in milliseconds.
+	End      *int64 `json:"end,omitempty"`      // Optional: The end timestamp in milliseconds.
+	Limit    *int   `json:"limit,omitempty"`    // Optional: Limit the number of klines returned.
+}
+
 type KlineResult struct {
 	Symbol   string     `json:"symbol"`
 	Category string     `json:"category"`

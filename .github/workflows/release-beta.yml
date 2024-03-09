@@ -42,10 +42,14 @@ jobs:
         NEW_VERSION="$MAJOR.$MINOR.$PATCH-beta"
         echo "New version: $NEW_VERSION"
         
-        # Create and push new tag
+        # Configure git with your identity
         git config user.name github-actions
         git config user.email github-actions@github.com
+        
+        # Create and push new tag
         git tag -a $NEW_VERSION -m "Beta release $NEW_VERSION"
-        git push origin --tags
+        
+        # Use the PAT for authentication
+        git push https://${{ secrets.MY_GITHUB_PAT }}@github.com/${GITHUB_REPOSITORY} --tags
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}

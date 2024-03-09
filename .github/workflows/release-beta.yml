@@ -1,0 +1,44 @@
+name: Release Beta Version
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+
+jobs:
+  tag-beta-version:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # Important: ensures all tags are fetched
+
+    - name: Bump version and tag
+      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      run: |
+        # Fetch tags and determine the latest version
+        git fetch --tags
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        echo "Latest tag: $LATEST_TAG"
+        
+        # Extract numbers and increment patch version
+        BASE_VERSION=${LATEST_TAG%-beta} # Remove -beta suffix if present
+        MAJOR=$(echo $BASE_VERSION | cut -d. -f1)
+        MINOR=$(echo $BASE_VERSION | cut -d. -f2)
+        PATCH=$(echo $BASE_VERSION | cut -d. -f3)
+        let PATCH+=1 # Increment patch version
+        
+        NEW_VERSION="$MAJOR.$MINOR.$PATCH-beta"
+        echo "New version: $NEW_VERSION"
+        
+        # Create and push new tag
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag -a $NEW_VERSION -m "Beta release $NEW_VERSION"
+        git push origin --tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

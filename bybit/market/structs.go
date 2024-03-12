@@ -177,7 +177,7 @@ type AnnouncementsResponse struct {
 	Result Announcement `json:"result"`
 }
 
-type Instrument struct {
+type InstrumentInfo struct {
 	Symbol          string `json:"symbol"`
 	ContractType    string `json:"contractType"`
 	Status          string `json:"status"`
@@ -200,6 +200,7 @@ type Instrument struct {
 	LotSizeFilter struct {
 		MaxOrderQty         string `json:"maxOrderQty"`
 		MinOrderQty         string `json:"minOrderQty"`
+		MaxMktOrderQty      string `json:"maxMktOrderQty"`
 		QtyStep             string `json:"qtyStep"`
 		PostOnlyMaxOrderQty string `json:"postOnlyMaxOrderQty"`
 	} `json:"lotSizeFilter"`
@@ -211,9 +212,9 @@ type Instrument struct {
 type InstrumentsInfoResponse struct {
 	APIBaseResponse
 	Result struct {
-		Category       string       `json:"category"`
-		List           []Instrument `json:"list"`
-		NextPageCursor string       `json:"nextPageCursor"`
+		Category       string           `json:"category"`
+		List           []InstrumentInfo `json:"list"`
+		NextPageCursor string           `json:"nextPageCursor"`
 	} `json:"result"`
 }
 

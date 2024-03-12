@@ -17,34 +17,33 @@ jobs:
         with:
           fetch-depth: 0 # Ensures all tags are fetched
 
-    - name: Bump version and tag
-      id: tag_version
-      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
-      run: |
-        git fetch --tags
-        if git rev-list --tags --max-count=1 | xargs git describe --tags --abbrev=0 > /dev/null 2>&1; then
-          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-          MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | sed 's/v//') # Remove 'v' prefix
-          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
-          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
-          let PATCH+=1
-        else
-          MAJOR=0
-          MINOR=0
-          PATCH=1
-        fi
-        
-        NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-        git config user.name github-actions
-        git config user.email cploutarchou@gmail.com
-        git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION" # Ensure 'v' prefix is here only
-        git push https://${{ secrets.MY_GITHUB_PAT }}@github.com/${GITHUB_REPOSITORY} --tags
-      env:
-        GITHUB_REPOSITORY: ${{ github.repository }}
-                             
-                             
-                             - name: Create GitHub Release
+      - name: Bump version and tag
+        id: tag_version
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        run: |
+          git fetch --tags
+          if git rev-list --tags --max-count=1 | xargs git describe --tags --abbrev=0 > /dev/null 2>&1; then
+            LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+            MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | sed 's/v//') # Remove 'v' prefix
+            MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+            PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+            let PATCH+=1
+          else
+            MAJOR=0
+            MINOR=0
+            PATCH=1
+          fi
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          git config user.name github-actions
+          git config user.email cploutarchou@gmail.com
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION" # Ensure 'v' prefix is here only
+          git push https://${{ secrets.MY_GITHUB_PAT }}@github.com/${GITHUB_REPOSITORY} --tags
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

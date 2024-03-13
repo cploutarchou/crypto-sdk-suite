@@ -31,7 +31,6 @@ const (
 	Private             ChannelType = "private"
 )
 
-// create a new uuid
 var DefaultReqID = randomString(8)
 
 // WSPingMsg represents the WebSocket ping message format.
@@ -53,11 +52,10 @@ type WSClient struct {
 	closeOnce         sync.Once
 	isClosed          bool
 	logger            *log.Logger
-	isTestNet         bool
+	IsTestNet         bool
 	IsPublic          bool
 	apiKey            string
 	apiSecret         string
-	IsTest            bool
 	channel           ChannelType
 	Path              string
 	Connected         chan struct{}
@@ -75,7 +73,7 @@ type ChannelType string
 func New(apiKey, apiSecret string, isTestNet bool) (*WSClient, error) {
 	client := &WSClient{
 		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
-		isTestNet: isTestNet,
+		IsTestNet: isTestNet,
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
 		Path:      "",
@@ -103,7 +101,7 @@ func (c *WSClient) Connect() error {
 		}
 	}
 	var url string
-	if c.isTestNet {
+	if c.IsTestNet {
 		url = "stream-testnet.bybit.com"
 	} else {
 		url = "stream.bybit.com"

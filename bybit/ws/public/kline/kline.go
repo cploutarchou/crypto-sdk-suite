@@ -101,13 +101,13 @@ func (w *klineImpl) SetClient(c *client.WSClient) (Kline, error) {
 }
 
 // New creates a new instance of KlineImpl
-func New(c *client.WSClient, isTestNet bool) Kline {
+func New(c *client.WSClient) Kline {
 	c.Path = "linear"
 	var k klineImpl
 	k.client = c
 	k.Messages = make(chan []byte, 100)
 	k.StopChan = make(chan struct{}, 1)
-	k.isTest = isTestNet
+	k.isTest = c.IsTestNet
 	k.client.IsPublic = true
 	err := k.client.Connect()
 	if err != nil {

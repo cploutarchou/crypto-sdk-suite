@@ -22,6 +22,7 @@ type Private interface {
 
 type implPrivate struct {
 	client *client.WSClient
+	isTest bool
 }
 
 func (i *implPrivate) Dcp() *dcp.Dcp {

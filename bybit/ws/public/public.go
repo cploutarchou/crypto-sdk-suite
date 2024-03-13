@@ -13,7 +13,7 @@ import (
 )
 
 type Public interface {
-	Kline(isTestNet bool) kline.Kline
+	Kline() kline.Kline
 	Liquidation() liquidation.Liquidation
 	LtKline() ltkline.LtKline
 	LtNav() ltnav.LtNav
@@ -27,8 +27,8 @@ type implPublic struct {
 	client *client.WSClient
 }
 
-func (i *implPublic) Kline(isTestNet bool) kline.Kline {
-	return kline.New(i.client, isTestNet)
+func (i *implPublic) Kline() kline.Kline {
+	return kline.New(i.client)
 }
 func (i *implPublic) Liquidation() liquidation.Liquidation {
 	return *liquidation.New()

@@ -51,7 +51,7 @@ func (i *implPublic) OrderBook() orderbook.OrderBook {
 }
 
 func (i *implPublic) Ticker() ticker.Ticker {
-	return *ticker.New()
+	return *ticker.New(i.client)
 }
 
 func (i *implPublic) Trade() trade.Trade {

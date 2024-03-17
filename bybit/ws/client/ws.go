@@ -257,3 +257,31 @@ func randomString(n int) string {
 	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
+
+// Send sends a message to the WebSocket server.
+func (c *WSClient) Send(message []byte) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.isClosed {
+		return errors.New("attempt to send message on closed connection")
+	}
+
+	if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+		log.Printf("Error sending message: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// Receive listens for a message from the WebSocket server and returns it.
+func (c *WSClient) Receive() ([]byte, error) {
+	_, message, err := c.Conn.ReadMessage()
+	if err != nil {
+		log.Printf("Error receiving message: %v", err)
+		return nil, err
+	}
+
+	return message, nil
+}

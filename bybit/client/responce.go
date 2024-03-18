@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -30,6 +31,11 @@ func NewResponse(response *http.Response) Response {
 	res.statusCode = response.StatusCode
 	res.data = body
 	res.status = response.Status
+	copy_ := make(map[string]string)
+	copy_["status"] = res.status
+	copy_["statusCode"] = fmt.Sprintf("%d", res.statusCode)
+	copy_["data"] = string(res.data)
+	fmt.Printf("Response : %+v\n", copy_)
 	return &res
 }
 

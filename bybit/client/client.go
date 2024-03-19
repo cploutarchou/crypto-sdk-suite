@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
-	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -43,13 +44,13 @@ type Requester interface {
 }
 
 type Client struct {
-	key         string
-	secretKey   string
-	httpClient  *http.Client
-	IsTestNet   bool
-	params      []byte
-	QueryParams url.Values
-	rateLimiter *rate.Limiter
+	key             string
+	secretKey       string
+	httpClient      *http.Client
+	IsTestNet       bool
+	params          []byte
+	QueryParams     url.Values
+	endpointLimiter *EndpointRateLimiter
 }
 
 type Method string
@@ -61,15 +62,24 @@ type Request struct {
 	params Params
 }
 
-func NewClient(key, secretKey string, isTestnet bool) *Client {
-	limiter := rate.NewLimiter(rate.Every(time.Second/120), 120) // 120 requests per second
-	return &Client{
-		key:         key,
-		secretKey:   secretKey,
-		httpClient:  &http.Client{},
-		IsTestNet:   isTestnet,
-		rateLimiter: limiter,
+func (c *Client) initializeEndpointLimiters() {
+	for endpoint, limit := range endpointLimits {
+		limiter := rate.NewLimiter(limit, int(limit)) // Assuming a burst equal to the rate.
+		c.endpointLimiter.SetLimiter(endpoint, limiter)
 	}
+}
+
+// NewClient function to call this new method.
+func NewClient(key, secretKey string, isTestnet bool) *Client {
+	client := &Client{
+		key:             key,
+		secretKey:       secretKey,
+		httpClient:      &http.Client{},
+		IsTestNet:       isTestnet,
+		endpointLimiter: NewEndpointRateLimiter(),
+	}
+	client.initializeEndpointLimiters()
+	return client
 }
 
 func (c *Client) Get(path string, params Params) (Response, error) {
@@ -81,6 +91,23 @@ func (c *Client) Post(path string, params Params) (Response, error) {
 }
 
 func (c *Client) doRequest(method Method, path string, params Params) (Response, error) {
+	// Construct the endpoint key using the method and path
+	endpointKey := fmt.Sprintf("%s %s", method, path)
+
+	// Retrieve the existing limiter for the endpoint
+	limiter := c.endpointLimiter.GetLimiter(endpointKey)
+	if limiter == nil {
+		log.Printf("Warning: No rate limiter found for %s. Requests for this endpoint may not be rate-limited.", endpointKey)
+		// You might choose to handle this situation differently, such as by setting a default limiter.
+	} else {
+		// Wait for permission to proceed from the rate limiter
+		ctx := context.Background() // Consider passing a context from higher-level methods
+		if err := limiter.Wait(ctx); err != nil {
+			return nil, fmt.Errorf("rate limiter error: %w", err)
+		}
+	}
+
+	// Create and execute the HTTP request as before
 	req := &Request{
 		method: method,
 		path:   path,
@@ -117,16 +144,11 @@ func (c *Client) do(req *Request) (Response, error) {
 	c.setCommonHeaders(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
-
 	if err != nil {
 		return nil, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			return
-		}
-	}(resp.Body)
+	defer resp.Body.Close()
+
 	c.params = nil
 	return NewResponse(resp), nil
 }
@@ -177,4 +199,36 @@ func GetCurrentTime() int64 {
 	unixNano := now.UnixNano()
 	timeStamp := unixNano / int64(time.Millisecond)
 	return timeStamp
+}
+
+func (c *Client) adjustRateLimiter(resp *http.Response, method Method, endpoint string) {
+	limitStr := resp.Header.Get("X-Bapi-Limit")
+	remainingStr := resp.Header.Get("X-Bapi-Limit-Status")
+	resetTimestampStr := resp.Header.Get("X-Bapi-Limit-Reset-Timestamp")
+
+	limit, err1 := strconv.Atoi(limitStr)
+	remaining, err2 := strconv.Atoi(remainingStr)
+	resetTimestampMs, err3 := strconv.ParseInt(resetTimestampStr, 10, 64)
+
+	if err1 != nil || err2 != nil || err3 != nil {
+		log.Println("Error parsing rate limit headers:", err1, err2, err3)
+		return
+	}
+
+	if limit > 0 && remaining > 0 {
+		resetDuration := time.Until(time.UnixMilli(resetTimestampMs))
+		if resetDuration <= 0 || remaining <= 0 {
+			return // Avoid division by zero or setting an infinite rate
+		}
+
+		newRate := rate.Every(resetDuration / time.Duration(remaining))
+		endpointKey := fmt.Sprintf("%s %s", method, endpoint)
+		limiter := c.endpointLimiter.GetLimiter(endpointKey)
+		if limiter != nil {
+			limiter.SetLimit(newRate)
+			log.Printf("Adjusted rate limit for %s to %v requests per %s\n", endpointKey, remaining, resetDuration)
+		} else {
+			log.Printf("No limiter found for %s, unable to adjust rate\n", endpointKey)
+		}
+	}
 }

@@ -64,7 +64,7 @@ type Request struct {
 
 func (c *Client) initializeEndpointLimiters() {
 	for endpoint, limit := range endpointLimits {
-		limiter := rate.NewLimiter(limit, int(limit)) // Assuming a burst equal to the rate.
+		limiter := rate.NewLimiter(limit, 1) // Assuming a burst equal to the rate.
 		c.endpointLimiter.SetLimiter(endpoint, limiter)
 	}
 }

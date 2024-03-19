@@ -60,3 +60,4 @@ jobs:
           release_name: Release v${{ env.NEW_VERSION }}
           draft: false
           prerelease: false
+

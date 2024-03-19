@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/time/rate"
 	"io"
 	"net/http"
 	"net/url"
@@ -48,6 +49,7 @@ type Client struct {
 	IsTestNet   bool
 	params      []byte
 	QueryParams url.Values
+	rateLimiter *rate.Limiter
 }
 
 type Method string
@@ -60,11 +62,13 @@ type Request struct {
 }
 
 func NewClient(key, secretKey string, isTestnet bool) *Client {
+	limiter := rate.NewLimiter(rate.Every(time.Second/120), 120) // 120 requests per second
 	return &Client{
-		key:        key,
-		secretKey:  secretKey,
-		httpClient: &http.Client{},
-		IsTestNet:  isTestnet,
+		key:         key,
+		secretKey:   secretKey,
+		httpClient:  &http.Client{},
+		IsTestNet:   isTestnet,
+		rateLimiter: limiter,
 	}
 }
 

@@ -191,20 +191,6 @@ func (c *WSClient) sendPingAndHandleReconnection() {
 	c.logger.Println("Ping sent")
 }
 
-// handleReconnection closes the current connection and attempts to reconnect to the WebSocket server.
-func (c *WSClient) handleReconnection() {
-	if c.Conn == nil {
-		for i := 0; i < ReconnectionRetries; i++ {
-			if err := c.Connect(); err == nil {
-				c.logger.Printf("Reconnection attempt %d successful", i+1)
-				break
-			}
-			c.logger.Printf("Reconnection attempt %d failed", i+1)
-			time.Sleep(ReconnectionDelay)
-		}
-	}
-}
-
 // Authenticate sends an authentication request to the WebSocket server.
 func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 	if c.channel != Private {
@@ -267,6 +253,15 @@ func (c *WSClient) Send(message []byte) error {
 		return errors.New("attempt to send message on closed connection")
 	}
 
+	// Check if the connection is nil
+	if c.Conn == nil {
+		log.Println("Connection is nil, attempting to reconnect...")
+		if err := c.Connect(); err != nil {
+			log.Printf("Reconnection failed: %v", err)
+			return err
+		}
+	}
+
 	if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
 		log.Printf("Error sending message: %v", err)
 		return err
@@ -284,4 +279,28 @@ func (c *WSClient) Receive() ([]byte, error) {
 	}
 
 	return message, nil
+}
+func (c *WSClient) handleReconnection() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.isClosed {
+		return // No need to reconnect if the client is intentionally closed
+	}
+
+	c.logger.Println("Attempting to reconnect...")
+	if c.Conn != nil {
+		// Close the existing connection safely
+		_ = c.Conn.Close() // Best effort, ignore error
+		c.Conn = nil
+	}
+
+	for i := 0; i < ReconnectionRetries; i++ {
+		time.Sleep(ReconnectionDelay) // Wait before attempting to reconnect
+		if err := c.Connect(); err == nil {
+			c.logger.Printf("Reconnection attempt %d successful", i+1)
+			return
+		}
+		c.logger.Printf("Reconnection attempt %d failed", i+1)
+	}
 }

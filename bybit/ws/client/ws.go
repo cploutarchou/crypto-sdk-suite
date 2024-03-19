@@ -205,7 +205,6 @@ func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 	if err != nil {
 		return err
 	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {

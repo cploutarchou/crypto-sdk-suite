@@ -2,22 +2,40 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
+	"golang.org/x/time/rate"
+	"log"
 	"net/http"
 	"net/url"
-	"sort"
+	"strconv"
 	"time"
 )
 
 const (
-	POST Method = "POST"
-	GET  Method = "GET"
+	recvWindow = "5000"
+
+	// BaseURL is the base URL for the Bybit API
+	BaseURL = "https://api.bybit.com"
+
+	// TestnetBaseURL is the base URL for the Bybit Testnet API
+	TestnetBaseURL = "https://api-testnet.bybit.com"
+
+	// ApiVersion is the version of the Bybit API
+	ApiVersion        = "v5"
+	GET        Method = "GET"
+	POST       Method = "POST"
+	// Globals
+	timestampKey  = "X-BAPI-TIMESTAMP"
+	signatureKey  = "X-BAPI-SIGN"
+	apiRequestKey = "X-BAPI-API-KEY"
+	recvWindowKey = "X-BAPI-RECV-WINDOW"
+	signTypeKey   = "X-BAPI-SIGN-TYPE"
 )
 
 type Requester interface {
@@ -26,10 +44,13 @@ type Requester interface {
 }
 
 type Client struct {
-	key        string
-	secretKey  string
-	httpClient *http.Client
-	IsTestNet  bool
+	key             string
+	secretKey       string
+	httpClient      *http.Client
+	IsTestNet       bool
+	params          []byte
+	QueryParams     url.Values
+	endpointLimiter *EndpointRateLimiter
 }
 
 type Method string
@@ -41,13 +62,26 @@ type Request struct {
 	params Params
 }
 
-func NewClient(key, secretKey string, isTestnet bool) *Client {
-	return &Client{
-		key:        key,
-		secretKey:  secretKey,
-		httpClient: &http.Client{},
-		IsTestNet:  isTestnet,
+// Initializes endpoint limiters based on predefined rates and sets a sensible burst size.
+func (c *Client) initializeEndpointLimiters() {
+	for endpoint, limit := range endpointLimits {
+		// Assuming a burst size of 5 for demonstration. Adjust based on actual usage.
+		limiter := rate.NewLimiter(limit, 5)
+		c.endpointLimiter.SetLimiter(endpoint, limiter)
 	}
+}
+
+// NewClient function to call this new method.
+func NewClient(key, secretKey string, isTestnet bool) *Client {
+	client := &Client{
+		key:             key,
+		secretKey:       secretKey,
+		httpClient:      &http.Client{},
+		IsTestNet:       isTestnet,
+		endpointLimiter: NewEndpointRateLimiter(),
+	}
+	client.initializeEndpointLimiters()
+	return client
 }
 
 func (c *Client) Get(path string, params Params) (Response, error) {
@@ -59,6 +93,23 @@ func (c *Client) Post(path string, params Params) (Response, error) {
 }
 
 func (c *Client) doRequest(method Method, path string, params Params) (Response, error) {
+	// Construct the endpoint key using the method and path
+	endpointKey := fmt.Sprintf("%s %s", method, path)
+
+	// Retrieve the existing limiter for the endpoint
+	limiter := c.endpointLimiter.GetLimiter(endpointKey)
+	if limiter == nil {
+		log.Printf("Warning: No rate limiter found for %s. Requests for this endpoint may not be rate-limited.", endpointKey)
+		// You might choose to handle this situation differently, such as by setting a default limiter.
+	} else {
+		// Wait for permission to proceed from the rate limiter
+		ctx := context.Background() // Consider passing a context from higher-level methods
+		if err := limiter.Wait(ctx); err != nil {
+			return nil, fmt.Errorf("rate limiter error: %w", err)
+		}
+	}
+
+	// Create and execute the HTTP request as before
 	req := &Request{
 		method: method,
 		path:   path,
@@ -68,6 +119,7 @@ func (c *Client) doRequest(method Method, path string, params Params) (Response,
 }
 
 func (c *Client) do(req *Request) (Response, error) {
+	c.QueryParams = make(url.Values)
 	baseURL := BaseURL
 	if c.IsTestNet {
 		baseURL = TestnetBaseURL
@@ -91,30 +143,25 @@ func (c *Client) do(req *Request) (Response, error) {
 		return nil, err
 	}
 
-	c.setCommonHeaders(httpReq, req.params)
+	c.setCommonHeaders(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
-
 	if err != nil {
 		return nil, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			return
-		}
-	}(resp.Body)
+	defer resp.Body.Close()
 
+	c.params = nil
 	return NewResponse(resp), nil
 }
 
 func (c *Client) newGETRequest(baseURL string, req *Request) (*http.Request, error) {
-	queryParams := url.Values{}
+	c.QueryParams = url.Values{}
 	for k, v := range req.params {
-		queryParams.Set(k, v.(string))
+		c.QueryParams.Set(k, fmt.Sprintf("%v", v))
 	}
 
-	return http.NewRequest(string(GET), baseURL+req.path+"?"+queryParams.Encode(), nil)
+	return http.NewRequest(string(GET), baseURL+req.path+"?"+c.QueryParams.Encode(), nil)
 }
 
 func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, error) {
@@ -122,49 +169,36 @@ func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, er
 	if err != nil {
 		return nil, err
 	}
+	c.params = nil
+	c.params = jsonData
 	return http.NewRequest(string(POST), baseURL+req.path, bytes.NewBuffer(jsonData))
 }
 
-func (c *Client) setCommonHeaders(req *http.Request, params Params) {
-	timestamp := fmt.Sprintf("%d", time.Now().UTC().UnixMilli())
+func (c *Client) setCommonHeaders(req *http.Request) {
 
-	req.Header.Add("X-BAPI-SIGN-TYPE", "2")
-	req.Header.Add("X-BAPI-SIGN", GenerateSignature(c.secretKey, c.key, params, timestamp))
-	req.Header.Add("X-BAPI-API-KEY", c.key)
-	req.Header.Add("X-BAPI-TIMESTAMP", timestamp)
-	req.Header.Add("X-BAPI-RECV-WINDOW", "50000")
-	req.Header.Add("Content-Type", "application/json")
-	if req.Method == string(POST) {
-		req.Header.Add("Accept", "application/json")
-		req.Header.Add("Content-Length", fmt.Sprintf("%d", len(params)))
+	timestamp := strconv.FormatInt(GetCurrentTime(), 10)
+	req.Header.Set(signTypeKey, "2")
+	req.Header.Set(apiRequestKey, c.key)
+	req.Header.Set(timestampKey, strconv.FormatInt(GetCurrentTime(), 10))
+	req.Header.Set(recvWindowKey, recvWindow)
+	var signatureBase []byte
+	if req.Method == "POST" {
+		req.Header.Set("Content-Type", "application/json")
+		signatureBase = []byte(timestamp + c.key + recvWindow + string(c.params[:]))
+	} else {
+		queryString := c.QueryParams.Encode()
+		signatureBase = []byte(timestamp + c.key + recvWindow + queryString)
 	}
+	hmac256 := hmac.New(sha256.New, []byte(c.secretKey))
+	hmac256.Write(signatureBase)
+	signature := hex.EncodeToString(hmac256.Sum(nil))
+	req.Header.Set(signatureKey, signature)
+
 }
 
-func GenerateSignature(secretKey, apiKey string, params Params, timestamp string) string {
-	// Start with the timestamp
-	str := timestamp
-
-	// Append the API Key
-	str += apiKey
-
-	// Append recv window value
-	str += "50000" // adjust as needed
-
-	// Sort keys and append sorted query parameters
-	var keys []string
-	for k := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	queryParams := url.Values{}
-	for _, k := range keys {
-		queryParams.Set(k, params[k].(string))
-	}
-	str += queryParams.Encode()
-	// Generate HMAC-SHA256 signature
-	h := hmac.New(sha256.New, []byte(secretKey))
-	h.Write([]byte(str))
-	signature := hex.EncodeToString(h.Sum(nil))
-
-	return signature
+func GetCurrentTime() int64 {
+	now := time.Now()
+	unixNano := now.UnixNano()
+	timeStamp := unixNano / int64(time.Millisecond)
+	return timeStamp
 }

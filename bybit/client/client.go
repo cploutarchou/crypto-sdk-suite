@@ -62,9 +62,11 @@ type Request struct {
 	params Params
 }
 
+// Initializes endpoint limiters based on predefined rates and sets a sensible burst size.
 func (c *Client) initializeEndpointLimiters() {
 	for endpoint, limit := range endpointLimits {
-		limiter := rate.NewLimiter(limit, 1) // Assuming a burst equal to the rate.
+		// Assuming a burst size of 5 for demonstration. Adjust based on actual usage.
+		limiter := rate.NewLimiter(limit, 5)
 		c.endpointLimiter.SetLimiter(endpoint, limiter)
 	}
 }
@@ -199,36 +201,4 @@ func GetCurrentTime() int64 {
 	unixNano := now.UnixNano()
 	timeStamp := unixNano / int64(time.Millisecond)
 	return timeStamp
-}
-
-func (c *Client) adjustRateLimiter(resp *http.Response, method Method, endpoint string) {
-	limitStr := resp.Header.Get("X-Bapi-Limit")
-	remainingStr := resp.Header.Get("X-Bapi-Limit-Status")
-	resetTimestampStr := resp.Header.Get("X-Bapi-Limit-Reset-Timestamp")
-
-	limit, err1 := strconv.Atoi(limitStr)
-	remaining, err2 := strconv.Atoi(remainingStr)
-	resetTimestampMs, err3 := strconv.ParseInt(resetTimestampStr, 10, 64)
-
-	if err1 != nil || err2 != nil || err3 != nil {
-		log.Println("Error parsing rate limit headers:", err1, err2, err3)
-		return
-	}
-
-	if limit > 0 && remaining > 0 {
-		resetDuration := time.Until(time.UnixMilli(resetTimestampMs))
-		if resetDuration <= 0 || remaining <= 0 {
-			return // Avoid division by zero or setting an infinite rate
-		}
-
-		newRate := rate.Every(resetDuration / time.Duration(remaining))
-		endpointKey := fmt.Sprintf("%s %s", method, endpoint)
-		limiter := c.endpointLimiter.GetLimiter(endpointKey)
-		if limiter != nil {
-			limiter.SetLimit(newRate)
-			log.Printf("Adjusted rate limit for %s to %v requests per %s\n", endpointKey, remaining, resetDuration)
-		} else {
-			log.Printf("No limiter found for %s, unable to adjust rate\n", endpointKey)
-		}
-	}
 }

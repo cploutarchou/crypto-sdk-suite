@@ -8,6 +8,7 @@ on:
     branches:
       - master
     types: [closed]
+
 jobs:
   tag-and-release:
     runs-on: ubuntu-latest
@@ -20,22 +21,29 @@ jobs:
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         run: |
           git fetch --tags
+          # Attempt to fetch the latest tag
           if git rev-list --tags --max-count=1 | xargs git describe --tags --abbrev=0 > /dev/null 2>&1; then
             LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
             MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | sed 's/v//') # Remove 'v' prefix
             MINOR=$(echo $LATEST_TAG | cut -d. -f2)
             PATCH=$(echo $LATEST_TAG | cut -d. -f3)
             let PATCH+=1
+            # If PATCH is 10, increment MINOR and reset PATCH to 0
+            if [ "$PATCH" -eq 10 ]; then
+              let MINOR+=1
+              PATCH=0
+            fi
           else
+            # Set initial version numbers
             MAJOR=0
-            MINOR=0
+            MINOR=1
             PATCH=1
           fi
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           git config user.name github-actions
           git config user.email cploutarchou@gmail.com
-          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION" # Ensure 'v' prefix is here only
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
           git push https://${{ secrets.MY_GITHUB_PAT }}@github.com/${GITHUB_REPOSITORY} --tags
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}

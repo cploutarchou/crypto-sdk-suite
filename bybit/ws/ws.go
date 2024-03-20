@@ -26,7 +26,7 @@ func (i *implWebSocket) Public() (public.Public, error) {
 
 	return i.public, nil
 }
-func New(wsClient *client.Client,isTestnet bool) WebSocket {
+func New(wsClient *client.Client, isTestnet bool) WebSocket {
 	return &implWebSocket{
 		client:  wsClient,
 		private: private.New(wsClient),

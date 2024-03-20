@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/account"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
 	wsClient "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	kline2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/kline"
 	ticker2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/ticker"
-	"log"
-	"os"
-	"strconv"
 )
 
 var bybitCli *client.Client
@@ -125,14 +126,14 @@ func wsConnectTicker() {
 		return
 	}
 
-	websocket = ws.New(client_, "linear")
+	websocket = ws.New(client_, true)
 	publicWS, err := websocket.Public()
 	if err != nil {
 		log.Printf("ERROR: Failed to access public WebSocket endpoint: %v", err)
 		return
 	}
 
-	ticker := publicWS.Ticker()
+	ticker := publicWS.Ticker("linear")
 
 	// Subscribe to ticker updates
 	err = ticker.Subscribe("BTCUSDT", func(data ticker2.Data) {

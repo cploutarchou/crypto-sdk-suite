@@ -1,12 +1,11 @@
 package kline
 
-type Res struct {
+type Response struct {
 	Topic string `json:"topic"`
+	Type  string `json:"type"`
 	Data  []Data `json:"data"`
 	Ts    int64  `json:"ts"`
-	Type  string `json:"type"`
 }
-
 type Data struct {
 	Start     int64  `json:"start"`
 	End       int64  `json:"end"`

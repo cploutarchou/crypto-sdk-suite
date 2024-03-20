@@ -6,6 +6,7 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
 	wsClient "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	kline2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/kline"
 	ticker2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/ticker"
 	"log"
 	"os"
@@ -114,7 +115,7 @@ func getMMPState() (interface{}, error) {
 	return margin.GetMMPState("BTC")
 }
 
-func wsConnect() {
+func wsConnectTicker() {
 	// Correctly initialized a buffered channel of float64 values
 	b := make(chan float64, 1)
 	fmt.Println("wsConnect")
@@ -162,6 +163,34 @@ func wsConnect() {
 		log.Printf("Received price update: %f", price)
 	}
 }
+func wsConnectKline() {
+	fmt.Println("wsConnectKline")
+
+	client_, err := wsClient.NewClient(key, secret, true)
+	if err != nil {
+		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
+		return
+	}
+
+	klineService, err := kline2.New(client_) // Adjust based on your New function
+	if err != nil {
+		log.Printf("ERROR: Failed to initialize kline service: %v", err)
+		return
+	}
+
+	err = klineService.Subscribe([]string{"BTCUSDT", "SOLUSDT"}, "1", func(data kline2.Data) {})
+
+	if err != nil {
+		log.Printf("ERROR: Failed to subscribe to kline updates: %v", err)
+		return
+	}
+
+	log.Println("INFO: Successfully subscribed to kline updates for BTCUSDT and THETAUSDT")
+
+	for kline := range klineService.GetMessagesChan() {
+		log.Printf("Received kline update: %+v\n", string(kline))
+	}
+}
 
 func runAccountExamples() {
 	//handleErrorWithPrint(getWalletBalance())
@@ -177,7 +206,8 @@ func runAccountExamples() {
 	//handleErrorWithPrint(setMMP())
 	//handleErrorWithPrint(resetMMP())
 	//handleErrorWithPrint(getMMPState())
-	wsConnect()
+	//wsConnectTicker()
+	wsConnectKline()
 }
 func bybitExamples() {
 	runAccountExamples()

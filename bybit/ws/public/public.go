@@ -13,7 +13,7 @@ import (
 )
 
 type Public interface {
-	Kline() kline.Kline
+	Kline() (kline.Kline, error)
 	Liquidation() liquidation.Liquidation
 	LtKline() ltkline.LtKline
 	LtNav() ltnav.LtNav
@@ -27,7 +27,7 @@ type implPublic struct {
 	client *client.Client
 }
 
-func (i *implPublic) Kline() kline.Kline {
+func (i *implPublic) Kline() (kline.Kline, error) {
 	return kline.New(i.client)
 }
 func (i *implPublic) Liquidation() liquidation.Liquidation {

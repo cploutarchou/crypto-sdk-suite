@@ -4,104 +4,108 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
-	"sync"
 )
-
-type Interval string
 
 // Kline represents the interface for the kline functionality.
 type Kline interface {
-	SetClient(client *client.Client) (Kline, error)
-	Subscribe(symbols []string, interval Interval) (Kline, error)
-	Unsubscribe(topics ...string) (Kline, error)
+	SetClient(client *client.Client) error
+	Subscribe(symbols []string, interval string, callback func(response Data)) error
+	Unsubscribe(topics ...string) error
 	Receive() (int, []byte, error)
 	Close()
 	GetMessagesChan() <-chan []byte
 	Stop()
 }
 
-type klineImpl struct {
-	client   *client.Client
-	Messages chan []byte
-	StopChan chan struct{}
-	isTest   bool
-	mu       sync.Mutex // Mutex to make operations thread-safe
+// Assuming you want to store callbacks for each topic
+type topicCallback struct {
+	callback func(data Data)
 }
 
-func (w *klineImpl) Subscribe(symbols []string, interval Interval) (Kline, error) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+type klineImpl struct {
+	client         *client.Client
+	Messages       chan []byte
+	StopChan       chan struct{}
+	isTest         bool
+	topicCallbacks map[string]topicCallback
+}
+
+func (k *klineImpl) Subscribe(symbols []string, interval string, callback func(response Data)) error {
+
+	// Initialize if your implementation doesn't already have this
+	if k.topicCallbacks == nil {
+		k.topicCallbacks = make(map[string]topicCallback)
+	}
 
 	topics := make([]string, len(symbols))
 	for i, symbol := range symbols {
-		topics[i] = fmt.Sprintf("kline.%s.%s", interval, symbol)
+		topic := fmt.Sprintf("kline.%s.%s", interval, symbol)
+		topics[i] = topic
+		// Store the callback for each topic
+		k.topicCallbacks[topic] = topicCallback{callback: callback}
 	}
 
-	topicJSON, err := json.Marshal(topics)
+	subscription := map[string]interface{}{
+		"op":   "subscribe",
+		"args": topics,
+	}
+
+	msg, err := json.Marshal(subscription)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal topics: %w", err)
+		return fmt.Errorf("failed to marshal subscription message: %v", err)
 	}
 
-	message := fmt.Sprintf(`{"op":"subscribe","args":%s}`, string(topicJSON))
-	err = w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
+	if err := k.client.Send(msg); err != nil {
+		return fmt.Errorf("failed to subscribe to kline channel: %v", err)
+	}
+
+	return nil
+}
+func (k *klineImpl) Unsubscribe(topics ...string) error {
+	// Using client's Send method for sending the unsubscription message
+	unsubscription := map[string]interface{}{
+		"op":   "unsubscribe",
+		"args": topics,
+	}
+	msg, err := json.Marshal(unsubscription)
 	if err != nil {
-		return nil, fmt.Errorf("failed to subscribe to kline channel: %w", err)
+		return fmt.Errorf("failed to marshal unsubscription message: %v", err)
 	}
 
-	return w, nil
-}
-
-func (w *klineImpl) Unsubscribe(topics ...string) (Kline, error) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	topicJSON, err := json.Marshal(topics)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal topics: %w", err)
+	// Use the client's Send method to abstract away connection details
+	if err := k.client.Send(msg); err != nil {
+		return fmt.Errorf("failed to unsubscribe from kline channel: %v", err)
 	}
 
-	message := fmt.Sprintf(`{"op":"unsubscribe","args":%s}`, string(topicJSON))
-	err = w.client.Conn.WriteMessage(client.WSMessageText, []byte(message))
-	if err != nil {
-		return nil, fmt.Errorf("failed to unsubscribe to kline channel: %w", err)
-	}
-
-	return w, nil
+	return nil
 }
 
-func (w *klineImpl) Receive() (int, []byte, error) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+func (k *klineImpl) Receive() (int, []byte, error) {
 
-	return w.client.Conn.ReadMessage()
+	return k.client.Conn.ReadMessage()
 }
 
-func (w *klineImpl) Close() {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+func (k *klineImpl) Close() {
 
-	w.client.Close()
+	k.client.Close()
 }
 
-func (w *klineImpl) GetMessagesChan() <-chan []byte {
-	return w.Messages
+func (k *klineImpl) GetMessagesChan() <-chan []byte {
+	return k.Messages
 }
 
-func (w *klineImpl) Stop() {
-	w.StopChan <- struct{}{}
+func (k *klineImpl) Stop() {
+	k.StopChan <- struct{}{}
 }
 
-func (w *klineImpl) SetClient(c *client.Client) (Kline, error) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+func (k *klineImpl) SetClient(c *client.Client) error {
 
-	w.client = c
-	return w, nil
+	k.client = c
+	return nil
 }
 
 // New creates a new instance of KlineImpl
-func New(c *client.Client) Kline {
-	c.Path = "linear"
+func New(c *client.Client) (Kline, error) {
 	var k klineImpl
 	k.client = c
 	k.Messages = make(chan []byte, 100)
@@ -110,11 +114,12 @@ func New(c *client.Client) Kline {
 	k.client.IsPublic = true
 	err := k.client.Connect()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	<-k.client.Connected
 	fmt.Println("Connected to WS")
+
 	go func() {
 		for {
 			select {
@@ -129,5 +134,27 @@ func New(c *client.Client) Kline {
 			}
 		}
 	}()
-	return &k
+	return &k, nil
+}
+func (k *klineImpl) listenForMessages() {
+	for {
+		msg, err := k.client.Receive() // Make sure this method exists and is correctly implemented
+		if err != nil {
+			// Handle error, possibly breaking the loop or attempting to reconnect
+			continue
+		}
+
+		var resp Response
+		if err := json.Unmarshal(msg, &resp); err != nil {
+			// Handle unmarshal error
+			continue
+		}
+
+		// Find the callback for the topic and execute it with the data
+		if tc, exists := k.topicCallbacks[resp.Topic]; exists {
+			for _, data := range resp.Data {
+				tc.callback(data) // Execute the callback for each item in the data array
+			}
+		}
+	}
 }

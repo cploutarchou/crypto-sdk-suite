@@ -96,7 +96,6 @@ func (m *Metadata) GetMetadata(params *Params) (map[string]CryptoCurrency, error
 		return nil, err
 	}
 
-	fmt.Println(string(resp.Data()))
 	var data Response
 	if err := resp.Unmarshal(&data); err != nil {
 		return nil, err

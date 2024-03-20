@@ -1,5 +1,3 @@
-// Package client provides a WebSocket client to interact with a server.
-// It manages authentication, pinging, and reconnection logic.
 package client
 
 import (
@@ -10,12 +8,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"os"
 	"sync"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 const (
@@ -33,60 +30,58 @@ const (
 
 var DefaultReqID = randomString(8)
 
-// WSPingMsg represents the WebSocket ping message format.
-type WSPingMsg struct {
+// PingMsg represents the WebSocket ping message format.
+type PingMsg struct {
 	Op    string `json:"op"`
 	ReqId string `json:"req_id"`
 }
 
-// WSPublicChannels represents the type for public channels.
-type WSPublicChannels string
+// PublicChannels represents the type for public channels.
+type PublicChannels string
 
-// WSPrivateChannels represents the type for private channels.
-type WSPrivateChannels string
+// PrivateChannels represents the type for private channels.
+type PrivateChannels string
 
-// WSClient is the main WebSocket client struct, managing the connection and its state.
-type WSClient struct {
+// Client is the main WebSocket client struct, managing the connection and its state.
+type Client struct {
 	Conn              *websocket.Conn
-	mu                sync.Mutex
 	closeOnce         sync.Once
 	isClosed          bool
 	logger            *log.Logger
 	IsTestNet         bool
 	IsPublic          bool
-	apiKey            string
-	apiSecret         string
-	channel           ChannelType
+	ApiKey            string
+	ApiSecret         string
+	Channel           ChannelType
 	Path              string
 	Connected         chan struct{}
 	OnConnected       func()
 	OnConnectionError func(err error)
+	Category          string
 }
 
 // ChannelType defines the types of channels (public/private) that the WebSocket client can connect to.
 type ChannelType string
 
-// New initializes a new WSClient instance.
+// NewClient initializes a new WSClient instance.
 // apiKey and apiSecret are required for authentication with private channels.
 // isTestNet determines if the client connects to a test network.
 // isPublic specifies if the client connects to a public channel.
-func New(apiKey, apiSecret string, isTestNet bool) (*WSClient, error) {
-	client := &WSClient{
+func NewClient(apiKey, apiSecret string, isTestNet bool) (*Client, error) {
+	client_ := &Client{
 		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		IsTestNet: isTestNet,
-		apiKey:    apiKey,
-		apiSecret: apiSecret,
+		ApiKey:    apiKey,
+		ApiSecret: apiSecret,
 		Path:      "",
 		Connected: make(chan struct{}),
 	}
 
-	return client, nil
+	return client_, nil
 }
 
 // Connect establishes a WebSocket connection to the server based on the configuration.
-func (c *WSClient) Connect() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Client) Connect() error {
 
 	if c.isClosed {
 		if c.OnConnectionError != nil {
@@ -95,7 +90,7 @@ func (c *WSClient) Connect() error {
 		return errors.New("connection already closed")
 	}
 
-	if c.channel == Private {
+	if c.Channel == Private {
 		if err := c.authenticateIfRequired(); err != nil {
 			return err
 		}
@@ -107,13 +102,17 @@ func (c *WSClient) Connect() error {
 		url = "stream.bybit.com"
 	}
 	if c.IsPublic {
-		c.channel = Public
+		c.Channel = Public
 	} else {
-		c.channel = Private
+		c.Channel = Private
 	}
 
-	url = fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, url, ApiV5, c.channel)
-
+	url = fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, url, ApiV5, c.Channel)
+	if c.Category != "" {
+		url = fmt.Sprintf("%s/%s", url, c.Category)
+	} else {
+		url = fmt.Sprintf("%s/%s", url, "spot")
+	}
 	if c.Path != "" {
 		url = fmt.Sprintf("%s/%s", url, c.Path)
 	}
@@ -137,12 +136,12 @@ func (c *WSClient) Connect() error {
 }
 
 // authenticateIfRequired authenticates the WebSocket client if the channel is private.
-func (c *WSClient) authenticateIfRequired() error {
-	if c.channel == Private {
+func (c *Client) authenticateIfRequired() error {
+	if c.Channel == Private {
 		expires := fmt.Sprintf("%d", time.Now().UnixNano()/int64(time.Millisecond)+1)
 		signatureData := fmt.Sprintf("GET/realtime%s", expires)
-		signed := GenerateWsSignature(c.apiSecret, signatureData)
-		return c.Authenticate(c.apiKey, expires, signed)
+		signed := GenerateWsSignature(c.ApiSecret, signatureData)
+		return c.Authenticate(c.ApiKey, expires, signed)
 	}
 	return nil
 }
@@ -155,7 +154,7 @@ func GenerateWsSignature(apiSecret, data string) string {
 }
 
 // keepAlive sends a ping message to the WebSocket server every PingInterval and handles reconnection if the ping fails.
-func (c *WSClient) keepAlive() {
+func (c *Client) keepAlive() {
 	ticker := time.NewTicker(PingInterval)
 	defer ticker.Stop()
 
@@ -166,15 +165,13 @@ func (c *WSClient) keepAlive() {
 
 // sendPingAndHandleReconnection sends a ping message to the WebSocket server
 // and handles reconnection if the ping fails.
-func (c *WSClient) sendPingAndHandleReconnection() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Client) sendPingAndHandleReconnection() {
 
 	if c.isClosed {
 		return
 	}
 
-	pingMsg := WSPingMsg{
+	pingMsg := PingMsg{
 		ReqId: DefaultReqID,
 		Op:    PingOperation,
 	}
@@ -192,8 +189,8 @@ func (c *WSClient) sendPingAndHandleReconnection() {
 }
 
 // Authenticate sends an authentication request to the WebSocket server.
-func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
-	if c.channel != Private {
+func (c *Client) Authenticate(apiKey, expires, signature string) error {
+	if c.Channel != Private {
 		return errors.New("cannot authenticate on a public channel")
 	}
 	c.logger.Printf("Authenticating with apiKey %s", apiKey)
@@ -205,8 +202,6 @@ func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 	if err != nil {
 		return err
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		if c.OnConnectionError != nil {
 			c.OnConnectionError(err)
@@ -217,10 +212,9 @@ func (c *WSClient) Authenticate(apiKey, expires, signature string) error {
 }
 
 // Close gracefully closes the WebSocket connection.
-func (c *WSClient) Close() {
+func (c *Client) Close() {
 	c.closeOnce.Do(func() {
-		c.mu.Lock()
-		defer c.mu.Unlock()
+
 		if c.isClosed {
 			return
 		}
@@ -244,15 +238,13 @@ func randomString(n int) string {
 }
 
 // Send sends a message to the WebSocket server.
-func (c *WSClient) Send(message []byte) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Client) Send(message []byte) error {
 
 	if c.isClosed {
 		return errors.New("attempt to send message on closed connection")
 	}
 
-	// Check if the connection is nil
+	// Attempt to reconnect if the connection is nil
 	if c.Conn == nil {
 		log.Println("Connection is nil, attempting to reconnect...")
 		if err := c.Connect(); err != nil {
@@ -260,6 +252,12 @@ func (c *WSClient) Send(message []byte) error {
 			return err
 		}
 	}
+
+	// Ensure connection is not nil after reconnection attempt
+	if c.Conn == nil {
+		return errors.New("connection is still nil after attempting to reconnect")
+	}
+	fmt.Println(string(message))
 
 	if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
 		log.Printf("Error sending message: %v", err)
@@ -270,18 +268,17 @@ func (c *WSClient) Send(message []byte) error {
 }
 
 // Receive listens for a message from the WebSocket server and returns it.
-func (c *WSClient) Receive() ([]byte, error) {
+func (c *Client) Receive() ([]byte, error) {
 	_, message, err := c.Conn.ReadMessage()
 	if err != nil {
 		log.Printf("Error receiving message: %v", err)
 		return nil, err
 	}
 
+	fmt.Println(string(message))
 	return message, nil
 }
-func (c *WSClient) handleReconnection() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Client) handleReconnection() {
 
 	if c.isClosed {
 		return // No need to reconnect if the client is intentionally closed

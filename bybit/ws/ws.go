@@ -12,7 +12,7 @@ type WebSocket interface {
 }
 
 type implWebSocket struct {
-	client  *client.WSClient
+	client  *client.Client
 	private private.Private
 	public  public.Public
 }
@@ -26,10 +26,10 @@ func (i *implWebSocket) Public() (public.Public, error) {
 
 	return i.public, nil
 }
-func New(wsClient *client.WSClient) WebSocket {
+func New(wsClient *client.Client, isTestnet bool) WebSocket {
 	return &implWebSocket{
 		client:  wsClient,
 		private: private.New(wsClient),
-		public:  public.New(wsClient),
+		public:  public.New(wsClient, isTestnet),
 	}
 }

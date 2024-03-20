@@ -3,16 +3,15 @@ package kline
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
-
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	"sync"
 )
 
 type Interval string
 
 // Kline represents the interface for the kline functionality.
 type Kline interface {
-	SetClient(client *client.WSClient) (Kline, error)
+	SetClient(client *client.Client) (Kline, error)
 	Subscribe(symbols []string, interval Interval) (Kline, error)
 	Unsubscribe(topics ...string) (Kline, error)
 	Receive() (int, []byte, error)
@@ -22,7 +21,7 @@ type Kline interface {
 }
 
 type klineImpl struct {
-	client   *client.WSClient
+	client   *client.Client
 	Messages chan []byte
 	StopChan chan struct{}
 	isTest   bool
@@ -92,7 +91,7 @@ func (w *klineImpl) Stop() {
 	w.StopChan <- struct{}{}
 }
 
-func (w *klineImpl) SetClient(c *client.WSClient) (Kline, error) {
+func (w *klineImpl) SetClient(c *client.Client) (Kline, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -101,7 +100,7 @@ func (w *klineImpl) SetClient(c *client.WSClient) (Kline, error) {
 }
 
 // New creates a new instance of KlineImpl
-func New(c *client.WSClient) Kline {
+func New(c *client.Client) Kline {
 	c.Path = "linear"
 	var k klineImpl
 	k.client = c
@@ -111,7 +110,6 @@ func New(c *client.WSClient) Kline {
 	k.client.IsPublic = true
 	err := k.client.Connect()
 	if err != nil {
-		fmt.Println("Error connecting:", err)
 		return nil
 	}
 
@@ -125,7 +123,6 @@ func New(c *client.WSClient) Kline {
 			default:
 				_, msg, err := k.client.Conn.ReadMessage()
 				if err != nil {
-					fmt.Println(err)
 					return
 				}
 				k.Messages <- msg

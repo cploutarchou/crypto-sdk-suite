@@ -1,7 +1,6 @@
 package gainer_looser
 
 import (
-	"fmt"
 	c "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	"strconv"
 )
@@ -99,7 +98,6 @@ func (g *GainersAndLosers) FetchGainersLosers(params *Params) ([]CryptocurrencyD
 		return nil, err
 	}
 
-	fmt.Println(string(resp.Data()))
 	var data Response
 	if err := resp.Unmarshal(&data); err != nil {
 		return nil, err

@@ -4,20 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"sync"
-
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	"log"
 )
 
 type response struct {
-	Topic string     `json:"topic"`
-	Type  string     `json:"type"`
-	Data  TickerData `json:"data"`
-	Cs    int64      `json:"cs"`
-	Ts    int64      `json:"ts"`
+	Topic string `json:"topic"`
+	Type  string `json:"type"`
+	Data  Data   `json:"data"`
+	Cs    int64  `json:"cs"`
+	Ts    int64  `json:"ts"`
 }
-type TickerData struct {
+type Data struct {
 	Symbol            string `json:"symbol"`
 	TickDirection     string `json:"tickDirection"`
 	Price24HPcnt      string `json:"price24hPcnt"`
@@ -42,36 +40,33 @@ type TickerData struct {
 
 // Ticker manages ticker subscriptions and updates.
 type Ticker struct {
-	client      *client.WSClient
-	subscribers map[string]func(TickerData)
-	mu          sync.Mutex
+	client      *client.Client
+	subscribers map[string]func(Data)
 	ctx         context.Context
 	cancel      context.CancelFunc
 }
 
 // New initializes a new Ticker instance with context for graceful shutdown.
-func New(client *client.WSClient) *Ticker {
+func New(client *client.Client) *Ticker {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Ticker{
 		client:      client,
-		subscribers: make(map[string]func(TickerData)),
+		subscribers: make(map[string]func(Data)),
 		ctx:         ctx,
 		cancel:      cancel,
 	}
 }
 
 // Subscribe to the ticker updates for a given symbol.
-func (t *Ticker) Subscribe(symbol string, callback func(TickerData)) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
+// Subscribe to the ticker updates for a given symbol.
+func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
 	topic := fmt.Sprintf("tickers.%s", symbol)
 	t.subscribers[topic] = callback
 
-	// Construct the subscription message
+	// Correctly construct the subscription message with "args"
 	subscriptionMessage := map[string]interface{}{
-		"op":    "subscribe",
-		"topic": topic,
+		"op":   "subscribe",
+		"args": []string{topic}, // Use an array for topics as per API requirements
 	}
 	msg, err := json.Marshal(subscriptionMessage)
 	if err != nil {
@@ -101,13 +96,9 @@ func (t *Ticker) Listen() {
 				continue
 			}
 
-			t.mu.Lock()
 			callback, exists := t.subscribers[response.Topic]
-			t.mu.Unlock()
 
 			if exists && (response.Type == "snapshot" || response.Type == "delta") {
-				// Execute callback in its own goroutine to not block the Listen loop
-				// and to handle callbacks concurrently.
 				go callback(response.Data)
 			}
 		}
@@ -117,9 +108,8 @@ func (t *Ticker) Listen() {
 // Unsubscribe from the ticker updates for a given symbol.
 func (t *Ticker) Unsubscribe(symbol string) error {
 	topic := fmt.Sprintf("tickers.%s", symbol)
-	t.mu.Lock()
+
 	delete(t.subscribers, topic)
-	t.mu.Unlock()
 
 	// Construct the unsubscription message
 	unsubscriptionMessage := map[string]interface{}{

@@ -61,7 +61,7 @@ func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string, res
 
 	}
 	reqURL := fmt.Sprintf("%s%s%s&signature=%s", c.config.BaseURL, endpoint, data, signature)
-	fmt.Println(reqURL)
+
 	req, err := http.NewRequest(method, reqURL, bytes.NewBufferString(bodyData))
 	if err != nil {
 		log.Printf("Error creating new request: %v", err)

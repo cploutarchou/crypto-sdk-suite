@@ -17,11 +17,11 @@ type Private interface {
 	Order() *order.Order
 	Position() *position.Position
 	Wallet() *wallet.Wallet
-	SetClient(client_ *client.WSClient) Private
+	SetClient(client_ *client.Client) Private
 }
 
 type implPrivate struct {
-	client *client.WSClient
+	client *client.Client
 	isTest bool
 }
 
@@ -49,7 +49,7 @@ func (i *implPrivate) Wallet() *wallet.Wallet {
 	return wallet.New()
 }
 
-func (i *implPrivate) SetClient(client_ *client.WSClient) Private {
+func (i *implPrivate) SetClient(client_ *client.Client) Private {
 	if client_ != nil {
 		return &implPrivate{
 			client: client_,
@@ -58,6 +58,6 @@ func (i *implPrivate) SetClient(client_ *client.WSClient) Private {
 		return nil
 	}
 }
-func New(wsClient *client.WSClient) Private {
+func New(wsClient *client.Client) Private {
 	return &implPrivate{client: wsClient}
 }

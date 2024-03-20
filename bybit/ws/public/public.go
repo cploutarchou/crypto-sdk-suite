@@ -24,7 +24,7 @@ type Public interface {
 }
 
 type implPublic struct {
-	client *client.WSClient
+	client *client.Client
 }
 
 func (i *implPublic) Kline() kline.Kline {
@@ -58,6 +58,8 @@ func (i *implPublic) Trade() trade.Trade {
 	return *trade.New()
 }
 
-func New(wsClient *client.WSClient) Public {
+func New(wsClient *client.Client, category string) Public {
+	wsClient.IsPublic = true
+	wsClient.Category = category
 	return &implPublic{client: wsClient}
 }

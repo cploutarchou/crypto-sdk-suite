@@ -13,53 +13,84 @@ import (
 )
 
 type Public interface {
-	Kline() (kline.Kline, error)
-	Liquidation() liquidation.Liquidation
-	LtKline() ltkline.LtKline
-	LtNav() ltnav.LtNav
-	LtTickers() ltticker.LtTicker
-	OrderBook() orderbook.OrderBook
-	Ticker() ticker.Ticker
-	Trade() trade.Trade
+	Kline(category string) (kline.Kline, error)
+	Liquidation(category string) liquidation.Liquidation
+	LtKline(category string) ltkline.LtKline
+	LtNav(category string) ltnav.LtNav
+	LtTickers(category string) ltticker.LtTicker
+	OrderBook(category string) orderbook.OrderBook
+	Ticker(category string) ticker.Ticker
+	Trade(category string) trade.Trade
 }
 
 type implPublic struct {
 	client *client.Client
 }
 
-func (i *implPublic) Kline() (kline.Kline, error) {
-	return kline.New(i.client)
+func (i *implPublic) Kline(category string) (kline.Kline, error) {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return kline.New(cli)
 }
-func (i *implPublic) Liquidation() liquidation.Liquidation {
-	return *liquidation.New()
-}
-
-func (i *implPublic) LtKline() ltkline.LtKline {
-	return *ltkline.New()
-}
-
-func (i *implPublic) LtNav() ltnav.LtNav {
-	return *ltnav.New()
-}
-
-func (i *implPublic) LtTickers() ltticker.LtTicker {
-	return *ltticker.New()
+func (i *implPublic) Liquidation(category string) liquidation.Liquidation {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return liquidation.New(cli)
 }
 
-func (i *implPublic) OrderBook() orderbook.OrderBook {
-	return *orderbook.New()
+func (i *implPublic) LtKline(category string) ltkline.LtKline {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return ltkline.New(cli)
 }
 
-func (i *implPublic) Ticker() ticker.Ticker {
-	return *ticker.New(i.client)
+func (i *implPublic) LtNav(category string) ltnav.LtNav {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return ltnav.New(cli)
 }
 
-func (i *implPublic) Trade() trade.Trade {
-	return *trade.New()
+func (i *implPublic) LtTickers(category string) ltticker.LtTicker {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return ltticker.New(cli)
 }
 
-func New(wsClient *client.Client, category string) Public {
-	wsClient.IsPublic = true
-	wsClient.Category = category
+func (i *implPublic) OrderBook(category string) orderbook.OrderBook {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return orderbook.New(cli)
+}
+
+func (i *implPublic) Ticker(category string) ticker.Ticker {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return ticker.New(cli)
+}
+
+func (i *implPublic) Trade(category string) trade.Trade {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return trade.New(cli)
+}
+
+func New(wsClient *client.Client, isPPublic bool) Public {
+	wsClient.IsPublic = isPPublic
 	return &implPublic{client: wsClient}
 }

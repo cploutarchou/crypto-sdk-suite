@@ -11,13 +11,12 @@ import (
 )
 
 type Private interface {
-	Dcp() *dcp.Dcp
-	Execution() *execution.Execution
-	Greek() *greek.Greek
-	Order() *order.Order
-	Position() *position.Position
-	Wallet() *wallet.Wallet
-	SetClient(client_ *client.Client) Private
+	Dcp(category string) dcp.Dcp
+	Execution() execution.Execution
+	Greek() greek.Greek
+	Order() order.Order
+	Position() position.Position
+	Wallet() wallet.Wallet
 }
 
 type implPrivate struct {
@@ -25,8 +24,12 @@ type implPrivate struct {
 	isTest bool
 }
 
-func (i *implPrivate) Dcp() *dcp.Dcp {
-	return dcp.New()
+func (i *implPrivate) Dcp(category string) dcp.Dcp {
+	cli := new(client.Client)
+	cli.Category = category
+	cli.ApiKey = i.client.ApiKey
+	cli.ApiSecret = i.client.ApiSecret
+	return dcp.New(cli)
 }
 
 func (i *implPrivate) Execution() *execution.Execution {

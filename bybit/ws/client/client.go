@@ -50,9 +50,9 @@ type Client struct {
 	logger            *log.Logger
 	IsTestNet         bool
 	IsPublic          bool
-	apiKey            string
-	apiSecret         string
-	channel           ChannelType
+	ApiKey            string
+	ApiSecret         string
+	Channel           ChannelType
 	Path              string
 	Connected         chan struct{}
 	OnConnected       func()
@@ -71,8 +71,8 @@ func NewClient(apiKey, apiSecret string, isTestNet bool) (*Client, error) {
 	client_ := &Client{
 		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		IsTestNet: isTestNet,
-		apiKey:    apiKey,
-		apiSecret: apiSecret,
+		ApiKey:    apiKey,
+		ApiSecret: apiSecret,
 		Path:      "",
 		Connected: make(chan struct{}),
 	}
@@ -90,7 +90,7 @@ func (c *Client) Connect() error {
 		return errors.New("connection already closed")
 	}
 
-	if c.channel == Private {
+	if c.Channel == Private {
 		if err := c.authenticateIfRequired(); err != nil {
 			return err
 		}
@@ -102,12 +102,12 @@ func (c *Client) Connect() error {
 		url = "stream.bybit.com"
 	}
 	if c.IsPublic {
-		c.channel = Public
+		c.Channel = Public
 	} else {
-		c.channel = Private
+		c.Channel = Private
 	}
 
-	url = fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, url, ApiV5, c.channel)
+	url = fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, url, ApiV5, c.Channel)
 	if c.Category != "" {
 		url = fmt.Sprintf("%s/%s", url, c.Category)
 	} else {
@@ -137,11 +137,11 @@ func (c *Client) Connect() error {
 
 // authenticateIfRequired authenticates the WebSocket client if the channel is private.
 func (c *Client) authenticateIfRequired() error {
-	if c.channel == Private {
+	if c.Channel == Private {
 		expires := fmt.Sprintf("%d", time.Now().UnixNano()/int64(time.Millisecond)+1)
 		signatureData := fmt.Sprintf("GET/realtime%s", expires)
-		signed := GenerateWsSignature(c.apiSecret, signatureData)
-		return c.Authenticate(c.apiKey, expires, signed)
+		signed := GenerateWsSignature(c.ApiSecret, signatureData)
+		return c.Authenticate(c.ApiKey, expires, signed)
 	}
 	return nil
 }
@@ -190,7 +190,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 
 // Authenticate sends an authentication request to the WebSocket server.
 func (c *Client) Authenticate(apiKey, expires, signature string) error {
-	if c.channel != Private {
+	if c.Channel != Private {
 		return errors.New("cannot authenticate on a public channel")
 	}
 	c.logger.Printf("Authenticating with apiKey %s", apiKey)

@@ -4,7 +4,6 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/private"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public"
-	"strings"
 )
 
 type WebSocket interface {
@@ -27,10 +26,10 @@ func (i *implWebSocket) Public() (public.Public, error) {
 
 	return i.public, nil
 }
-func New(wsClient *client.Client, category string) WebSocket {
+func New(wsClient *client.Client,isTestnet bool) WebSocket {
 	return &implWebSocket{
 		client:  wsClient,
 		private: private.New(wsClient),
-		public:  public.New(wsClient, strings.ToLower(category)),
+		public:  public.New(wsClient, isTestnet),
 	}
 }

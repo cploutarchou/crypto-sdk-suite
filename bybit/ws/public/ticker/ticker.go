@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	"log"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
 type response struct {
@@ -47,9 +48,9 @@ type Ticker struct {
 }
 
 // New initializes a new Ticker instance with context for graceful shutdown.
-func New(client *client.Client) *Ticker {
+func New(client *client.Client) Ticker {
 	ctx, cancel := context.WithCancel(context.Background())
-	return &Ticker{
+	return Ticker{
 		client:      client,
 		subscribers: make(map[string]func(Data)),
 		ctx:         ctx,

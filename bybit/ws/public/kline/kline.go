@@ -3,6 +3,7 @@ package kline
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 

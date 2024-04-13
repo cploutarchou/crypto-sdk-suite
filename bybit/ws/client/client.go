@@ -76,7 +76,7 @@ func NewClient(apiKey, apiSecret string, isTestNet bool) (*Client, error) {
 		Path:      "",
 		Connected: make(chan struct{}),
 	}
-
+	DefaultReqID = randomString(8)
 	return client_, nil
 }
 
@@ -166,7 +166,7 @@ func (c *Client) keepAlive() {
 // sendPingAndHandleReconnection sends a ping message to the WebSocket server
 // and handles reconnection if the ping fails.
 func (c *Client) sendPingAndHandleReconnection() {
-
+	time.Sleep(3 * time.Second)
 	if c.isClosed {
 		return
 	}

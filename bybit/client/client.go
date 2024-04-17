@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -64,26 +65,30 @@ type Request struct {
 
 // Initializes endpoint limiters based on predefined rates and sets a sensible burst size.
 func (c *Client) initializeEndpointLimiters() {
+	wg := sync.WaitGroup{}
+
 	for endpoint, limit := range endpointLimits {
-		// Assuming a burst size of 5 for demonstration. Adjust based on actual usage.
-		limiter := rate.NewLimiter(limit, 5)
-		c.endpointLimiter.SetLimiter(endpoint, limiter)
+		wg.Add(1)
+		go func(endpoint string, limit rate.Limit) {
+			defer wg.Done()
+			limiter := rate.NewLimiter(limit, 5)
+			c.endpointLimiter.SetLimiter(endpoint, limiter)
+		}(endpoint, limit)
 	}
+
+	wg.Wait()
 }
 
-// NewClient function to call this new method.
+// NewClient function to create a new client instance.
 func NewClient(key, secretKey string, isTestnet bool) *Client {
-	client := &Client{
+	return &Client{
 		key:             key,
 		secretKey:       secretKey,
 		httpClient:      &http.Client{},
 		IsTestNet:       isTestnet,
 		endpointLimiter: NewEndpointRateLimiter(),
 	}
-	client.initializeEndpointLimiters()
-	return client
 }
-
 func (c *Client) Get(path string, params Params) (Response, error) {
 	return c.doRequest(GET, path, params)
 }

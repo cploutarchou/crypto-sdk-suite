@@ -100,7 +100,6 @@ func (c *Client) Post(path string, params Params) (Response, error) {
 func (c *Client) doRequest(method Method, path string, params Params) (Response, error) {
 	// Construct the endpoint key using the method and path
 	endpointKey := fmt.Sprintf("%s %s", method, path)
-
 	// Retrieve the existing limiter for the endpoint
 	limiter := c.endpointLimiter.GetLimiter(endpointKey)
 	if limiter == nil {

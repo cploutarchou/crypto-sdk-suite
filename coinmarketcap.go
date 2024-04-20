@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/info"
 	"os"
+
+	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency/info"
 
 	coinmarketcap "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	"github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/cryptocurrency"
@@ -27,7 +28,7 @@ func GetIDMap() {
 	}
 
 	for _, coin := range resp {
-		logrus.Infof("ID: %d, Name: %s, Symbol: %s\n", coin.ID, coin.Name, coin.Symbol)
+		logrus.Infof("%+v\n", coin)
 	}
 }
 

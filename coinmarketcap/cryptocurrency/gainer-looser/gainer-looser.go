@@ -1,8 +1,9 @@
 package gainer_looser
 
 import (
-	c "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 	"strconv"
+
+	c "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 )
 
 // GainersAndLosers represents the gainers and losers data.
@@ -19,18 +20,30 @@ type SortDir string
 // TimePeriod represents the overall window of time for the gainers and losers.
 type TimePeriod string
 
+// Sort values represent the fields by which data should be sorted.
 const (
-	PercentChange1h       Sort       = "percent_change_1h"
-	PercentChange24h      Sort       = "percent_change_24h"
-	PercentChange7d       Sort       = "percent_change_7d"
-	PercentChange30d      Sort       = "percent_change_30d"
-	ASC                   SortDir    = "asc"
-	DESC                  SortDir    = "desc"
-	OneHour               TimePeriod = "1h"
-	TwentyFourHour        TimePeriod = "24h"
-	ThirtyDay             TimePeriod = "30d"
-	SevenDay              TimePeriod = "7d"
-	GainersLosersEndpoint            = "/v1/cryptocurrency/trending/gainers-losers"
+	PercentChange1h  Sort = "percent_change_1h"
+	PercentChange24h Sort = "percent_change_24h"
+	PercentChange7d  Sort = "percent_change_7d"
+	PercentChange30d Sort = "percent_change_30d"
+)
+
+// SortDir values represent the direction in which data should be sorted.
+const (
+	ASC  SortDir = "asc"
+	DESC SortDir = "desc"
+)
+
+// TimePeriod values represent the overall window of time for the gainers and losers.
+const (
+	OneHour        TimePeriod = "1h"
+	TwentyFourHour TimePeriod = "24h"
+	ThirtyDay      TimePeriod = "30d"
+	SevenDay       TimePeriod = "7d"
+)
+
+const (
+	gainersLosersEndpoint = "/v1/cryptocurrency/trending/gainers-losers"
 )
 
 func New(c *c.Client) *GainersAndLosers {
@@ -93,7 +106,7 @@ func (g *GainersAndLosers) FetchGainersLosers(params *Params) ([]CryptocurrencyD
 		queryParams["sort_dir"] = string(*params.SortDir)
 	}
 
-	resp, err := g.Get(GainersLosersEndpoint, queryParams)
+	resp, err := g.Get(gainersLosersEndpoint, queryParams)
 	if err != nil {
 		return nil, err
 	}

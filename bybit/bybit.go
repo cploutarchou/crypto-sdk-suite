@@ -51,26 +51,50 @@ func New(key, secretKey string, isTestNet bool) Bybit {
 	return by
 }
 
+// Market returns the market interface for Bybit operations.
+//
+// No parameters.
+// Returns a market.Market interface.
 func (b bybitImpl) Market() market.Market {
 	return b.market
 }
 
+// WebSocket returns the WebSocket interface for Bybit operations.
+//
+// No parameters.
+// Returns a ws.WebSocket interface.
 func (b bybitImpl) WebSocket() ws.WebSocket {
 	return b.webSocket
 }
 
+// Account returns the Account interface for Bybit operations.
+//
+// No parameters.
+// Returns an account.Account interface.
 func (b bybitImpl) Account() account.Account {
 	return b.account
 }
 
+// Trade returns the Trade interface for Bybit operations.
+//
+// No parameters.
+// Returns a trade.Trade interface.
 func (b bybitImpl) Trade() trade.Trade {
 	return b.trade
 }
 
+// Position returns the Position interface for Bybit operations.
+//
+// No parameters.
+// Returns a position.Position interface.
 func (b bybitImpl) Position() position.Position {
 	return b.position
 }
 
+// Asset returns the Asset interface for Bybit operations.
+//
+// No parameters.
+// Returns an asset.Asset interface.
 func (b bybitImpl) Asset() asset.Asset {
 	return b.asset
 }

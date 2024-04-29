@@ -38,8 +38,7 @@ func (m *marketImpl) ServerTime(params *client.Params) (*ServerTimeResponse, err
 		return nil, err
 	}
 	var serverTime ServerTimeResponse
-	err = res.Unmarshal(&serverTime)
-	if err != nil {
+	if err := res.Unmarshal(&serverTime); err != nil {
 		return nil, err
 	}
 	return &serverTime, nil

@@ -21,8 +21,6 @@ type WSPongPrivateResponse struct {
 	Args  []string `json:"args"`
 }
 
-// Now, use the above base types to create specific responses.
-
 // WSPongPublicSpotResponse represents a specific public pong response for the spot.
 type WSPongPublicSpotResponse WSPongPublicResponse
 
@@ -63,8 +61,6 @@ type SuccessResponse struct {
 	CommonResponse
 	Success bool   `json:"success"` // Success indicates the success status of the request
 	RetMsg  string `json:"ret_msg"` // RetMsg provides details on the return message of the request
-	Op      string `json:"op"`      // Op is the operation of the request
-	ConnId  string `json:"conn_id"` // ConnId is the connection ID of the request
 }
 
 // Environment denotes the environment in which the Bybit API operates (e.g., "production", "development").

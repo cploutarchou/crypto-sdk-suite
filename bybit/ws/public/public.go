@@ -91,6 +91,5 @@ func (i *implPublic) Trade(category string) trade.Trade {
 }
 
 func New(wsClient *client.Client, isPPublic bool) Public {
-	wsClient.IsPublic = isPPublic
 	return &implPublic{client: wsClient}
 }

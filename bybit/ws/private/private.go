@@ -76,11 +76,12 @@ func (i *implPrivate) SetClient(client_ *client.Client) Private {
 	if client_ != nil {
 		return &implPrivate{
 			client: client_,
+			isTest: i.isTest,
 		}
 	} else {
 		return nil
 	}
 }
-func New(wsClient *client.Client) Private {
-	return &implPrivate{client: wsClient}
+func New(wsClient *client.Client, isTestnet bool) Private {
+	return &implPrivate{client: wsClient, isTest: isTestnet}
 }

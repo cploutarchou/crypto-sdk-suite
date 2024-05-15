@@ -56,7 +56,8 @@ type Client struct {
 	OnConnectionError func(err error)
 	Category          string
 	MaxActiveTime     string
-	mu                sync.Mutex // Mutex to protect state changes
+	mu                sync.Mutex
+	wsURL             string // WebSocket URL for dependency injection in tests
 }
 
 // NewClient initializes a new WSClient instance.
@@ -112,6 +113,10 @@ func (c *Client) Connect() error {
 
 // buildURL constructs the WebSocket URL based on client configuration.
 func (c *Client) buildURL() string {
+	if c.wsURL != "" {
+		return c.wsURL
+	}
+
 	var baseURL string
 	if c.IsTestNet {
 		baseURL = "stream-testnet.bybit.com"

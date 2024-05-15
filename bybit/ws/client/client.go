@@ -20,12 +20,12 @@ const (
 	ApiV5         = "v5"
 	PingInterval  = 20 * time.Second
 
-	PingOperation                   = "ping"
-	AuthOperation                   = "auth"
-	ReconnectionRetries             = 3
-	ReconnectionDelay               = 10 * time.Second
-	Public              ChannelType = "public"
-	Private             ChannelType = "private"
+	PingOperation       = "ping"
+	AuthOperation       = "auth"
+	ReconnectionRetries = 3
+	ReconnectionDelay   = 10 * time.Second
+	Public              = "public"
+	Private             = "private"
 )
 
 var DefaultReqID = randomString(8)
@@ -46,7 +46,6 @@ type Client struct {
 	isClosed          bool
 	logger            *log.Logger
 	IsTestNet         bool
-	IsPublic          bool
 	ApiKey            string
 	ApiSecret         string
 	Channel           ChannelType
@@ -60,14 +59,26 @@ type Client struct {
 	wsURL             string // WebSocket URL for dependency injection in tests
 }
 
-// NewClient initializes a new WSClient instance.
-func NewClient(apiKey, apiSecret string, isTestNet, isPublic bool, maxActiveTime string) (*Client, error) {
+// NewPublicClient initializes a new public WSClient instance.
+func NewPublicClient(isTestNet bool) (*Client, error) {
+	client := &Client{
+		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
+		IsTestNet: isTestNet,
+		Channel:   Public,
+		Connected: make(chan struct{}),
+	}
+	DefaultReqID = randomString(8)
+	return client, nil
+}
+
+// NewPrivateClient initializes a new private WSClient instance.
+func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime string) (*Client, error) {
 	client := &Client{
 		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		IsTestNet:     isTestNet,
 		ApiKey:        apiKey,
 		ApiSecret:     apiSecret,
-		IsPublic:      isPublic,
+		Channel:       Private,
 		Connected:     make(chan struct{}),
 		MaxActiveTime: maxActiveTime,
 	}
@@ -124,13 +135,8 @@ func (c *Client) buildURL() string {
 		baseURL = "stream.bybit.com"
 	}
 
-	channelType := "public"
-	if c.Channel == Private {
-		channelType = "private"
-	}
-
-	url := fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, baseURL, ApiV5, channelType)
-	if c.IsPublic {
+	url := fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, baseURL, ApiV5, c.Channel)
+	if c.Channel == Public {
 		switch c.Category {
 		case "spot":
 			url += "/spot"
@@ -156,6 +162,7 @@ func (c *Client) authenticateIfRequired() error {
 		expires := fmt.Sprintf("%d", time.Now().UnixMilli()+1000)
 		signatureData := fmt.Sprintf("GET/realtime%s", expires)
 		signed := GenerateWsSignature(c.ApiSecret, signatureData)
+		c.logger.Printf("Authenticating with apiKey %s, expires %s, signed %s", c.ApiKey, expires, signed)
 		return c.Authenticate(c.ApiKey, expires, signed)
 	}
 	return nil
@@ -209,7 +216,7 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 	if c.Channel != Private {
 		return errors.New("cannot authenticate on a public channel")
 	}
-	c.logger.Printf("Authenticating with apiKey %s", apiKey)
+	c.logger.Printf("Authenticating with apiKey %s, expires %s, signed %s", apiKey, expires, signature)
 	authRequest := map[string]interface{}{
 		"op":   AuthOperation,
 		"args": []interface{}{apiKey, expires, signature},

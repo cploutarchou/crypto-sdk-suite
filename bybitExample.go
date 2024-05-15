@@ -22,7 +22,7 @@ var secret string
 
 func init() {
 	key = os.Getenv("BYBIT_FUTURES_TESTNET_API_KEY")
-	secret = os.Getenv("k2MbmSgKbnVnc4xxY7FzmADq2GjoYWZTJZcM")
+	secret = os.Getenv("BYBIT_FUTURES_TESTNET_API_SECRET")
 	bybitCli = client.NewClient(key, secret, true)
 	acc = account.New(bybitCli)
 }

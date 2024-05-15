@@ -33,9 +33,9 @@ type bybitImpl struct {
 	asset     asset.Asset
 }
 
-func New(key, secretKey string, isTestNet bool) Bybit {
+func New(key, secretKey string, isTestNet, isPublic bool, maxActiveTime string) Bybit {
 	c := client.NewClient(key, secretKey, isTestNet)
-	wsClient, _ := client2.NewClient(key, secretKey, isTestNet)
+	wsClient, _ := client2.NewClient(key, secretKey, isTestNet, isPublic, maxActiveTime)
 	by := &bybitImpl{
 		market:    market.New(c),
 		account:   account.New(c),

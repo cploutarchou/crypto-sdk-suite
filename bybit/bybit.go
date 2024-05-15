@@ -8,7 +8,7 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/position"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/trade"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws"
-	client2 "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	wsCli "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
 type Bybit interface {
@@ -21,21 +21,30 @@ type Bybit interface {
 }
 
 type bybitImpl struct {
-	market    market.Market
-	client    *client.Client
-	isTestNet bool
-	webSocket ws.WebSocket
-	apiKey    string
-	secretKey string
-	account   account.Account
-	trade     trade.Trade
-	position  position.Position
-	asset     asset.Asset
+	market     market.Market
+	client     *client.Client
+	isTestNet  bool
+	webSocketP ws.WebSocket
+	apiKey     string
+	secretKey  string
+	account    account.Account
+	trade      trade.Trade
+	position   position.Position
+	asset      asset.Asset
+	webSocket  ws.WebSocket
 }
 
 func New(key, secretKey string, isTestNet bool) Bybit {
 	c := client.NewClient(key, secretKey, isTestNet)
-	wsClient, _ := client2.NewClient(key, secretKey, isTestNet)
+	privateClient, err := wsCli.NewPrivateClient(key, secretKey, isTestNet, "")
+	if err != nil {
+		panic(err)
+	}
+	publicClient, err := wsCli.NewPublicClient(isTestNet)
+	if err != nil {
+		panic(err)
+	}
+
 	by := &bybitImpl{
 		market:    market.New(c),
 		account:   account.New(c),
@@ -46,7 +55,7 @@ func New(key, secretKey string, isTestNet bool) Bybit {
 		isTestNet: isTestNet,
 		apiKey:    key,
 		secretKey: secretKey,
-		webSocket: ws.New(wsClient, isTestNet),
+		webSocket: ws.New(publicClient, privateClient, isTestNet),
 	}
 	return by
 }

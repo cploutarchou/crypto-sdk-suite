@@ -163,6 +163,9 @@ func (c *Client) authenticateIfRequired() error {
 
 // GenerateWsSignature generates a signature for the WebSocket API.
 func GenerateWsSignature(apiSecret, data string) string {
+	if data == "" {
+		return ""
+	}
 	h := hmac.New(sha256.New, []byte(apiSecret))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
@@ -258,7 +261,6 @@ func (c *Client) Send(message []byte) error {
 		return errors.New("attempt to send message on closed connection")
 	}
 
-	// Attempt to reconnect if the connection is nil
 	if c.Conn == nil {
 		log.Println("Connection is nil, attempting to reconnect...")
 		if err := c.Connect(); err != nil {
@@ -267,7 +269,6 @@ func (c *Client) Send(message []byte) error {
 		}
 	}
 
-	// Ensure connection is not nil after reconnection attempt
 	if c.Conn == nil {
 		return errors.New("connection is still nil after attempting to reconnect")
 	}
@@ -304,12 +305,12 @@ func (c *Client) handleReconnection() {
 
 	c.logger.Println("Attempting to reconnect...")
 	if c.Conn != nil {
-		_ = c.Conn.Close() // Best effort, ignore error
+		_ = c.Conn.Close()
 		c.Conn = nil
 	}
 
 	for i := 0; i < ReconnectionRetries; i++ {
-		time.Sleep(ReconnectionDelay) // Wait before attempting to reconnect
+		time.Sleep(ReconnectionDelay)
 		if err := c.Connect(); err == nil {
 			c.logger.Printf("Reconnection attempt %d successful", i+1)
 			return
@@ -318,7 +319,6 @@ func (c *Client) handleReconnection() {
 	}
 }
 
-// handleConnectionError handles connection errors by logging them and calling the provided callback.
 func (c *Client) handleConnectionError(err error) {
 	if c.OnConnectionError != nil {
 		c.OnConnectionError(err)

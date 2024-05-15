@@ -147,11 +147,9 @@ func TestClient_Close(t *testing.T) {
 
 	apiKey := "test_api_key"
 	apiSecret := "test_api_secret"
-	isTestNet := true
-	isPublic := true
 	maxActiveTime := "1m"
 
-	client, err := NewClient(apiKey, apiSecret, isTestNet, isPublic, maxActiveTime)
+	client, err := NewClient(apiKey, apiSecret, true, true, maxActiveTime)
 	assert.NoError(t, err)
 
 	client.wsURL = "ws" + server.URL[len("http"):]
@@ -162,4 +160,63 @@ func TestClient_Close(t *testing.T) {
 
 	client.Close()
 	assert.True(t, client.isClosed)
+}
+
+func TestGenerateWsSignature_NilData(t *testing.T) {
+	apiSecret := "test_api_secret"
+	expectedSignature := ""
+
+	signature := GenerateWsSignature(apiSecret, "")
+
+	if signature != expectedSignature {
+		t.Errorf("Expected signature to be empty, but got: %s", signature)
+	}
+}
+
+func TestGenerateWsSignature_EmptyData(t *testing.T) {
+	apiSecret := "test_api_secret"
+	expectedSignature := ""
+
+	signature := GenerateWsSignature(apiSecret, "")
+
+	if signature != expectedSignature {
+		t.Errorf("Expected signature to be empty, but got: %s", signature)
+	}
+}
+
+func TestGenerateWsSignature_NonEmptyData(t *testing.T) {
+	apiSecret := "test_api_secret"
+	expectedSignature := "581ff2e8bfe2e6bed95c14bb8ed7e1921f49fa95d71404b6ea26251c0a3d8648"
+
+	signature := GenerateWsSignature(apiSecret, "test_data")
+
+	if signature != expectedSignature {
+		t.Errorf("Expected signature to be: %s, but got: %s", expectedSignature, signature)
+	}
+}
+
+func TestGenerateWsSignature_DifferentData(t *testing.T) {
+	apiSecret := "test_api_secret"
+	expectedSignature1 := "9386c982519cf138734ee1a5df3622dce5a0eb0cacdb5bfac723ec192148e26c"
+	expectedSignature2 := "ea5d9db1068b4ae6208a7496975143f044aa4253860c1a2e50b5bc805c74b7f6"
+
+	signature1 := GenerateWsSignature(apiSecret, "test_data1")
+	signature2 := GenerateWsSignature(apiSecret, "test_data2")
+
+	if signature1 != expectedSignature1 {
+		t.Errorf("Expected signature for data1 to be: %s, but got: %s", expectedSignature1, signature1)
+	}
+	if signature2 != expectedSignature2 {
+		t.Errorf("Expected signature for data2 to be: %s, but got: %s", expectedSignature2, signature2)
+	}
+}
+
+func TestGenerateWsSignature_SameData(t *testing.T) {
+	apiSecret := "test_api_secret"
+	signature1 := GenerateWsSignature(apiSecret, "test_data")
+	signature2 := GenerateWsSignature(apiSecret, "test_data")
+
+	if signature1 != signature2 {
+		t.Errorf("Expected signatures for the same data to be the same, but got: %s and %s", signature1, signature2)
+	}
 }

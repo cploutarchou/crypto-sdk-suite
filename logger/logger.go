@@ -39,12 +39,13 @@ var levelColors = []string{
 const resetColor = "\033[0m"
 
 type Logger struct {
-	mu       sync.Mutex
-	logLevel LogLevel
-	logger   *log.Logger
-	jsonMode bool
+	mu       sync.Mutex  // Mutex for serializing access to the logger
+	logLevel LogLevel    // The level of logging to use
+	logger   *log.Logger // The logger to use
+	jsonMode bool        // Whether to output in JSON format
 }
 
+// LogMessage defines a single log message
 type LogMessage struct {
 	Timestamp string `json:"timestamp"`
 	Level     string `json:"level"`

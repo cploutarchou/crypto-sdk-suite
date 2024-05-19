@@ -112,7 +112,6 @@ func New(c *client.Client) (Kline, error) {
 	k.Messages = make(chan []byte, 100)
 	k.StopChan = make(chan struct{}, 1)
 	k.isTest = c.IsTestNet
-	k.client.IsPublic = true
 	err := k.client.Connect()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect: %w", err)

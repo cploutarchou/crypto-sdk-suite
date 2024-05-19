@@ -7,30 +7,78 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
+// Position defines the interface for interacting with position-related operations in the Bybit API.
 type Position interface {
-	// GetPositionInfo get position info
+	// GetPositionInfo retrieves position information based on the provided parameters.
+	// params: RequestParams - the parameters for the position info request.
+	// returns: *Response - the response containing position information.
+	//          error - an error if the request fails.
 	GetPositionInfo(params *RequestParams) (*Response, error)
-	// SetLeverage set leverage for position info request
+
+	// SetLeverage sets the leverage for a position based on the provided request.
+	// req: SetLeverageRequest - the request containing leverage settings.
+	// returns: *Response - the response after setting the leverage.
+	//          error - an error if the request fails.
 	SetLeverage(req *SetLeverageRequest) (*Response, error)
-	// GetLeverage get leverage for position info request
+
+	// SwitchMarginMode switches the margin mode (cross or isolated) for a position.
+	// req: SwitchMarginModeRequest - the request containing margin mode settings.
+	// returns: *Response - the response after switching the margin mode.
+	//          error - an error if the request fails.
 	SwitchMarginMode(req *SwitchMarginModeRequest) (*Response, error)
-	// SetTPSLMode sets the TP/SL mode for a given symbol.
+
+	// SetTPSLMode sets the Take Profit/Stop Loss mode for a given symbol.
+	// req: SetTPSLModeRequest - the request containing TP/SL mode settings.
+	// returns: *Response - the response after setting the TP/SL mode.
+	//          error - an error if the request fails.
 	SetTPSLMode(req *SetTPSLModeRequest) (*Response, error)
+
 	// SwitchPositionMode switches the position mode for USDT perpetual and Inverse futures.
+	// req: SwitchPositionModeRequest - the request containing position mode settings.
+	// returns: *Response - the response after switching the position mode.
+	//          error - an error if the request fails.
 	SwitchPositionMode(req *SwitchPositionModeRequest) (*Response, error)
+
 	// SetRiskLimit sets the risk limit for a specific symbol.
+	// req: SetRiskLimitRequest - the request containing risk limit settings.
+	// returns: *Response - the response after setting the risk limit.
+	//          error - an error if the request fails.
 	SetRiskLimit(req *SetRiskLimitRequest) (*Response, error)
+
 	// SetTradingStop sets take profit, stop loss, or trailing stop for the position.
+	// req: SetTradingStopRequest - the request containing trading stop settings.
+	// returns: *Response - the response after setting the trading stop.
+	//          error - an error if the request fails.
 	SetTradingStop(req *SetTradingStopRequest) (*Response, error)
+
 	// SetAutoAddMargin toggles auto-add-margin for an isolated margin position.
+	// req: SetAutoAddMarginRequest - the request containing auto-add-margin settings.
+	// returns: *Response - the response after setting auto-add-margin.
+	//          error - an error if the request fails.
 	SetAutoAddMargin(req *SetAutoAddMarginRequest) (*Response, error)
+
 	// AddOrReduceMargin manually adds or reduces margin for an isolated margin position.
+	// req: AddReduceMarginRequest - the request containing add/reduce margin settings.
+	// returns: *Response - the response after adding or reducing margin.
+	//          error - an error if the request fails.
 	AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
+
 	// MovePositions transfers positions between UIDs.
+	// req: MovePositionRequest - the request containing move position settings.
+	// returns: *MovePositionResponse - the response after moving positions.
+	//          error - an error if the request fails.
 	MovePositions(req *MovePositionRequest) (*MovePositionResponse, error)
+
 	// GetMovePositionHistory queries the history of moved positions.
+	// req: GetMovePositionHistoryRequest - the request containing query parameters for move position history.
+	// returns: *GetMovePositionHistoryResponse - the response containing the move position history.
+	//          error - an error if the request fails.
 	GetMovePositionHistory(req *GetMovePositionHistoryRequest) (*GetMovePositionHistoryResponse, error)
+
 	// ConfirmNewRiskLimit confirms the new risk limit for a position, removing the reduceOnly mark if successful.
+	// req: ConfirmNewRiskLimitRequest - the request containing new risk limit settings.
+	// returns: *Response - the response after confirming the new risk limit.
+	//          error - an error if the request fails.
 	ConfirmNewRiskLimit(req *ConfirmNewRiskLimitRequest) (*Response, error)
 }
 type impl struct {

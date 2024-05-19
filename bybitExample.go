@@ -120,13 +120,18 @@ func wsConnectTicker() {
 	// Correctly initialized a buffered channel of float64 values
 	b := make(chan float64, 1)
 	fmt.Println("wsConnect")
-	client_, err := wsClient.NewClient(key, secret, true)
+	publicClient, err := wsClient.NewPublicClient(true)
+	if err != nil {
+		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
+		return
+	}
+	privateClient, err := wsClient.NewPrivateClient(key, secret, true, strconv.Itoa(100))
 	if err != nil {
 		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
 		return
 	}
 
-	websocket = ws.New(client_, true)
+	websocket = ws.New(publicClient, privateClient, true)
 	publicWS, err := websocket.Public()
 	if err != nil {
 		log.Printf("ERROR: Failed to access public WebSocket endpoint: %v", err)
@@ -167,7 +172,7 @@ func wsConnectTicker() {
 func wsConnectKline() {
 	fmt.Println("wsConnectKline")
 
-	client_, err := wsClient.NewClient(key, secret, true)
+	client_, err := wsClient.NewPublicClient(true)
 	if err != nil {
 		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
 		return

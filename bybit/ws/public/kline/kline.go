@@ -9,13 +9,83 @@ import (
 
 // Kline represents the interface for the kline functionality.
 type Kline interface {
+	// SetClient sets the client for the kline functionality.
 	SetClient(client *client.Client) error
+
+	// Subscribe subscribes to kline data for the specified symbols and interval.
+	// It also stores the callback for each topic.
 	Subscribe(symbols []string, interval string, callback func(response Data)) error
+
+	// Unsubscribe unsubscribes from the specified topics.
 	Unsubscribe(topics ...string) error
+
+	// Receive reads the next message from the kline channel.
 	Receive() (int, []byte, error)
+
+	// Close closes the connection to the kline channel.
 	Close()
+
+	// GetMessagesChan returns a channel that receives messages from the kline channel.
 	GetMessagesChan() <-chan []byte
+
+	// Stop stops the kline functionality.
 	Stop()
+}
+
+// New creates a new instance of KlineImpl.
+func New(c *client.Client) (Kline, error) {
+	var k klineImpl
+	k.client = c
+	k.Messages = make(chan []byte, 100)
+	k.StopChan = make(chan struct{}, 1)
+	k.isTest = c.IsTestNet
+	err := k.client.Connect()
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect: %w", err)
+	}
+
+	<-k.client.Connected
+	fmt.Println("Connected to WS")
+
+	go func() {
+		for {
+			select {
+			case <-k.StopChan:
+				return
+			default:
+				_, msg, err := k.client.Conn.ReadMessage()
+				if err != nil {
+					return
+				}
+				k.Messages <- msg
+			}
+		}
+	}()
+	return &k, nil
+}
+
+// listenForMessages listens for messages from the kline channel and executes the callbacks for each topic.
+func (k *klineImpl) listenForMessages() {
+	for {
+		msg, err := k.client.Receive() // Make sure this method exists and is correctly implemented
+		if err != nil {
+			// Handle error, possibly breaking the loop or attempting to reconnect
+			continue
+		}
+
+		var resp Response
+		if err := json.Unmarshal(msg, &resp); err != nil {
+			// Handle unmarshal error
+			continue
+		}
+
+		// Find the callback for the topic and execute it with the data
+		if tc, exists := k.topicCallbacks[resp.Topic]; exists {
+			for _, data := range resp.Data {
+				tc.callback(data) // Execute the callback for each item in the data array
+			}
+		}
+	}
 }
 
 // Assuming you want to store callbacks for each topic
@@ -63,7 +133,7 @@ func (k *klineImpl) Subscribe(symbols []string, interval string, callback func(r
 	return nil
 }
 func (k *klineImpl) Unsubscribe(topics ...string) error {
-	// Using client's Send method for sending the unsubscription message
+	// Using clients Send method for sending the unsubscription message
 	unsubscription := map[string]interface{}{
 		"op":   "unsubscribe",
 		"args": topics,
@@ -103,58 +173,4 @@ func (k *klineImpl) SetClient(c *client.Client) error {
 
 	k.client = c
 	return nil
-}
-
-// New creates a new instance of KlineImpl
-func New(c *client.Client) (Kline, error) {
-	var k klineImpl
-	k.client = c
-	k.Messages = make(chan []byte, 100)
-	k.StopChan = make(chan struct{}, 1)
-	k.isTest = c.IsTestNet
-	err := k.client.Connect()
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %w", err)
-	}
-
-	<-k.client.Connected
-	fmt.Println("Connected to WS")
-
-	go func() {
-		for {
-			select {
-			case <-k.StopChan:
-				return
-			default:
-				_, msg, err := k.client.Conn.ReadMessage()
-				if err != nil {
-					return
-				}
-				k.Messages <- msg
-			}
-		}
-	}()
-	return &k, nil
-}
-func (k *klineImpl) listenForMessages() {
-	for {
-		msg, err := k.client.Receive() // Make sure this method exists and is correctly implemented
-		if err != nil {
-			// Handle error, possibly breaking the loop or attempting to reconnect
-			continue
-		}
-
-		var resp Response
-		if err := json.Unmarshal(msg, &resp); err != nil {
-			// Handle unmarshal error
-			continue
-		}
-
-		// Find the callback for the topic and execute it with the data
-		if tc, exists := k.topicCallbacks[resp.Topic]; exists {
-			for _, data := range resp.Data {
-				tc.callback(data) // Execute the callback for each item in the data array
-			}
-		}
-	}
 }

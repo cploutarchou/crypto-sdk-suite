@@ -9,7 +9,7 @@ import (
 
 // TestSubscribe tests the Subscribe method of the klineImpl struct.
 func TestSubscribe(t *testing.T) {
-	cli, err := client.NewPublicClient(true)
+	cli, err := client.NewPublicClient(true, "linear")
 	if err != nil {
 		t.Fatalf("Failed to create public client: %v", err)
 	}

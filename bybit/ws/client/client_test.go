@@ -25,7 +25,7 @@ var (
 // TestNewPublicClient verifies the NewPublicClient function initializes a public client correctly.
 // It tests if the client is initialized with the correct testnet flag and channel type.
 func TestNewPublicClient(t *testing.T) {
-	client, err := NewPublicClient(true)
+	client, err := NewPublicClient(true, "usdt_contract")
 	assert.NoError(t, err)
 	assert.NotNil(t, client)
 	assert.Equal(t, true, client.IsTestNet)
@@ -41,7 +41,7 @@ func TestNewPrivateClient(t *testing.T) {
 
 	maxActiveTime := "1m"
 
-	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime)
+	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 	assert.NotNil(t, client)
 	assert.Equal(t, apiKey, client.ApiKey)
@@ -58,7 +58,7 @@ func TestClient_Connect(t *testing.T) {
 	apiSecret := testnetAPISecret
 	maxActiveTime := "1m"
 
-	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime)
+	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 
 	client.wsURL = testnetBaseURL + "/private"
@@ -83,7 +83,7 @@ func TestClient_Send(t *testing.T) {
 	apiSecret := testnetAPISecret
 	maxActiveTime := "1m"
 
-	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime)
+	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 
 	client.wsURL = testnetBaseURL + "/private"
@@ -103,7 +103,7 @@ func TestClient_Receive(t *testing.T) {
 	apiSecret := testnetAPISecret
 	maxActiveTime := "1m"
 
-	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime)
+	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 
 	client.wsURL = testnetBaseURL + "/private"
@@ -147,7 +147,7 @@ func TestClient_Close(t *testing.T) {
 	apiSecret := testnetAPISecret
 	maxActiveTime := "1m"
 
-	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime)
+	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 
 	client.wsURL = testnetBaseURL + "/private"

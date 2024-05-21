@@ -91,7 +91,7 @@ func TestClient_Send(t *testing.T) {
 	err = client.Connect()
 	assert.NoError(t, err)
 
-	message := []byte(`{"op":"ping","req_id":"test_req_id"}`)
+	message := []byte(`{"op":"ping","req_id":"test21"}`)
 	err = client.Send(message)
 	assert.NoError(t, err)
 }

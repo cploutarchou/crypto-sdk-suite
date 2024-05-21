@@ -1,4 +1,4 @@
-package kline
+package liquidation
 
 import (
 	"testing"
@@ -9,21 +9,18 @@ import (
 
 // TestSubscribe tests the Subscribe method of the klineImpl struct.
 func TestSubscribe(t *testing.T) {
-	cli, err := client.NewPublicClient(true, "linear")
+	cli, err := client.NewPublicClient(true, "usdt_contract")
 	if err != nil {
 		t.Fatalf("Failed to create public client: %v", err)
 	}
 
-	kl, err := New(cli)
-	if err != nil {
-		t.Fatalf("Failed to initialize kline service: %v", err)
-	}
+	kl := New(cli)
 
-	err = kl.Subscribe([]string{"BTCUSDT", "SOLUSDT"}, "1", func(data Data) {
-		t.Logf("Received kline update: %+v\n", data)
+	err = kl.Subscribe([]string{"GALAUSDT"}, func(data Data) {
+		t.Logf("Received liquidation update: %+v\n", data)
 	})
 	if err != nil {
-		t.Fatalf("Failed to subscribe to kline updates: %v", err)
+		t.Fatalf("Failed to subscribe to liquidation updates: %v", err)
 	}
 
 	go func() {
@@ -34,10 +31,10 @@ func TestSubscribe(t *testing.T) {
 
 	// Let the test run for a short while to capture some messages
 	select {
-	case <-time.After(60 * time.Second):
-		t.Fatalf("Timed out waiting for kline updates")
+	case <-time.After(120 * time.Second):
+		t.Fatalf("Timed out waiting for liquidation updates")
 	case msg := <-kl.GetMessagesChan():
-		t.Log("Received kline update")
+		t.Log("Received liquidation update")
 		t.Log(string(msg))
 	}
 

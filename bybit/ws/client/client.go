@@ -16,10 +16,8 @@ import (
 )
 
 const (
-	DefaultScheme = "wss"
-	ApiV5         = "v5"
-	PingInterval  = 20 * time.Second
-
+	DefaultScheme       = "wss"
+	PingInterval        = 20 * time.Second
 	PingOperation       = "ping"
 	AuthOperation       = "auth"
 	ReconnectionRetries = 3
@@ -59,33 +57,6 @@ type Client struct {
 	wsURL             string // WebSocket URL for dependency injection in tests
 }
 
-// NewPublicClient initializes a new public WSClient instance.
-func NewPublicClient(isTestNet bool) (*Client, error) {
-	client := &Client{
-		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
-		IsTestNet: isTestNet,
-		Channel:   Public,
-		Connected: make(chan struct{}),
-	}
-	DefaultReqID = randomString(8)
-	return client, nil
-}
-
-// NewPrivateClient initializes a new private WSClient instance.
-func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime string) (*Client, error) {
-	client := &Client{
-		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
-		IsTestNet:     isTestNet,
-		ApiKey:        apiKey,
-		ApiSecret:     apiSecret,
-		Channel:       Private,
-		Connected:     make(chan struct{}),
-		MaxActiveTime: maxActiveTime,
-	}
-	DefaultReqID = randomString(8)
-	return client, nil
-}
-
 // Connect establishes a WebSocket connection to the server based on the configuration.
 func (c *Client) Connect() error {
 	c.mu.Lock()
@@ -123,6 +94,7 @@ func (c *Client) Connect() error {
 }
 
 // buildURL constructs the WebSocket URL based on client configuration.
+// buildURL constructs the WebSocket URL based on client configuration.
 func (c *Client) buildURL() string {
 	if c.wsURL != "" {
 		return c.wsURL
@@ -135,25 +107,61 @@ func (c *Client) buildURL() string {
 		baseURL = "stream.bybit.com"
 	}
 
-	url := fmt.Sprintf("%s://%s/%s/%s", DefaultScheme, baseURL, ApiV5, c.Channel)
-	if c.Channel == Public {
+	switch c.Channel {
+	case Public:
 		switch c.Category {
-		case "spot":
-			url += "/spot"
-		case "linear":
-			url += "/linear"
-		case "inverse":
-			url += "/inverse"
-		case "option":
-			url += "/option"
+		case "usdt_contract":
+			return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL)
+		case "inverse_contract":
+			return fmt.Sprintf("%s://%s/contract/inverse/public/v3", DefaultScheme, baseURL)
+		case "usdc_contract":
+			return fmt.Sprintf("%s://%s/contract/usdc/public/v3", DefaultScheme, baseURL)
+		case "usdc_option":
+			return fmt.Sprintf("%s://%s/option/usdc/public/v3", DefaultScheme, baseURL)
 		default:
-			url += "/spot" // default to spot
+			return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL) // default to usdt contract
 		}
+	case Private:
+		switch c.Category {
+		case "unified_margin":
+			return fmt.Sprintf("%s://%s/unified/private/v3", DefaultScheme, baseURL)
+		case "contract":
+			return fmt.Sprintf("%s://%s/contract/private/v3", DefaultScheme, baseURL)
+		default:
+			return fmt.Sprintf("%s://%s/contract/private/v3", DefaultScheme, baseURL) // default to contract
+		}
+	default:
+		return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL) // default URL
 	}
-	if c.MaxActiveTime != "" && c.Channel == Private {
-		url += fmt.Sprintf("?max_active_time=%s", c.MaxActiveTime)
+}
+
+// NewPublicClient initializes a new public WSClient instance.
+func NewPublicClient(isTestNet bool, category string) (*Client, error) {
+	client := &Client{
+		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
+		IsTestNet: isTestNet,
+		Channel:   Public,
+		Connected: make(chan struct{}),
+		Category:  category,
 	}
-	return url
+	DefaultReqID = randomString(8)
+	return client, nil
+}
+
+// NewPrivateClient initializes a new private WSClient instance.
+func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime string, category string) (*Client, error) {
+	client := &Client{
+		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
+		IsTestNet:     isTestNet,
+		ApiKey:        apiKey,
+		ApiSecret:     apiSecret,
+		Channel:       Private,
+		Connected:     make(chan struct{}),
+		MaxActiveTime: maxActiveTime,
+		Category:      category,
+	}
+	DefaultReqID = randomString(8)
+	return client, nil
 }
 
 // authenticateIfRequired authenticates the WebSocket client if the channel is private.

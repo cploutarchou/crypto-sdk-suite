@@ -15,7 +15,7 @@ import (
 type Public interface {
 	Kline(category string) (kline.Kline, error)
 	Liquidation(category string) liquidation.Liquidation
-	LtKline(category string) ltkline.LtKline
+	LtKline(category string) ltkline.LTKline
 	LtNav(category string) ltnav.LtNav
 	LtTickers(category string) ltticker.LtTicker
 	OrderBook(category string) orderbook.OrderBook
@@ -42,7 +42,7 @@ func (i *implPublic) Liquidation(category string) liquidation.Liquidation {
 	return liquidation.New(cli)
 }
 
-func (i *implPublic) LtKline(category string) ltkline.LtKline {
+func (i *implPublic) LtKline(category string) ltkline.LTKline {
 	cli := new(client.Client)
 	cli.Category = category
 	cli.ApiKey = i.client.ApiKey

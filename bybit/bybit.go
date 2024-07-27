@@ -34,13 +34,13 @@ type bybitImpl struct {
 	webSocket  ws.WebSocket
 }
 
-func New(key, secretKey string, isTestNet bool) Bybit {
+func New(key, secretKey string, isTestNet bool, category string) Bybit {
 	c := client.NewClient(key, secretKey, isTestNet)
-	privateClient, err := wsCli.NewPrivateClient(key, secretKey, isTestNet, "")
+	privateClient, err := wsCli.NewPrivateClient(key, secretKey, isTestNet, "", category)
 	if err != nil {
 		panic(err)
 	}
-	publicClient, err := wsCli.NewPublicClient(isTestNet)
+	publicClient, err := wsCli.NewPublicClient(isTestNet, category)
 	if err != nil {
 		panic(err)
 	}

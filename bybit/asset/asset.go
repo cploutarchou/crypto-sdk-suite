@@ -323,13 +323,8 @@ func (i *impl) GetAllCoinsBalance(req *GetAllCoinsBalanceRequest) (*GetAllCoinsB
 		return nil, fmt.Errorf("error fetching all coins balance: %w", err)
 	}
 
-	data, err := json.Marshal(response)
-	if err != nil {
-		return nil, err
-	}
-
 	var coinsBalanceResponse GetAllCoinsBalanceResponse
-	if err := json.Unmarshal(data, &coinsBalanceResponse); err != nil {
+	if err := response.Unmarshal(&coinsBalanceResponse); err != nil {
 		return nil, fmt.Errorf("error parsing all coins balance response: %w", err)
 	}
 

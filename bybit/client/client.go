@@ -104,13 +104,14 @@ func (c *Client) doRequest(method Method, path string, params Params) (Response,
 	limiter := c.endpointLimiter.GetLimiter(endpointKey)
 	if limiter == nil {
 		log.Printf("Warning: No rate limiter found for %s. Requests for this endpoint may not be rate-limited.", endpointKey)
-		// You might choose to handle this situation differently, such as by setting a default limiter.
-	} else {
-		// Wait for permission to proceed from the rate limiter
-		ctx := context.Background() // Consider passing a context from higher-level methods
-		if err := limiter.Wait(ctx); err != nil {
-			return nil, fmt.Errorf("rate limiter error: %w", err)
-		}
+
+		limiter = rate.NewLimiter(rate.Inf, 5)
+		log.Println("Warning: Using an unlimited rate limiter for this endpoint.")
+	}
+	// Wait for permission to proceed from the rate limiter
+	ctx := context.Background() // Consider passing a context from higher-level methods
+	if err := limiter.Wait(ctx); err != nil {
+		return nil, fmt.Errorf("rate limiter error: %w", err)
 	}
 
 	// Create and execute the HTTP request as before

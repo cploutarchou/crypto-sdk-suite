@@ -9,11 +9,11 @@ import (
 // ConvertPositionRequestParams prepares the request parameters for fetching position info.
 func ConvertPositionRequestParams(params *RequestParams) client.Params {
 	paramsMap := make(client.Params)
-	if params.Category != nil {
-		paramsMap["category"] = *params.Category
+	if params.Category != "" {
+		paramsMap["category"] = params.Category
 	}
-	if params.Symbol != nil {
-		paramsMap["symbol"] = *params.Symbol
+	if params.Symbol != "" {
+		paramsMap["symbol"] = params.Symbol
 	}
 	if params.BaseCoin != nil {
 		paramsMap["baseCoin"] = *params.BaseCoin

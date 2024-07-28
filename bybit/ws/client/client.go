@@ -8,11 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -28,9 +29,6 @@ const (
 
 var (
 	DefaultReqID = randomString(8)
-	conn         *websocket.Conn
-	connOnce     sync.Once
-	connMutex    sync.RWMutex
 )
 
 // PingMsg represents the WebSocket ping message format.
@@ -58,38 +56,38 @@ type Client struct {
 	Category          string
 	MaxActiveTime     string
 	wsURL             string // WebSocket URL for dependency injection in tests
+
+	conn     *websocket.Conn
+	connLock sync.Mutex
 }
 
 // Connect establishes a WebSocket connection to the server based on the configuration.
 func (c *Client) Connect() error {
-	connOnce.Do(func() {
-		connMutex.Lock()
-		defer connMutex.Unlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
-		if c.isClosed {
-			err := errors.New("connection already closed")
-			c.handleConnectionError(err)
-			return
-		}
+	if c.isClosed {
+		err := errors.New("connection already closed")
+		c.handleConnectionError(err)
+		return err
+	}
 
-		url := c.buildURL()
-		var err error
-		conn, _, err = websocket.DefaultDialer.Dial(url, nil)
-		if err != nil {
-			c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
-			conn = nil
-			return
-		}
+	url := c.buildURL()
+	var err error
+	c.conn, _, err = websocket.DefaultDialer.Dial(url, nil)
+	if err != nil {
+		c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
+		c.conn = nil
+		return err
+	}
 
-		c.logger.Printf("Connected to %s", url)
-		if c.OnConnected != nil {
-			c.OnConnected()
-		}
-		closeOnce(c.Connected) // Close the channel only once
+	c.logger.Printf("Connected to %s", url)
+	if c.OnConnected != nil {
+		c.OnConnected()
+	}
+	closeOnce(c.Connected) // Close the channel only once
 
-		go c.keepAlive()
-	})
-
+	go c.keepAlive()
 	return nil
 }
 
@@ -190,10 +188,10 @@ func (c *Client) keepAlive() {
 
 // sendPingAndHandleReconnection sends a ping message to the WebSocket server and handles reconnection if the ping fails.
 func (c *Client) sendPingAndHandleReconnection() {
-	connMutex.RLock()
-	defer connMutex.RUnlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
-	if c.isClosed || conn == nil {
+	if c.isClosed || c.conn == nil {
 		return
 	}
 
@@ -207,7 +205,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 		return
 	}
 
-	if err = conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+	if err = c.conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.logger.Printf("Error sending ping: %v", err)
 		go c.handleReconnection()
 		return
@@ -217,8 +215,8 @@ func (c *Client) sendPingAndHandleReconnection() {
 
 // Authenticate sends an authentication request to the WebSocket server.
 func (c *Client) Authenticate(apiKey, expires, signature string) error {
-	connMutex.RLock()
-	defer connMutex.RUnlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
 	if c.Channel != Private {
 		return errors.New("cannot authenticate on a public channel")
@@ -232,7 +230,7 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 	if err != nil {
 		return err
 	}
-	if err := conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+	if err := c.conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.handleConnectionError(err)
 		return err
 	}
@@ -242,16 +240,16 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 // Close gracefully closes the WebSocket connection.
 func (c *Client) Close() {
 	c.closeOnce.Do(func() {
-		connMutex.Lock()
-		defer connMutex.Unlock()
+		c.connLock.Lock()
+		defer c.connLock.Unlock()
 
 		c.isClosed = true
 		c.logger.Println("Connection closed")
-		if conn != nil {
-			if err := conn.Close(); err != nil && c.OnConnectionError != nil {
+		if c.conn != nil {
+			if err := c.conn.Close(); err != nil && c.OnConnectionError != nil {
 				c.OnConnectionError(err)
 			}
-			conn = nil
+			c.conn = nil
 		}
 	})
 }
@@ -265,32 +263,26 @@ func randomString(n int) string {
 
 // Send sends a message to the WebSocket server.
 func (c *Client) Send(message []byte) error {
-	connMutex.RLock()
-	defer connMutex.RUnlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
 	if c.isClosed {
 		return errors.New("attempt to send message on closed connection")
 	}
 
-	if conn == nil {
+	if c.conn == nil {
 		log.Println("Connection is nil, attempting to reconnect...")
-		connMutex.RUnlock()
-		connMutex.Lock()
 		if err := c.Connect(); err != nil {
-			connMutex.Unlock()
 			log.Printf("Reconnection failed: %v", err)
 			return err
 		}
-		connMutex.Unlock()
-		connMutex.RLock()
 	}
 
-	if conn == nil {
+	if c.conn == nil {
 		return errors.New("connection is still nil after attempting to reconnect")
 	}
-	fmt.Println(string(message))
 
-	if err := conn.WriteMessage(websocket.TextMessage, message); err != nil {
+	if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
 		log.Printf("Error sending message: %v", err)
 		return err
 	}
@@ -300,37 +292,36 @@ func (c *Client) Send(message []byte) error {
 
 // Receive listens for a message from the WebSocket server and returns it.
 func (c *Client) Receive() ([]byte, error) {
-	connMutex.RLock()
-	defer connMutex.RUnlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
-	if conn == nil {
+	if c.conn == nil {
 		return nil, errors.New("attempt to receive message on nil connection")
 	}
 
-	_, message, err := conn.ReadMessage()
+	_, message, err := c.conn.ReadMessage()
 	if err != nil {
 		log.Printf("Error receiving message: %v", err)
 		go c.handleReconnection()
 		return nil, err
 	}
 
-	fmt.Println(string(message))
 	return message, nil
 }
 
 // handleReconnection attempts to reconnect to the WebSocket server.
 func (c *Client) handleReconnection() {
-	connMutex.Lock()
-	defer connMutex.Unlock()
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 
 	if c.isClosed {
 		return // No need to reconnect if the client is intentionally closed
 	}
 
 	c.logger.Println("Attempting to reconnect...")
-	if conn != nil {
-		_ = conn.Close()
-		conn = nil
+	if c.conn != nil {
+		_ = c.conn.Close()
+		c.conn = nil
 	}
 
 	for i := 0; i < ReconnectionRetries; i++ {
@@ -358,7 +349,4 @@ func closeOnce(ch chan struct{}) {
 	default:
 		close(ch)
 	}
-}
-func (c *Client) GetConnection() *websocket.Conn {
-	return conn
 }

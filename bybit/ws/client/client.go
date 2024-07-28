@@ -71,6 +71,10 @@ func (c *Client) Connect() error {
 		return err
 	}
 
+	if c.Conn != nil {
+		return nil
+	}
+
 	url := c.buildURL()
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
@@ -201,7 +205,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if c.isClosed {
+	if c.isClosed || c.Conn == nil {
 		return
 	}
 
@@ -217,7 +221,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 
 	if err = c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.logger.Printf("Error sending ping: %v", err)
-		c.handleReconnection()
+		go c.handleReconnection()
 		return
 	}
 	c.logger.Println("Ping sent")
@@ -313,6 +317,7 @@ func (c *Client) Receive() ([]byte, error) {
 	_, message, err := c.Conn.ReadMessage()
 	if err != nil {
 		log.Printf("Error receiving message: %v", err)
+		go c.handleReconnection()
 		return nil, err
 	}
 

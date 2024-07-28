@@ -157,3 +157,25 @@ func (t *Ticker) Unsubscribe(symbol string) error {
 func (t *Ticker) Shutdown() {
 	t.cancel() // Trigger context cancellation.
 }
+
+//func main() {
+//	// Initialize client with increased buffer sizes
+//	client, err := client.NewClient("wss://stream.bybit.com/v5/public/linear")
+//	if err != nil {
+//		log.Fatalf("Failed to connect to WebSocket: %v", err)
+//	}
+//
+//	ticker := New(client)
+//
+//	// Example usage
+//	err = ticker.Subscribe("1000TURBOUSDT", func(data Data) {
+//		fmt.Printf("Received data: %+v\n", data)
+//	})
+//	if err != nil {
+//		log.Fatalf("Failed to subscribe: %v", err)
+//	}
+//
+//	go ticker.Listen()
+//
+//	// Use the ticker...
+//}

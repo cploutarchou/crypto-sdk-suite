@@ -12,14 +12,14 @@ func ConvertPlaceOrderRequestToParams(req *PlaceOrderRequest) client.Params {
 
 	params["category"] = req.Category
 	params["symbol"] = req.Symbol
-	if req.IsLeverage != nil {
-		params["isLeverage"] = strconv.Itoa(*req.IsLeverage)
+	if req.IsLeverage != 0 {
+		params["isLeverage"] = strconv.Itoa(req.IsLeverage)
 	}
 	params["side"] = req.Side
 	params["orderType"] = req.OrderType
 	params["qty"] = req.Qty
-	if req.Price != nil {
-		params["price"] = *req.Price
+	if req.Price != "" {
+		params["price"] = req.Price
 	}
 	if req.TriggerPrice != nil {
 		params["triggerPrice"] = *req.TriggerPrice

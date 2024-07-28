@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
@@ -45,6 +46,7 @@ type Ticker struct {
 	subscribers map[string]func(Data)
 	ctx         context.Context
 	cancel      context.CancelFunc
+	mu          sync.RWMutex
 }
 
 // New initializes a new Ticker instance with context for graceful shutdown.
@@ -59,8 +61,8 @@ func New(client *client.Client) Ticker {
 }
 
 // Subscribe to the ticker updates for a given symbol.
-// Subscribe to the ticker updates for a given symbol.
 func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
+	t.mu.RLock()
 	topic := fmt.Sprintf("tickers.%s", symbol)
 	t.subscribers[topic] = callback
 
@@ -75,7 +77,9 @@ func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
 	}
 
 	// Send the subscription message
-	return t.client.Send(msg)
+	res := t.client.Send(msg)
+	t.mu.RUnlock()
+	return res
 }
 
 // Listen method modified to support graceful shutdown.

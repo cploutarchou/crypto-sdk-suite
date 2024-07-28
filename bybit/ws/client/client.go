@@ -359,3 +359,6 @@ func closeOnce(ch chan struct{}) {
 		close(ch)
 	}
 }
+func (c *Client) GetConnection() *websocket.Conn {
+	return conn
+}

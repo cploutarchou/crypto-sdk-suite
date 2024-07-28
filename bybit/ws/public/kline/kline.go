@@ -138,7 +138,7 @@ func (k *klineImpl) Unsubscribe(topics ...string) error {
 }
 
 func (k *klineImpl) Listen() (int, []byte, error) {
-	return k.client.Conn.ReadMessage()
+	return k.client.GetConnection().ReadMessage()
 }
 
 func (k *klineImpl) Close() {
@@ -159,7 +159,7 @@ func (k *klineImpl) listenForMessages() {
 		case <-k.StopChan:
 			return
 		default:
-			_, msg, err := k.client.Conn.ReadMessage()
+			_, msg, err := k.client.GetConnection().ReadMessage()
 			if err != nil {
 				// Handle error, possibly logging and breaking the loop or attempting to reconnect
 				return

@@ -132,7 +132,7 @@ func (l *liquidationImpl) Unsubscribe(topics ...string) error {
 }
 
 func (l *liquidationImpl) Listen() (int, []byte, error) {
-	return l.client.Conn.ReadMessage()
+	return l.client.GetConnection().ReadMessage()
 }
 
 func (l *liquidationImpl) Close() {
@@ -153,7 +153,7 @@ func (l *liquidationImpl) listenForMessages() {
 		case <-l.StopChan:
 			return
 		default:
-			_, msg, err := l.client.Conn.ReadMessage()
+			_, msg, err := l.client.GetConnection().ReadMessage()
 			if err != nil {
 				continue
 			}

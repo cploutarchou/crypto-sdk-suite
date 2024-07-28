@@ -57,7 +57,7 @@ type Client struct {
 	MaxActiveTime     string
 	wsURL             string // WebSocket URL for dependency injection in tests
 
-	conn     *websocket.Conn
+	Conn     *websocket.Conn
 	connLock sync.Mutex
 }
 
@@ -74,10 +74,10 @@ func (c *Client) Connect() error {
 
 	url := c.buildURL()
 	var err error
-	c.conn, _, err = websocket.DefaultDialer.Dial(url, nil)
+	c.Conn, _, err = websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
-		c.conn = nil
+		c.Conn = nil
 		return err
 	}
 
@@ -191,7 +191,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 
-	if c.isClosed || c.conn == nil {
+	if c.isClosed || c.Conn == nil {
 		return
 	}
 
@@ -205,7 +205,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 		return
 	}
 
-	if err = c.conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+	if err = c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.logger.Printf("Error sending ping: %v", err)
 		go c.handleReconnection()
 		return
@@ -230,7 +230,7 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 	if err != nil {
 		return err
 	}
-	if err := c.conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.handleConnectionError(err)
 		return err
 	}
@@ -245,11 +245,11 @@ func (c *Client) Close() {
 
 		c.isClosed = true
 		c.logger.Println("Connection closed")
-		if c.conn != nil {
-			if err := c.conn.Close(); err != nil && c.OnConnectionError != nil {
+		if c.Conn != nil {
+			if err := c.Conn.Close(); err != nil && c.OnConnectionError != nil {
 				c.OnConnectionError(err)
 			}
-			c.conn = nil
+			c.Conn = nil
 		}
 	})
 }
@@ -270,7 +270,7 @@ func (c *Client) Send(message []byte) error {
 		return errors.New("attempt to send message on closed connection")
 	}
 
-	if c.conn == nil {
+	if c.Conn == nil {
 		log.Println("Connection is nil, attempting to reconnect...")
 		if err := c.Connect(); err != nil {
 			log.Printf("Reconnection failed: %v", err)
@@ -278,11 +278,11 @@ func (c *Client) Send(message []byte) error {
 		}
 	}
 
-	if c.conn == nil {
+	if c.Conn == nil {
 		return errors.New("connection is still nil after attempting to reconnect")
 	}
 
-	if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
+	if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
 		log.Printf("Error sending message: %v", err)
 		return err
 	}
@@ -295,11 +295,11 @@ func (c *Client) Receive() ([]byte, error) {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 
-	if c.conn == nil {
+	if c.Conn == nil {
 		return nil, errors.New("attempt to receive message on nil connection")
 	}
 
-	_, message, err := c.conn.ReadMessage()
+	_, message, err := c.Conn.ReadMessage()
 	if err != nil {
 		log.Printf("Error receiving message: %v", err)
 		go c.handleReconnection()
@@ -319,9 +319,9 @@ func (c *Client) handleReconnection() {
 	}
 
 	c.logger.Println("Attempting to reconnect...")
-	if c.conn != nil {
-		_ = c.conn.Close()
-		c.conn = nil
+	if c.Conn != nil {
+		_ = c.Conn.Close()
+		c.Conn = nil
 	}
 
 	for i := 0; i < ReconnectionRetries; i++ {

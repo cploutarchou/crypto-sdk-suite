@@ -74,7 +74,7 @@ func (l *ltKlineImpl) Unsubscribe(topics ...string) error {
 	return nil
 }
 func (l *ltKlineImpl) Listen() (int, []byte, error) {
-	return l.client.GetConnection().ReadMessage()
+	return l.client.Conn.ReadMessage()
 }
 func (l *ltKlineImpl) GetMessagesChan() <-chan []byte {
 	return l.Messages

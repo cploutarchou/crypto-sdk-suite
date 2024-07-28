@@ -73,7 +73,7 @@ func TestClient_Connect(t *testing.T) {
 
 	err = client.Connect()
 	assert.NoError(t, err)
-	assert.NotNil(t, client.GetConnection())
+	assert.NotNil(t, client.Conn)
 }
 
 // TestClient_Send verifies the Send function sends a message correctly.
@@ -112,7 +112,7 @@ func TestClient_Receive(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Wait to receive a successful authentication message
-	_, authMsg, err := client.GetConnection().ReadMessage()
+	_, authMsg, err := client.Conn.ReadMessage()
 	assert.NoError(t, err)
 	var authResponse map[string]interface{}
 	err = json.Unmarshal(authMsg, &authResponse)
@@ -125,7 +125,7 @@ func TestClient_Receive(t *testing.T) {
 	go func() {
 		time.Sleep(3 * time.Second)
 		requestPayload := `{"op":"ping","req_id":"` + reqID + `"}`
-		err = client.GetConnection().WriteMessage(websocket.TextMessage, []byte(requestPayload))
+		err = client.Conn.WriteMessage(websocket.TextMessage, []byte(requestPayload))
 		if err != nil {
 			t.Errorf("Error sending pong message: %v", err)
 			return
@@ -152,7 +152,7 @@ func TestClient_Close(t *testing.T) {
 
 	err = client.Connect()
 	assert.NoError(t, err)
-	assert.NotNil(t, client.GetConnection())
+	assert.NotNil(t, client.Conn)
 
 	client.Close()
 	assert.True(t, client.isClosed)

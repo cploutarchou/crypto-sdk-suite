@@ -94,7 +94,6 @@ func (c *Client) Connect() error {
 }
 
 // buildURL constructs the WebSocket URL based on client configuration.
-// buildURL constructs the WebSocket URL based on client configuration.
 func (c *Client) buildURL() string {
 	if c.wsURL != "" {
 		return c.wsURL
@@ -110,28 +109,21 @@ func (c *Client) buildURL() string {
 	switch c.Channel {
 	case Public:
 		switch c.Category {
-		case "usdt_contract":
-			return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL)
+		case "spot":
+			return fmt.Sprintf("%s://%s/v5/public/spot", DefaultScheme, baseURL)
+		case "usdt_contract", "usdc_contract", "usdc_futures":
+			return fmt.Sprintf("%s://%s/v5/public/linear", DefaultScheme, baseURL)
 		case "inverse_contract":
-			return fmt.Sprintf("%s://%s/contract/inverse/public/v3", DefaultScheme, baseURL)
-		case "usdc_contract":
-			return fmt.Sprintf("%s://%s/contract/usdc/public/v3", DefaultScheme, baseURL)
+			return fmt.Sprintf("%s://%s/v5/public/inverse", DefaultScheme, baseURL)
 		case "usdc_option":
-			return fmt.Sprintf("%s://%s/option/usdc/public/v3", DefaultScheme, baseURL)
+			return fmt.Sprintf("%s://%s/v5/public/option", DefaultScheme, baseURL)
 		default:
-			return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL) // default to usdt contract
+			return fmt.Sprintf("%s://%s/v5/public/linear", DefaultScheme, baseURL) // default to linear (USDT/USDC)
 		}
 	case Private:
-		switch c.Category {
-		case "unified_margin":
-			return fmt.Sprintf("%s://%s/unified/private/v3", DefaultScheme, baseURL)
-		case "contract":
-			return fmt.Sprintf("%s://%s/contract/private/v3", DefaultScheme, baseURL)
-		default:
-			return fmt.Sprintf("%s://%s/contract/private/v3", DefaultScheme, baseURL) // default to contract
-		}
+		return fmt.Sprintf("%s://%s/v5/private", DefaultScheme, baseURL)
 	default:
-		return fmt.Sprintf("%s://%s/contract/usdt/public/v3", DefaultScheme, baseURL) // default URL
+		return fmt.Sprintf("%s://%s/v5/public/linear", DefaultScheme, baseURL) // default URL
 	}
 }
 

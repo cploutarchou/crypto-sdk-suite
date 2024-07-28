@@ -3,6 +3,7 @@ package trade
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
@@ -26,18 +27,16 @@ type tradeImpl struct {
 func New(c *client.Client) Trade {
 	return &tradeImpl{client: c}
 }
+
 func (t *tradeImpl) PlaceOrder(req *PlaceOrderRequest) (*PlaceOrderResponse, error) {
 	params := ConvertPlaceOrderRequestToParams(req)
 	res, err := t.client.Post("/v5/order/create", params)
 	if err != nil {
 		return nil, err
 	}
-	data, err := json.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
+
 	var placeOrderResponse PlaceOrderResponse
-	err = json.Unmarshal(data, &placeOrderResponse)
+	err = res.Unmarshal(&placeOrderResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +44,64 @@ func (t *tradeImpl) PlaceOrder(req *PlaceOrderRequest) (*PlaceOrderResponse, err
 		return &placeOrderResponse, fmt.Errorf("API returned error: %s", placeOrderResponse.RetMsg)
 	}
 	return &placeOrderResponse, nil
+}
+
+func ConvertPlaceOrderRequestToParams(req *PlaceOrderRequest) client.Params {
+	params := client.Params{
+		"category":    req.Category,
+		"symbol":      req.Symbol,
+		"side":        req.Side,
+		"orderType":   req.OrderType,
+		"qty":         req.Qty,
+		"orderLinkId": req.OrderLinkId,
+	}
+
+	if req.Price != "" {
+		params["price"] = req.Price
+	}
+
+	optionalParams := map[string]interface{}{
+		"isLeverage":       req.IsLeverage,
+		"triggerPrice":     req.TriggerPrice,
+		"triggerDirection": req.TriggerDirection,
+		"triggerBy":        req.TriggerBy,
+		"orderFilter":      req.OrderFilter,
+		"orderIv":          req.OrderIv,
+		"timeInForce":      req.TimeInForce,
+		"positionIdx":      req.PositionIdx,
+		"takeProfit":       req.TakeProfit,
+		"stopLoss":         req.StopLoss,
+		"tpTriggerBy":      req.TpTriggerBy,
+		"slTriggerBy":      req.SlTriggerBy,
+		"reduceOnly":       req.ReduceOnly,
+		"closeOnTrigger":   req.CloseOnTrigger,
+		"smpType":          req.SmpType,
+		"mmp":              req.Mmp,
+		"tpslMode":         req.TpslMode,
+		"tpLimitPrice":     req.TpLimitPrice,
+		"slLimitPrice":     req.SlLimitPrice,
+		"tpOrderType":      req.TpOrderType,
+		"slOrderType":      req.SlOrderType,
+	}
+
+	for k, v := range optionalParams {
+		if v != nil {
+			switch value := v.(type) {
+			case *string:
+				params[k] = *value
+			case *int:
+				params[k] = strconv.Itoa(*value)
+			case *bool:
+				params[k] = strconv.FormatBool(*value)
+			case int:
+				params[k] = strconv.Itoa(value)
+			case bool:
+				params[k] = strconv.FormatBool(value)
+			}
+		}
+	}
+
+	return params
 }
 
 func (t *tradeImpl) AmendOrder(req *AmendOrderRequest) (*AmendOrderResponse, error) {

@@ -20,19 +20,13 @@ import (
 )
 
 const (
-	recvWindow = "5000"
+	recvWindow            = "5000"
+	BaseURL               = "https://api.bybit.com"
+	TestnetBaseURL        = "https://api-testnet.bybit.com"
+	ApiVersion            = "v5"
+	GET            Method = "GET"
+	POST           Method = "POST"
 
-	// BaseURL is the base URL for the Bybit API
-	BaseURL = "https://api.bybit.com"
-
-	// TestnetBaseURL is the base URL for the Bybit Testnet API
-	TestnetBaseURL = "https://api-testnet.bybit.com"
-
-	// ApiVersion is the version of the Bybit API
-	ApiVersion        = "v5"
-	GET        Method = "GET"
-	POST       Method = "POST"
-	// Globals
 	timestampKey  = "X-BAPI-TIMESTAMP"
 	signatureKey  = "X-BAPI-SIGN"
 	apiRequestKey = "X-BAPI-API-KEY"
@@ -151,6 +145,7 @@ func (c *Client) do(req *Request) (Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	return NewResponse(resp), nil
 }

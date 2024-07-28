@@ -59,8 +59,6 @@ type Client struct {
 
 // Connect establishes a WebSocket connection to the server based on the configuration.
 func (c *Client) Connect() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	if c.isClosed {
 		err := errors.New("connection already closed")

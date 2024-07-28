@@ -2,8 +2,8 @@ package position
 
 // RequestParams represents the query parameters for fetching position information.
 type RequestParams struct {
-	Category   *string `json:"category"`
-	Symbol     *string `json:"symbol"`
+	Category   string  `json:"category"`
+	Symbol     string  `json:"symbol"`
 	BaseCoin   *string `json:"baseCoin"`
 	SettleCoin *string `json:"settleCoin"`
 	Limit      *int    `json:"limit"`

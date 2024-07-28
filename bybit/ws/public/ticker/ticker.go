@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
@@ -16,6 +17,7 @@ type response struct {
 	Cs    int64  `json:"cs"`
 	Ts    int64  `json:"ts"`
 }
+
 type Data struct {
 	Symbol            string `json:"symbol"`
 	TickDirection     string `json:"tickDirection"`
@@ -45,22 +47,40 @@ type Ticker struct {
 	subscribers map[string]func(Data)
 	ctx         context.Context
 	cancel      context.CancelFunc
+	mu          sync.RWMutex
+	sendCh      chan []byte
 }
 
 // New initializes a new Ticker instance with context for graceful shutdown.
 func New(client *client.Client) Ticker {
 	ctx, cancel := context.WithCancel(context.Background())
-	return Ticker{
+	t := Ticker{
 		client:      client,
 		subscribers: make(map[string]func(Data)),
 		ctx:         ctx,
 		cancel:      cancel,
+		sendCh:      make(chan []byte),
+	}
+
+	go t.writer()
+
+	return t
+}
+
+// writer is a goroutine that handles all outgoing messages to the WebSocket connection.
+func (t *Ticker) writer() {
+	for msg := range t.sendCh {
+		err := t.client.Send(msg)
+		if err != nil {
+			log.Printf("Error sending message: %v", err)
+		}
 	}
 }
 
 // Subscribe to the ticker updates for a given symbol.
-// Subscribe to the ticker updates for a given symbol.
 func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	topic := fmt.Sprintf("tickers.%s", symbol)
 	t.subscribers[topic] = callback
 
@@ -75,7 +95,8 @@ func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
 	}
 
 	// Send the subscription message
-	return t.client.Send(msg)
+	t.sendCh <- msg
+	return nil
 }
 
 // Listen method modified to support graceful shutdown.
@@ -83,6 +104,7 @@ func (t *Ticker) Listen() {
 	for {
 		select {
 		case <-t.ctx.Done(): // Check if shutdown has been initiated.
+			close(t.sendCh)
 			return
 		default:
 			message, err := t.client.Receive()
@@ -97,7 +119,9 @@ func (t *Ticker) Listen() {
 				continue
 			}
 
+			t.mu.RLock()
 			callback, exists := t.subscribers[response.Topic]
+			t.mu.RUnlock()
 
 			if exists && (response.Type == "snapshot" || response.Type == "delta") {
 				go callback(response.Data)
@@ -108,14 +132,16 @@ func (t *Ticker) Listen() {
 
 // Unsubscribe from the ticker updates for a given symbol.
 func (t *Ticker) Unsubscribe(symbol string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	topic := fmt.Sprintf("tickers.%s", symbol)
 
 	delete(t.subscribers, topic)
 
 	// Construct the unsubscription message
 	unsubscriptionMessage := map[string]interface{}{
-		"op":    "unsubscribe",
-		"topic": topic,
+		"op":   "unsubscribe",
+		"args": []string{topic},
 	}
 	msg, err := json.Marshal(unsubscriptionMessage)
 	if err != nil {
@@ -123,7 +149,8 @@ func (t *Ticker) Unsubscribe(symbol string) error {
 	}
 
 	// Send the unsubscription message
-	return t.client.Send(msg)
+	t.sendCh <- msg
+	return nil
 }
 
 // Shutdown method to cleanly terminate the Listen loop.

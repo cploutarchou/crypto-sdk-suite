@@ -3,6 +3,7 @@ package trade
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
@@ -26,18 +27,16 @@ type tradeImpl struct {
 func New(c *client.Client) Trade {
 	return &tradeImpl{client: c}
 }
+
 func (t *tradeImpl) PlaceOrder(req *PlaceOrderRequest) (*PlaceOrderResponse, error) {
 	params := ConvertPlaceOrderRequestToParams(req)
 	res, err := t.client.Post("/v5/order/create", params)
 	if err != nil {
 		return nil, err
 	}
-	data, err := json.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
+
 	var placeOrderResponse PlaceOrderResponse
-	err = json.Unmarshal(data, &placeOrderResponse)
+	err = res.Unmarshal(&placeOrderResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -47,6 +46,86 @@ func (t *tradeImpl) PlaceOrder(req *PlaceOrderRequest) (*PlaceOrderResponse, err
 	return &placeOrderResponse, nil
 }
 
+func ConvertPlaceOrderRequestToParams(req *PlaceOrderRequest) client.Params {
+	params := client.Params{
+		"category":    req.Category,
+		"symbol":      req.Symbol,
+		"side":        req.Side,
+		"orderType":   req.OrderType,
+		"qty":         req.Qty,
+		"orderLinkId": req.OrderLinkId,
+	}
+
+	if req.Price != "" {
+		params["price"] = req.Price
+	}
+
+	if req.IsLeverage != 0 {
+		params["isLeverage"] = strconv.Itoa(req.IsLeverage)
+	}
+	if req.TriggerPrice != nil {
+		params["triggerPrice"] = *req.TriggerPrice
+	}
+	if req.TriggerDirection != nil {
+		params["triggerDirection"] = strconv.Itoa(*req.TriggerDirection)
+	}
+	if req.TriggerBy != nil {
+		params["triggerBy"] = *req.TriggerBy
+	}
+	if req.OrderFilter != nil {
+		params["orderFilter"] = *req.OrderFilter
+	}
+	if req.OrderIv != nil {
+		params["orderIv"] = *req.OrderIv
+	}
+	if req.TimeInForce != "" {
+		params["timeInForce"] = req.TimeInForce
+	}
+	if req.PositionIdx != nil {
+		params["positionIdx"] = strconv.Itoa(*req.PositionIdx)
+	}
+	if req.TakeProfit != nil {
+		params["takeProfit"] = *req.TakeProfit
+	}
+	if req.StopLoss != nil {
+		params["stopLoss"] = *req.StopLoss
+	}
+	if req.TpTriggerBy != nil {
+		params["tpTriggerBy"] = *req.TpTriggerBy
+	}
+	if req.SlTriggerBy != nil {
+		params["slTriggerBy"] = *req.SlTriggerBy
+	}
+	if req.ReduceOnly != nil {
+		params["reduceOnly"] = strconv.FormatBool(*req.ReduceOnly)
+	}
+	if req.CloseOnTrigger != nil {
+		params["closeOnTrigger"] = strconv.FormatBool(*req.CloseOnTrigger)
+	}
+	if req.SmpType != nil {
+		params["smpType"] = *req.SmpType
+	}
+	if req.Mmp != nil {
+		params["mmp"] = strconv.FormatBool(*req.Mmp)
+	}
+	if req.TpslMode != nil {
+		params["tpslMode"] = *req.TpslMode
+	}
+	if req.TpLimitPrice != nil {
+		params["tpLimitPrice"] = *req.TpLimitPrice
+	}
+	if req.SlLimitPrice != nil {
+		params["slLimitPrice"] = *req.SlLimitPrice
+	}
+	if req.TpOrderType != nil {
+		params["tpOrderType"] = *req.TpOrderType
+	}
+	if req.SlOrderType != nil {
+		params["slOrderType"] = *req.SlOrderType
+	}
+
+	return params
+}
 func (t *tradeImpl) AmendOrder(req *AmendOrderRequest) (*AmendOrderResponse, error) {
 	params := ConvertAmendOrderRequestToParams(req)
 	res, err := t.client.Post("/v5/order/amend", params)

@@ -9,29 +9,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/time/rate"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"sync"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 const (
-	recvWindow = "5000"
+	recvWindow            = "5000"
+	BaseURL               = "https://api.bybit.com"
+	TestnetBaseURL        = "https://api-testnet.bybit.com"
+	ApiVersion            = "v5"
+	GET            Method = "GET"
+	POST           Method = "POST"
 
-	// BaseURL is the base URL for the Bybit API
-	BaseURL = "https://api.bybit.com"
-
-	// TestnetBaseURL is the base URL for the Bybit Testnet API
-	TestnetBaseURL = "https://api-testnet.bybit.com"
-
-	// ApiVersion is the version of the Bybit API
-	ApiVersion        = "v5"
-	GET        Method = "GET"
-	POST       Method = "POST"
-	// Globals
 	timestampKey  = "X-BAPI-TIMESTAMP"
 	signatureKey  = "X-BAPI-SIGN"
 	apiRequestKey = "X-BAPI-API-KEY"
@@ -63,7 +58,6 @@ type Request struct {
 	params Params
 }
 
-// Initializes endpoint limiters based on predefined rates and sets a sensible burst size.
 func (c *Client) initializeEndpointLimiters() {
 	wg := sync.WaitGroup{}
 
@@ -79,7 +73,6 @@ func (c *Client) initializeEndpointLimiters() {
 	wg.Wait()
 }
 
-// NewClient function to create a new client instance.
 func NewClient(key, secretKey string, isTestnet bool) *Client {
 	return &Client{
 		key:             key,
@@ -89,6 +82,7 @@ func NewClient(key, secretKey string, isTestnet bool) *Client {
 		endpointLimiter: NewEndpointRateLimiter(),
 	}
 }
+
 func (c *Client) Get(path string, params Params) (Response, error) {
 	return c.doRequest(GET, path, params)
 }
@@ -98,22 +92,20 @@ func (c *Client) Post(path string, params Params) (Response, error) {
 }
 
 func (c *Client) doRequest(method Method, path string, params Params) (Response, error) {
-	// Construct the endpoint key using the method and path
 	endpointKey := fmt.Sprintf("%s %s", method, path)
-	// Retrieve the existing limiter for the endpoint
 	limiter := c.endpointLimiter.GetLimiter(endpointKey)
 	if limiter == nil {
 		log.Printf("Warning: No rate limiter found for %s. Requests for this endpoint may not be rate-limited.", endpointKey)
-		// You might choose to handle this situation differently, such as by setting a default limiter.
-	} else {
-		// Wait for permission to proceed from the rate limiter
-		ctx := context.Background() // Consider passing a context from higher-level methods
-		if err := limiter.Wait(ctx); err != nil {
-			return nil, fmt.Errorf("rate limiter error: %w", err)
-		}
+
+		limiter = rate.NewLimiter(rate.Inf, 5)
+		log.Println("Warning: Using an unlimited rate limiter for this endpoint.")
 	}
 
-	// Create and execute the HTTP request as before
+	ctx := context.Background()
+	if err := limiter.Wait(ctx); err != nil {
+		return nil, fmt.Errorf("rate limiter error: %w", err)
+	}
+
 	req := &Request{
 		method: method,
 		path:   path,
@@ -155,7 +147,6 @@ func (c *Client) do(req *Request) (Response, error) {
 	}
 	defer resp.Body.Close()
 
-	c.params = nil
 	return NewResponse(resp), nil
 }
 
@@ -179,11 +170,10 @@ func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, er
 }
 
 func (c *Client) setCommonHeaders(req *http.Request) {
-
 	timestamp := strconv.FormatInt(GetCurrentTime(), 10)
 	req.Header.Set(signTypeKey, "2")
 	req.Header.Set(apiRequestKey, c.key)
-	req.Header.Set(timestampKey, strconv.FormatInt(GetCurrentTime(), 10))
+	req.Header.Set(timestampKey, timestamp)
 	req.Header.Set(recvWindowKey, recvWindow)
 	var signatureBase []byte
 	if req.Method == "POST" {
@@ -197,7 +187,6 @@ func (c *Client) setCommonHeaders(req *http.Request) {
 	hmac256.Write(signatureBase)
 	signature := hex.EncodeToString(hmac256.Sum(nil))
 	req.Header.Set(signatureKey, signature)
-
 }
 
 func GetCurrentTime() int64 {

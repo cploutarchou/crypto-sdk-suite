@@ -3,11 +3,11 @@ package trade
 type PlaceOrderRequest struct {
 	Category         string  `json:"category"`
 	Symbol           string  `json:"symbol"`
-	IsLeverage       *int    `json:"isLeverage,omitempty"`
+	IsLeverage       int     `json:"isLeverage"`
 	Side             string  `json:"side"`
 	OrderType        string  `json:"orderType"`
 	Qty              string  `json:"qty"`
-	Price            *string `json:"price,omitempty"`
+	Price            string  `json:"price,omitempty"`
 	TriggerPrice     *string `json:"triggerPrice,omitempty"`
 	TriggerDirection *int    `json:"triggerDirection,omitempty"`
 	TriggerBy        *string `json:"triggerBy,omitempty"`

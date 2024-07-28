@@ -62,6 +62,7 @@ func getCoinGreeks() (interface{}, error) {
 	coinGreeks := acc.CoinGreek()
 	return coinGreeks.Get("BTC")
 }
+
 func getFeeRates() (interface{}, error) {
 	fmt.Println("getFeeRates")
 	feeRates := acc.FeeRates()
@@ -117,21 +118,15 @@ func getMMPState() (interface{}, error) {
 }
 
 func wsConnectTicker() {
-	// Correctly initialized a buffered channel of float64 values
 	b := make(chan float64, 1)
-	fmt.Println("wsConnect")
+	fmt.Println("wsConnectTicker")
 	publicClient, err := wsClient.NewPublicClient(true, "linear")
 	if err != nil {
 		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
 		return
 	}
-	privateClient, err := wsClient.NewPrivateClient(key, secret, true, "100", "linear")
-	if err != nil {
-		log.Printf("ERROR: Failed to create WebSocket client: %v", err)
-		return
-	}
 
-	websocket = ws.New(publicClient, privateClient, true)
+	websocket = ws.New(publicClient, nil, true)
 	publicWS, err := websocket.Public()
 	if err != nil {
 		log.Printf("ERROR: Failed to access public WebSocket endpoint: %v", err)
@@ -140,7 +135,6 @@ func wsConnectTicker() {
 
 	ticker := publicWS.Ticker("linear")
 
-	// Subscribe to ticker updates
 	err = ticker.Subscribe("BTCUSDT", func(data ticker2.Data) {
 		if data.LastPrice != "" {
 			lastPrice, parseErr := strconv.ParseFloat(data.LastPrice, 64)
@@ -148,9 +142,8 @@ func wsConnectTicker() {
 				log.Printf("ERROR: Parsing last price: %v", parseErr)
 				return
 			}
-			// Use the local channel 'b' directly for sending lastPrice
 			select {
-			case b <- lastPrice: // Corrected to use 'b' directly
+			case b <- lastPrice:
 			default:
 				log.Println("WARNING: Channel is blocked or full, skipping update.")
 			}
@@ -169,6 +162,7 @@ func wsConnectTicker() {
 		log.Printf("Received price update: %f", price)
 	}
 }
+
 func wsConnectKline() {
 	fmt.Println("wsConnectKline")
 
@@ -178,20 +172,21 @@ func wsConnectKline() {
 		return
 	}
 
-	klineService, err := kline2.New(client_) // Adjust based on your New function
+	klineService, err := kline2.New(client_)
 	if err != nil {
 		log.Printf("ERROR: Failed to initialize kline service: %v", err)
 		return
 	}
 
-	err = klineService.Subscribe([]string{"BTCUSDT", "SOLUSDT"}, "1", func(data kline2.Data) {})
-
+	err = klineService.Subscribe([]string{"BTCUSDT", "SOLUSDT"}, "1", func(data kline2.Data) {
+		log.Printf("Received kline update: %+v\n", data)
+	})
 	if err != nil {
 		log.Printf("ERROR: Failed to subscribe to kline updates: %v", err)
 		return
 	}
 
-	log.Println("INFO: Successfully subscribed to kline updates for BTCUSDT and THETAUSDT")
+	log.Println("INFO: Successfully subscribed to kline updates for BTCUSDT and SOLUSDT")
 
 	for kline := range klineService.GetMessagesChan() {
 		log.Printf("Received kline update: %+v\n", string(kline))
@@ -214,11 +209,12 @@ func runAccountExamples() {
 	handleErrorWithPrint(getMMPState())
 	wsConnectTicker()
 	wsConnectKline()
-	testPing()
-	testGetExchangeInfo()
-	testGetServerTime()
 }
+
 func bybitExamples() {
 	runAccountExamples()
+}
 
+func main() {
+	bybitExamples()
 }

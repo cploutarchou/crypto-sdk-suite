@@ -43,6 +43,7 @@ type ChannelType string
 // Client is the main WebSocket client struct, managing the connection and its state.
 type Client struct {
 	closeOnce         sync.Once
+	connOnce          sync.Once
 	isClosed          bool
 	logger            *log.Logger
 	IsTestNet         bool
@@ -61,34 +62,65 @@ type Client struct {
 	connLock sync.Mutex
 }
 
+// NewPublicClient initializes a new public WSClient instance.
+func NewPublicClient(isTestNet bool, category string) (*Client, error) {
+	client := &Client{
+		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
+		IsTestNet: isTestNet,
+		Channel:   Public,
+		Connected: make(chan struct{}),
+		Category:  category,
+	}
+	DefaultReqID = randomString(8)
+	return client, nil
+}
+
+// NewPrivateClient initializes a new private WSClient instance.
+func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime string, category string) (*Client, error) {
+	client := &Client{
+		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
+		IsTestNet:     isTestNet,
+		ApiKey:        apiKey,
+		ApiSecret:     apiSecret,
+		Channel:       Private,
+		Connected:     make(chan struct{}),
+		MaxActiveTime: maxActiveTime,
+		Category:      category,
+	}
+	DefaultReqID = randomString(8)
+	return client, nil
+}
+
 // Connect establishes a WebSocket connection to the server based on the configuration.
 func (c *Client) Connect() error {
-	c.connLock.Lock()
-	defer c.connLock.Unlock()
-
-	if c.isClosed {
-		err := errors.New("connection already closed")
-		c.handleConnectionError(err)
-		return err
-	}
-
-	url := c.buildURL()
 	var err error
-	c.Conn, _, err = websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
-		c.Conn = nil
-		return err
-	}
+	c.connOnce.Do(func() {
+		c.connLock.Lock()
+		defer c.connLock.Unlock()
 
-	c.logger.Printf("Connected to %s", url)
-	if c.OnConnected != nil {
-		c.OnConnected()
-	}
-	closeOnce(c.Connected) // Close the channel only once
+		if c.isClosed {
+			err = errors.New("connection already closed")
+			c.handleConnectionError(err)
+			return
+		}
 
-	go c.keepAlive()
-	return nil
+		url := c.buildURL()
+		c.Conn, _, err = websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
+			c.Conn = nil
+			return
+		}
+
+		c.logger.Printf("Connected to %s", url)
+		if c.OnConnected != nil {
+			c.OnConnected()
+		}
+		closeOnce(c.Connected)
+
+		go c.keepAlive()
+	})
+	return err
 }
 
 // buildURL constructs the WebSocket URL based on client configuration.
@@ -123,35 +155,6 @@ func (c *Client) buildURL() string {
 	default:
 		return fmt.Sprintf("%s://%s/v5/public/linear", DefaultScheme, baseURL) // default URL
 	}
-}
-
-// NewPublicClient initializes a new public WSClient instance.
-func NewPublicClient(isTestNet bool, category string) (*Client, error) {
-	client := &Client{
-		logger:    log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
-		IsTestNet: isTestNet,
-		Channel:   Public,
-		Connected: make(chan struct{}),
-		Category:  category,
-	}
-	DefaultReqID = randomString(8)
-	return client, nil
-}
-
-// NewPrivateClient initializes a new private WSClient instance.
-func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime string, category string) (*Client, error) {
-	client := &Client{
-		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
-		IsTestNet:     isTestNet,
-		ApiKey:        apiKey,
-		ApiSecret:     apiSecret,
-		Channel:       Private,
-		Connected:     make(chan struct{}),
-		MaxActiveTime: maxActiveTime,
-		Category:      category,
-	}
-	DefaultReqID = randomString(8)
-	return client, nil
 }
 
 // authenticateIfRequired authenticates the WebSocket client if the channel is private.

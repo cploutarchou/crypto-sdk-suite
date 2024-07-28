@@ -59,26 +59,31 @@ type Client struct {
 
 // Connect establishes a WebSocket connection to the server based on the configuration.
 func (c *Client) Connect() error {
-
+	c.mu.Lock()
 	if c.isClosed {
+		c.mu.Unlock()
 		err := errors.New("connection already closed")
 		c.handleConnectionError(err)
 		return err
 	}
-
 	url := c.buildURL()
+	c.mu.Unlock()
+
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		c.handleConnectionError(fmt.Errorf("failed to dial %s: %v", url, err))
 		return err
 	}
 
+	c.mu.Lock()
 	c.Conn = conn
-	close(c.Connected)
 	c.logger.Printf("Connected to %s", url)
 	if c.OnConnected != nil {
 		c.OnConnected()
 	}
+	closeOnce(c.Connected) // Close the channel only once
+	c.mu.Unlock()
+
 	go c.keepAlive()
 
 	// Authenticate if required
@@ -188,24 +193,31 @@ func (c *Client) keepAlive() {
 
 // sendPingAndHandleReconnection sends a ping message to the WebSocket server and handles reconnection if the ping fails.
 func (c *Client) sendPingAndHandleReconnection() {
+	c.mu.Lock()
 	if c.isClosed {
+		c.mu.Unlock()
 		return
 	}
-
 	pingMsg := PingMsg{
 		ReqId: DefaultReqID,
 		Op:    PingOperation,
 	}
+	c.mu.Unlock()
+
 	jsonData, err := json.Marshal(pingMsg)
 	if err != nil {
 		c.logger.Printf("Error marshaling ping message: %v", err)
 		return
 	}
 
+	c.mu.Lock()
 	if err = c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+		c.mu.Unlock()
 		c.logger.Printf("Error sending ping: %v", err)
 		c.handleReconnection()
+		return
 	}
+	c.mu.Unlock()
 	c.logger.Println("Ping sent")
 }
 
@@ -223,6 +235,8 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 	if err != nil {
 		return err
 	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if err := c.Conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
 		c.handleConnectionError(err)
 		return err
@@ -289,6 +303,13 @@ func (c *Client) Send(message []byte) error {
 
 // Receive listens for a message from the WebSocket server and returns it.
 func (c *Client) Receive() ([]byte, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.Conn == nil {
+		return nil, errors.New("attempt to receive message on nil connection")
+	}
+
 	_, message, err := c.Conn.ReadMessage()
 	if err != nil {
 		log.Printf("Error receiving message: %v", err)
@@ -329,4 +350,14 @@ func (c *Client) handleConnectionError(err error) {
 		c.OnConnectionError(err)
 	}
 	c.logger.Printf("Connection error: %v", err)
+}
+
+// closeOnce ensures the channel is only closed once
+func closeOnce(ch chan struct{}) {
+	select {
+	case <-ch:
+		// Channel is already closed
+	default:
+		close(ch)
+	}
 }

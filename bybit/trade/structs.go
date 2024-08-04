@@ -177,18 +177,17 @@ type CancelAllOrdersResponse struct {
 	Time       int64       `json:"time"`
 }
 type GetOrderHistoryRequest struct {
-	Category    string
-	Symbol      *string
-	BaseCoin    *string
-	SettleCoin  *string
-	OrderId     *string
-	OrderLinkId *string
-	OrderFilter *string
-	OrderStatus *string
-	StartTime   *int64
-	EndTime     *int64
-	Limit       *int
-	Cursor      *string
+	Category    string  `json:"category"`
+	Symbol      *string `json:"symbol"`
+	BaseCoin    *string `json:"baseCoin,omitempty"`
+	SettleCoin  *string `json:"settleCoin,omitempty"`
+	OrderId     *string `json:"orderId,omitempty"`
+	OrderFilter *string `json:"orderFilter,omitempty"`
+	OrderStatus *string `json:"orderStatus,omitempty"`
+	StartTime   *int64  `json:"startTime,omitempty"`
+	EndTime     *int64  `json:"endTime,omitempty"`
+	Limit       *int    `json:"limit"`
+	Cursor      *string `json:"cursor"`
 }
 type GetOrderHistoryResponse struct {
 	RetCode int    `json:"retCode"`

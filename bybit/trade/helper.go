@@ -154,9 +154,6 @@ func ConvertGetOrderHistoryRequestToParams(req *GetOrderHistoryRequest) client.P
 	if req.OrderId != nil {
 		params["orderId"] = *req.OrderId
 	}
-	if req.OrderLinkId != nil {
-		params["orderLinkId"] = *req.OrderLinkId
-	}
 	if req.OrderFilter != nil {
 		params["orderFilter"] = *req.OrderFilter
 	}

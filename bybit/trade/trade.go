@@ -3,9 +3,11 @@ package trade
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
+	log "github.com/sirupsen/logrus"
+	"net/url"
+	"strconv"
+	"strings"
 )
 
 type Trade interface {
@@ -18,6 +20,16 @@ type Trade interface {
 	GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error)
 	BatchPlaceOrder(req *BatchPlaceOrderRequest) (*BatchPlaceOrderResponse, error)
 	GetBorrowQuotaSpot(symbol, side string) (*BorrowQuotaResponse, error)
+}
+
+// Helper function to generate cURL command from request parameters
+func generateCurlCommand(endpoint string, params map[string]string) string {
+	var paramList []string
+	for key, value := range params {
+		paramList = append(paramList, fmt.Sprintf("%s=%s", key, url.QueryEscape(value)))
+	}
+	queryString := strings.Join(paramList, "&")
+	return fmt.Sprintf("curl -X GET '%s?%s'", endpoint, queryString)
 }
 
 type tradeImpl struct {
@@ -221,31 +233,57 @@ func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrde
 func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error) {
 	queryParams := ConvertGetOrderHistoryRequestToParams(req)
 
-	fmt.Printf("Sending request to /v5/order/history with parameters: %+v", queryParams)
-	resBytes, err := t.client.Get("/v5/order/history", queryParams)
+	// Constructing the endpoint URL
+	endpoint := "https://api.bybit.com/v5/order/history"
+
+	// Converting queryParams to map[string]string for cURL command generation
+	paramMap := make(map[string]string)
+	for k, v := range queryParams {
+		if v != nil {
+			paramMap[k] = fmt.Sprintf("%v", v)
+		}
+	}
+
+	// Printing the parameters being sent
+	log.Infof("Sending request to %s with parameters: %+v\n", endpoint, queryParams)
+
+	resBytes, err := t.client.Get(endpoint, queryParams)
 	if err != nil {
-		fmt.Printf("Error in GET request: %v", err)
+		// Print the cURL command if there's an error
+		curlCommand := generateCurlCommand(endpoint, paramMap)
+		log.Errorf("Error in GET request: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
+
 	data, err := json.Marshal(resBytes)
 	if err != nil {
-		fmt.Printf("Error marshaling response: %v", err)
+		// Print the cURL command if there's an error
+		curlCommand := generateCurlCommand(endpoint, paramMap)
+		log.Errorf("Error marshaling response: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
-	fmt.Printf("Received raw response: %s", string(data))
+
+	// Printing the raw response
+	log.Info("Received raw response: %s\n", string(data))
+
 	var response GetOrderHistoryResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
-		fmt.Printf("Error unmarshalling response: %v", err)
+		// Print the cURL command if there's an error
+		curlCommand := generateCurlCommand(endpoint, paramMap)
+		log.Errorf("Error unmarshalling response: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
 
 	if response.RetCode != 0 {
-		fmt.Printf("API returned error: %s", response.RetMsg)
+		// Print the cURL command if there's an API error
+		curlCommand := generateCurlCommand(endpoint, paramMap)
+		log.Errorf("API returned error: %s\ncURL Command: %s\n", response.RetMsg, curlCommand)
 		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
 	}
 
-	fmt.Printf("Successfully retrieved order history: %+v", response)
+	// Printing the successful response
+	log.Infof("Successfully retrieved order history: %+v\n", response)
 	return &response, nil
 }
 func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error) {

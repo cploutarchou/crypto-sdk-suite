@@ -234,7 +234,7 @@ func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHisto
 	queryParams := ConvertGetOrderHistoryRequestToParams(req)
 
 	// Constructing the endpoint URL
-	endpoint := "https://api.bybit.com/v5/order/history"
+	endpoint := "/v5/order/history"
 
 	// Converting queryParams to map[string]string for cURL command generation
 	paramMap := make(map[string]string)

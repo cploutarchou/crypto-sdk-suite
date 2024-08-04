@@ -97,14 +97,12 @@ func (i *impl) GetPositionInfo(params *RequestParams) (*Response, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error fetching position info: %w", err)
 	}
-	data, err := json.Marshal(response)
-	if err != nil {
-		return nil, err
-	}
+
 	// Parse the JSON response
 	var positionResponse Response
-	if err := json.Unmarshal(data, &positionResponse); err != nil {
-		return nil, fmt.Errorf("error parsing position info response: %w", err)
+	err = response.Unmarshal(&positionResponse)
+	if err != nil {
+		return nil, err
 	}
 
 	return &positionResponse, nil

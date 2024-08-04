@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"strconv"
 	"strings"
@@ -230,6 +229,7 @@ func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrde
 
 	return &response, nil
 }
+
 func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error) {
 	queryParams := ConvertGetOrderHistoryRequestToParams(req)
 
@@ -239,19 +239,17 @@ func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHisto
 	// Converting queryParams to map[string]string for cURL command generation
 	paramMap := make(map[string]string)
 	for k, v := range queryParams {
-		if v != nil {
-			paramMap[k] = fmt.Sprintf("%v", v)
-		}
+		paramMap[k] = fmt.Sprintf("%v", v)
 	}
 
 	// Printing the parameters being sent
-	log.Infof("Sending request to %s with parameters: %+v\n", endpoint, queryParams)
+	fmt.Printf("Sending request to %s with parameters: %+v\n", endpoint, queryParams)
 
 	resBytes, err := t.client.Get(endpoint, queryParams)
 	if err != nil {
 		// Print the cURL command if there's an error
 		curlCommand := generateCurlCommand(endpoint, paramMap)
-		log.Errorf("Error in GET request: %v\ncURL Command: %s\n", err, curlCommand)
+		fmt.Printf("Error in GET request: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
 
@@ -259,33 +257,34 @@ func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHisto
 	if err != nil {
 		// Print the cURL command if there's an error
 		curlCommand := generateCurlCommand(endpoint, paramMap)
-		log.Errorf("Error marshaling response: %v\ncURL Command: %s\n", err, curlCommand)
+		fmt.Printf("Error marshaling response: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
 
 	// Printing the raw response
-	log.Info("Received raw response: %s\n", string(data))
+	fmt.Printf("Received raw response: %s\n", string(data))
 
 	var response GetOrderHistoryResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		// Print the cURL command if there's an error
 		curlCommand := generateCurlCommand(endpoint, paramMap)
-		log.Errorf("Error unmarshalling response: %v\ncURL Command: %s\n", err, curlCommand)
+		fmt.Printf("Error unmarshalling response: %v\ncURL Command: %s\n", err, curlCommand)
 		return nil, err
 	}
 
-	if response.RetCode != 0 {
-		// Print the cURL command if there's an API error
+	if response.RetCode != 0 || len(response.Result.List) == 0 {
+		// Print the cURL command if there's an API error or empty response
 		curlCommand := generateCurlCommand(endpoint, paramMap)
-		log.Errorf("API returned error: %s\ncURL Command: %s\n", response.RetMsg, curlCommand)
-		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
+		fmt.Printf("API returned error or empty response: %s\ncURL Command: %s\n", response.RetMsg, curlCommand)
+		return &response, fmt.Errorf("API returned error or empty response: %s", response.RetMsg)
 	}
 
 	// Printing the successful response
-	log.Infof("Successfully retrieved order history: %+v\n", response)
+	fmt.Printf("Successfully retrieved order history: %+v\n", response)
 	return &response, nil
 }
+
 func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error) {
 	queryParams := ConvertGetTradeHistoryRequestToParams(req)
 

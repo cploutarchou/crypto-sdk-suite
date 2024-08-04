@@ -221,25 +221,31 @@ func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrde
 func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error) {
 	queryParams := ConvertGetOrderHistoryRequestToParams(req)
 
-	// Assuming the client.Get method constructs the query string from the provided params and sends a GET request.
+	fmt.Printf("Sending request to /v5/order/history with parameters: %+v", queryParams)
 	resBytes, err := t.client.Get("/v5/order/history", queryParams)
 	if err != nil {
+		fmt.Printf("Error in GET request: %v", err)
 		return nil, err
 	}
 	data, err := json.Marshal(resBytes)
 	if err != nil {
+		fmt.Printf("Error marshaling response: %v", err)
 		return nil, err
 	}
+	fmt.Printf("Received raw response: %s", string(data))
 	var response GetOrderHistoryResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
+		fmt.Printf("Error unmarshalling response: %v", err)
 		return nil, err
 	}
 
 	if response.RetCode != 0 {
+		fmt.Printf("API returned error: %s", response.RetMsg)
 		return &response, fmt.Errorf("API returned error: %s", response.RetMsg)
 	}
 
+	fmt.Printf("Successfully retrieved order history: %+v", response)
 	return &response, nil
 }
 func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error) {

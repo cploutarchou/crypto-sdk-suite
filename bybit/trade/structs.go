@@ -68,8 +68,8 @@ type AmendOrderResponse struct {
 		OrderId     string `json:"orderId"`
 		OrderLinkId string `json:"orderLinkId"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 type CancelOrderRequest struct {
 	Category    string  `json:"category"`
@@ -85,8 +85,8 @@ type CancelOrderResponse struct {
 		OrderId     string `json:"orderId"`
 		OrderLinkId string `json:"orderLinkId"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 type GetOpenOrdersRequest struct {
 	Category    string
@@ -108,8 +108,8 @@ type GetOpenOrdersResponse struct {
 		NextPageCursor string         `json:"nextPageCursor"`
 		Category       string         `json:"category"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 
 type OrderDetails struct {
@@ -123,7 +123,6 @@ type OrderDetails struct {
 	IsLeverage         string `json:"isLeverage"`
 	PositionIdx        int    `json:"positionIdx"`
 	OrderStatus        string `json:"orderStatus"`
-	CreateType         string `json:"createType"`
 	CancelType         string `json:"cancelType"`
 	RejectReason       string `json:"rejectReason"`
 	AvgPrice           string `json:"avgPrice"`
@@ -136,14 +135,9 @@ type OrderDetails struct {
 	OrderType          string `json:"orderType"`
 	StopOrderType      string `json:"stopOrderType"`
 	OrderIv            string `json:"orderIv"`
-	MarketUnit         string `json:"marketUnit"`
 	TriggerPrice       string `json:"triggerPrice"`
 	TakeProfit         string `json:"takeProfit"`
 	StopLoss           string `json:"stopLoss"`
-	TpslMode           string `json:"tpslMode"`
-	OcoTriggerType     string `json:"ocoTriggerType"`
-	TpLimitPrice       string `json:"tpLimitPrice"`
-	SlLimitPrice       string `json:"slLimitPrice"`
 	TpTriggerBy        string `json:"tpTriggerBy"`
 	SlTriggerBy        string `json:"slTriggerBy"`
 	TriggerDirection   int    `json:"triggerDirection"`
@@ -151,10 +145,13 @@ type OrderDetails struct {
 	LastPriceOnCreated string `json:"lastPriceOnCreated"`
 	ReduceOnly         bool   `json:"reduceOnly"`
 	CloseOnTrigger     bool   `json:"closeOnTrigger"`
-	PlaceType          string `json:"placeType"`
 	SmpType            string `json:"smpType"`
 	SmpGroup           int    `json:"smpGroup"`
 	SmpOrderId         string `json:"smpOrderId"`
+	TpslMode           string `json:"tpslMode"`
+	TpLimitPrice       string `json:"tpLimitPrice"`
+	SlLimitPrice       string `json:"slLimitPrice"`
+	PlaceType          string `json:"placeType"`
 	CreatedTime        string `json:"createdTime"`
 	UpdatedTime        string `json:"updatedTime"`
 }
@@ -176,8 +173,8 @@ type CancelAllOrdersResponse struct {
 		} `json:"list"`
 		Success string `json:"success"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 type GetOrderHistoryRequest struct {
 	Category    string
@@ -201,8 +198,8 @@ type GetOrderHistoryResponse struct {
 		NextPageCursor string         `json:"nextPageCursor"`
 		Category       string         `json:"category"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 type GetTradeHistoryRequest struct {
 	Category    string
@@ -224,8 +221,8 @@ type GetTradeHistoryResponse struct {
 		NextPageCursor string         `json:"nextPageCursor"`
 		Category       string         `json:"category"`
 	} `json:"result"`
-	RetExtInfo struct{} `json:"retExtInfo"`
-	Time       int64    `json:"time"`
+	RetExtInfo interface{} `json:"retExtInfo"`
+	Time       int64       `json:"time"`
 }
 
 type TradeDetails struct {

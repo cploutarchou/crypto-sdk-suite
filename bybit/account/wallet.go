@@ -2,12 +2,13 @@ package account
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 type Wallet struct {
-	client *client.Client
+	*client.Client
 }
 
 func NewWallet(client_ *client.Client) *Wallet {
@@ -15,42 +16,52 @@ func NewWallet(client_ *client.Client) *Wallet {
 		panic("client should not be nil")
 	}
 	return &Wallet{
-		client: client_,
+		client_,
 	}
 }
 
 func (w Wallet) GetUnifiedWalletBalance(coins ...string) (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = string(Unified)
-	coinStr := ""
-	for _, coin := range coins {
-		coinStr += coin + ","
+
+	// Construct the coin parameter string
+	if len(coins) > 0 {
+		params["coin"] = joinCoins(coins)
 	}
-	if coinStr != "" {
-		coinStr = coinStr[:len(coinStr)-1]
-		params["coin"] = coinStr
-	}
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+
+	// Make the GET request
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch wallet balance: %w", err)
 	}
+
+	// Check for non-200 status codes
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("unexpected status: %d, body: %s", resp.StatusCode(), resp.Status())
 	}
 
+	// Unmarshal response
 	var balanceResp WalletBalance
-	err = resp.Unmarshal(&balanceResp)
-	if err != nil {
-		return nil, err
+	if err := resp.Unmarshal(&balanceResp); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
 	return &balanceResp, nil
 }
+
+func joinCoins(coins []string) string {
+	coinStr := ""
+	for _, coin := range coins {
+		coinStr += coin + ","
+	}
+	return strings.TrimRight(coinStr, ",") // Remove trailing comma
+}
+
 func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = string(Unified)
 
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +82,7 @@ func (w Wallet) GetAllSpotWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = string(Spot)
 
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +110,7 @@ func (w Wallet) GetSpotWalletBalance(coins ...string) (*WalletBalance, error) {
 		coinStr = coinStr[:len(coinStr)-1]
 		params["coin"] = coinStr
 	}
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +131,7 @@ func (w Wallet) GetAllContractWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = string(Contract)
 
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +159,7 @@ func (w Wallet) GetContractWalletBalance(coins ...string) (*WalletBalance, error
 		coinStr = coinStr[:len(coinStr)-1]
 		params["coin"] = coinStr
 	}
-	resp, err := w.client.Get(Endpoints.Wallet, params)
+	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err
 	}

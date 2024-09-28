@@ -37,11 +37,11 @@ var endpointLimits = map[string]rate.Limit{
 	"GET /v5/asset/withdraw/query-record":                  rate.Limit(300),
 	"GET /v5/asset/coin/query-info":                        rate.Limit(2),
 	"GET /v5/asset/exchange/order-record":                  rate.Limit(600),
-	"POST /v5/asset/transfer/inter-transfer":               rate.Limit(20 / 60), // Corrected for 20 req/min
+	"POST /v5/asset/transfer/inter-transfer":               rate.Limit(3), // Corrected for 20 req/min
 	"POST /v5/asset/transfer/save-transfer-sub-member":     rate.Limit(20),
 	"POST /v5/asset/transfer/universal-transfer":           rate.Limit(5),
 	"POST /v5/asset/withdraw/create":                       rate.Limit(1),
-	"POST /v5/asset/withdraw/cancel":                       rate.Limit(60 / 60), // Corrected for 60 req/min
+	"POST /v5/asset/withdraw/cancel":                       rate.Limit(1), // Corrected for 60 req/min
 
 	// User
 	"POST /v5/user/create-sub-member": rate.Limit(5),
@@ -86,8 +86,11 @@ func (e *EndpointRateLimiter) SetLimiter(endpointKey string, limiter *rate.Limit
 
 // GetLimiter retrieves an existing rate limiter for an endpoint, returning nil if not found
 func (e *EndpointRateLimiter) GetLimiter(endpointKey string) *rate.Limiter {
-	if limiter, exists := e.limiters[endpointKey]; exists {
+	if limiter, ok := e.limiters[endpointKey]; ok {
 		return limiter
 	}
-	return nil
+
+	// Set default rate limiter to 30 requests per minute
+	defaultRate := rate.Limit(30.0 / 60.0) // 30 requests per minute (30/60 = 0.5 requests per second)
+	return rate.NewLimiter(defaultRate, 1) // Burst size of 1
 }

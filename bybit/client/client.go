@@ -14,8 +14,6 @@ import (
 	"strconv"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"golang.org/x/time/rate"
 )
 
@@ -220,11 +218,10 @@ func (c *Client) setCommonHeaders(req *http.Request) {
 	req.Header.Set(signatureKey, signature)
 
 	// Debug logging for troubleshooting
-	log.Printf("Signature Base String: %s", string(signatureBase))
-	log.Printf("Generated Signature: %s", signature)
-	log.Printf("Headers: X-BAPI-API-KEY=%s, X-BAPI-TIMESTAMP=%s, X-BAPI-SIGN=%s", c.key, timestamp, signature)
+	// 	log.Printf("Signature Base String: %s", string(signatureBase))
+	// 	log.Printf("Generated Signature: %s", signature)
+	// 	log.Printf("Headers: X-BAPI-API-KEY=%s, X-BAPI-TIMESTAMP=%s, X-BAPI-SIGN=%s", c.key, timestamp, signature)
 }
-
 func GetCurrentTime() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }

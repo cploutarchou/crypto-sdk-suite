@@ -3,10 +3,11 @@ package trade
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 type Trade interface {
@@ -228,25 +229,21 @@ func (t *tradeImpl) CancelAllOrders(req *CancelAllOrdersRequest) (*CancelAllOrde
 func (t *tradeImpl) GetOrderHistory(req *GetOrderHistoryRequest) (*GetOrderHistoryResponse, error) {
 	queryParams := ConvertGetOrderHistoryRequestToParams(req)
 
-	// Converting queryParams to map[string]string for cURL command generation
-	paramMap := make(map[string]string)
-	for k, v := range queryParams {
-		paramMap[k] = fmt.Sprintf("%v", v)
-	}
-
-	//// Printing the parameters being sent
-	//fmt.Printf("Sending request to %s with parameters: %+v\n", endpoint, queryParams)
-
 	response, err := t.client.Get("/v5/order/history", queryParams)
-	var placeOrderResponse GetOrderHistoryResponse
-	err = response.Unmarshal(&placeOrderResponse)
+
 	if err != nil {
 		return nil, err
 	}
-	if placeOrderResponse.RetCode != 0 {
-		return &placeOrderResponse, fmt.Errorf("API returned error: %s", placeOrderResponse.RetMsg)
+	var orderHistoryResponse GetOrderHistoryResponse
+	err = response.Unmarshal(&orderHistoryResponse)
+
+	if err != nil {
+		return nil, err
 	}
-	return &placeOrderResponse, nil
+	if orderHistoryResponse.RetCode != 0 {
+		return &orderHistoryResponse, fmt.Errorf("API returned error: %s", orderHistoryResponse.RetMsg)
+	}
+	return &orderHistoryResponse, nil
 }
 
 func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHistoryResponse, error) {
@@ -257,12 +254,8 @@ func (t *tradeImpl) GetTradeHistory(req *GetTradeHistoryRequest) (*GetTradeHisto
 	if err != nil {
 		return nil, err
 	}
-	data, err := json.Marshal(resBytes)
-	if err != nil {
-		return nil, err
-	}
 	var response GetTradeHistoryResponse
-	err = json.Unmarshal(data, &response)
+	err = resBytes.Unmarshal(&response)
 	if err != nil {
 		return nil, err
 	}

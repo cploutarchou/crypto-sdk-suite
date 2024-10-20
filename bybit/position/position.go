@@ -80,6 +80,7 @@ type Position interface {
 	// returns: *Response - the response after confirming the new risk limit.
 	//          error - an error if the request fails.
 	ConfirmNewRiskLimit(req *ConfirmNewRiskLimitRequest) (*Response, error)
+	GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error)
 }
 type impl struct {
 	client *client.Client

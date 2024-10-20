@@ -60,7 +60,6 @@ func joinCoins(coins []string) string {
 func (w Wallet) GetAllUnifiedWalletBalance() (*WalletBalance, error) {
 	params := client.Params{}
 	params["accountType"] = string(Unified)
-
 	resp, err := w.Get(Endpoints.Wallet, params)
 	if err != nil {
 		return nil, err

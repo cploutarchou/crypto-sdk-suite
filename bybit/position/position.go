@@ -273,7 +273,7 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 }
 func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
 	params := ConvertGetClosedPnLRequestToParams(req)
-	var allRecords []interface{}
+	var allRecords []PnLPosition
 	finalResponse := &ClosedPnLResponse{}
 	for {
 		responseData, err := i.client.Get("/v5/position/closed-pnl", params)

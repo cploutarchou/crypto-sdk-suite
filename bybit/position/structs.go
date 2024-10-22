@@ -145,15 +145,37 @@ type GetClosedPnLRequest struct {
 
 // ClosedPnLResponse represents the response structure for closed PnL records.
 type ClosedPnLResponse struct {
-	RetCode int    `json:"retCode"`
-	RetMsg  string `json:"retMsg"`
-	Result  struct {
-		NextPageCursor string        `json:"nextPageCursor"`
-		Category       string        `json:"category"`
-		List           []interface{} `json:"list"`
-	} `json:"result"`
+	RetCode    int         `json:"retCode"`
+	RetMsg     string      `json:"retMsg"`
+	Result     PnLResult   `json:"result"`
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
+}
+
+// PnLResult represents the result structure for closed PnL records.
+type PnLResult struct {
+	NextPageCursor string        `json:"nextPageCursor"`
+	Category       string        `json:"category"`
+	List           []PnLPosition `json:"list"`
+}
+type PnLPosition struct {
+	Symbol        string `json:"symbol"`
+	OrderType     string `json:"orderType"`
+	Leverage      string `json:"leverage"`
+	UpdatedTime   string `json:"updatedTime"`
+	Side          string `json:"side"`
+	OrderID       string `json:"orderId"`
+	ClosedPnl     string `json:"closedPnl"`
+	AvgEntryPrice string `json:"avgEntryPrice"`
+	Qty           string `json:"qty"`
+	CumEntryValue string `json:"cumEntryValue"`
+	CreatedTime   string `json:"createdTime"`
+	OrderPrice    string `json:"orderPrice"`
+	ClosedSize    string `json:"closedSize"`
+	AvgExitPrice  string `json:"avgExitPrice"`
+	ExecType      string `json:"execType"`
+	FillCount     string `json:"fillCount"`
+	CumExitValue  string `json:"cumExitValue"`
 }
 
 // MovePositionRequestLeg represents a single leg of a move position request.

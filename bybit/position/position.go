@@ -80,6 +80,7 @@ type Position interface {
 	// returns: *Response - the response after confirming the new risk limit.
 	//          error - an error if the request fails.
 	ConfirmNewRiskLimit(req *ConfirmNewRiskLimitRequest) (*Response, error)
+	GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error)
 }
 type impl struct {
 	client *client.Client
@@ -272,41 +273,48 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 }
 func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
 	params := ConvertGetClosedPnLRequestToParams(req)
-	var allRecords []interface{}
-	finalResponse := &ClosedPnLResponse{}
+	var allRecords []PnLPosition
+	var finalResponse *ClosedPnLResponse
+	var response ClosedPnLResponse
+
 	for {
+		// Fetch the response data from the API
 		responseData, err := i.client.Get("/v5/position/closed-pnl", params)
 		if err != nil {
 			return nil, fmt.Errorf("error fetching closed PnL records: %w", err)
 		}
-		data, err := json.Marshal(responseData)
+		err = responseData.Unmarshal(&response)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error unmarshalling closed PnL response: %w", err)
 		}
-		var response ClosedPnLResponse
-		if err := json.Unmarshal(data, &response); err != nil {
-			return nil, fmt.Errorf("error parsing closed PnL response: %w", err)
-		}
-
+		// Append the records to allRecords
 		allRecords = append(allRecords, response.Result.List...)
 
+		// Check if there are more pages to process
 		if response.Result.NextPageCursor == "" {
 			break
 		}
 
+		// Update the cursor for the next API call
 		params["cursor"] = response.Result.NextPageCursor
-		finalResponse = &ClosedPnLResponse{
-			RetCode:    response.RetCode,
-			RetMsg:     response.RetMsg,
-			Result:     response.Result,
-			RetExtInfo: response.RetExtInfo,
-			Time:       response.Time,
-		}
-		finalResponse.Result.List = allRecords
+	}
+
+	// Build the final response with the accumulated records
+	finalResponse = &ClosedPnLResponse{
+		RetCode:    response.RetCode,
+		RetMsg:     response.RetMsg,
+		RetExtInfo: response.RetExtInfo,
+		Time:       response.Time,
+		Result: PnLResult{
+			List:           allRecords,
+			NextPageCursor: "",
+			Category:       response.Result.Category,
+		},
 	}
 
 	return finalResponse, nil
 }
+
 func (i *impl) MovePositions(req *MovePositionRequest) (*MovePositionResponse, error) {
 	params := ConvertMovePositionRequestToParams(req)
 	// Perform the POST request

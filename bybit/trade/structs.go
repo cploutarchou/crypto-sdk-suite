@@ -66,7 +66,7 @@ type AmendOrderResponse struct {
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
 		OrderId     string `json:"orderId"`
-		OrderLinkId string `json:"orderLinkId"`
+		OrderLinkID string `json:"orderLinkId"`
 	} `json:"result"`
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
@@ -74,16 +74,16 @@ type AmendOrderResponse struct {
 type CancelOrderRequest struct {
 	Category    string  `json:"category"`
 	Symbol      string  `json:"symbol"`
-	OrderId     *string `json:"orderId,omitempty"`
-	OrderLinkId *string `json:"orderLinkId,omitempty"`
+	OrderID     *string `json:"orderId,omitempty"`
+	OrderLinkID *string `json:"orderLinkId,omitempty"`
 	OrderFilter *string `json:"orderFilter,omitempty"` // Valid for spot only
 }
 type CancelOrderResponse struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
-		OrderId     string `json:"orderId"`
-		OrderLinkId string `json:"orderLinkId"`
+		OrderID     string `json:"orderId"`
+		OrderLinkID string `json:"orderLinkId"`
 	} `json:"result"`
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
@@ -93,8 +93,8 @@ type GetOpenOrdersRequest struct {
 	Symbol      *string
 	BaseCoin    *string
 	SettleCoin  *string
-	OrderId     *string
-	OrderLinkId *string
+	OrderID     *string
+	OrderLinkID *string
 	OpenOnly    *int
 	OrderFilter *string
 	Limit       *int
@@ -114,8 +114,8 @@ type GetOpenOrdersResponse struct {
 
 type OrderDetails struct {
 	OrderId            string `json:"orderId"`
-	OrderLinkId        string `json:"orderLinkId"`
-	BlockTradeId       string `json:"blockTradeId"`
+	OrderLinkID        string `json:"orderLinkId"`
+	BlockTradeID       string `json:"blockTradeId"`
 	Symbol             string `json:"symbol"`
 	Price              string `json:"price"`
 	Qty                string `json:"qty"`
@@ -147,7 +147,7 @@ type OrderDetails struct {
 	CloseOnTrigger     bool   `json:"closeOnTrigger"`
 	SmpType            string `json:"smpType"`
 	SmpGroup           int    `json:"smpGroup"`
-	SmpOrderId         string `json:"smpOrderId"`
+	SmpOrderID         string `json:"smpOrderId"`
 	TpslMode           string `json:"tpslMode"`
 	TpLimitPrice       string `json:"tpLimitPrice"`
 	SlLimitPrice       string `json:"slLimitPrice"`
@@ -216,15 +216,15 @@ type GetTradeHistoryResponse struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
-		List           []TradeDetails `json:"list"`
-		NextPageCursor string         `json:"nextPageCursor"`
-		Category       string         `json:"category"`
+		List           []Details `json:"list"`
+		NextPageCursor string    `json:"nextPageCursor"`
+		Category       string    `json:"category"`
 	} `json:"result"`
 	RetExtInfo interface{} `json:"retExtInfo"`
 	Time       int64       `json:"time"`
 }
 
-type TradeDetails struct {
+type Details struct {
 	Symbol          string `json:"symbol"`
 	OrderId         string `json:"orderId"`
 	OrderLinkId     string `json:"orderLinkId"`
@@ -236,7 +236,7 @@ type TradeDetails struct {
 	OrderType       string `json:"orderType"`
 	StopOrderType   string `json:"stopOrderType"`
 	ExecFee         string `json:"execFee"`
-	ExecId          string `json:"execId"`
+	ExecID          string `json:"execId"`
 	ExecPrice       string `json:"execPrice"`
 	ExecQty         string `json:"execQty"`
 	ExecType        string `json:"execType"`
@@ -355,7 +355,7 @@ type BatchCancelOrderResponse struct {
 	Time int64 `json:"time"`
 }
 
-// Response struct for parsing the API response
+// BorrowQuotaResponse struct for parsing the API response
 type BorrowQuotaResponse struct {
 	RetCode    int               `json:"retCode"`
 	RetMsg     string            `json:"retMsg"`

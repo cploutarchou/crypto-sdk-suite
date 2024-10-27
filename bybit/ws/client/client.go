@@ -34,7 +34,7 @@ var (
 // PingMsg represents the WebSocket ping message format.
 type PingMsg struct {
 	Op    string `json:"op"`
-	ReqId string `json:"req_id,omitempty"`
+	ReqID string `json:"req_id,omitempty"`
 }
 
 // ChannelType defines the types of channels (public/private) that the WebSocket client can connect to.
@@ -47,8 +47,8 @@ type Client struct {
 	isClosed          bool
 	logger            *log.Logger
 	IsTestNet         bool
-	ApiKey            string
-	ApiSecret         string
+	APIKey            string
+	APISecret         string
 	Channel           ChannelType
 	Path              string
 	Connected         chan struct{}
@@ -80,8 +80,8 @@ func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime st
 	client := &Client{
 		logger:        log.New(os.Stdout, "[WebSocketClient] ", log.LstdFlags),
 		IsTestNet:     isTestNet,
-		ApiKey:        apiKey,
-		ApiSecret:     apiSecret,
+		APIKey:        apiKey,
+		APISecret:     apiSecret,
 		Channel:       Private,
 		Connected:     make(chan struct{}),
 		MaxActiveTime: maxActiveTime,
@@ -162,9 +162,9 @@ func (c *Client) authenticateIfRequired() error {
 	if c.Channel == Private {
 		expires := fmt.Sprintf("%d", time.Now().UnixMilli()+1000)
 		signatureData := fmt.Sprintf("GET/realtime%s", expires)
-		signed := GenerateWsSignature(c.ApiSecret, signatureData)
-		c.logger.Printf("Authenticating with apiKey %s, expires %s, signed %s", c.ApiKey, expires, signed)
-		return c.Authenticate(c.ApiKey, expires, signed)
+		signed := GenerateWsSignature(c.APISecret, signatureData)
+		c.logger.Printf("Authenticating with apiKey %s, expires %s, signed %s", c.APIKey, expires, signed)
+		return c.Authenticate(c.APIKey, expires, signed)
 	}
 	return nil
 }
@@ -199,7 +199,7 @@ func (c *Client) sendPingAndHandleReconnection() {
 	}
 
 	pingMsg := PingMsg{
-		ReqId: DefaultReqID,
+		ReqID: DefaultReqID,
 		Op:    PingOperation,
 	}
 	jsonData, err := json.Marshal(pingMsg)

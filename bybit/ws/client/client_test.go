@@ -14,6 +14,7 @@ import (
 // Constants
 const (
 	testnetBaseURL = "wss://stream-testnet.bybit.com/v5"
+	maxActiveTime  = "1m"
 )
 
 // Environment variables
@@ -39,13 +40,11 @@ func TestNewPrivateClient(t *testing.T) {
 	apiKey := testnetAPIKey
 	apiSecret := testnetAPISecret
 
-	maxActiveTime := "1m"
-
 	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 	assert.NotNil(t, client)
-	assert.Equal(t, apiKey, client.ApiKey)
-	assert.Equal(t, apiSecret, client.ApiSecret)
+	assert.Equal(t, apiKey, client.APIKey)
+	assert.Equal(t, apiSecret, client.APISecret)
 	assert.Equal(t, true, client.IsTestNet)
 	assert.Equal(t, ChannelType(Private), client.Channel)
 	assert.Equal(t, maxActiveTime, client.MaxActiveTime)
@@ -56,8 +55,6 @@ func TestNewPrivateClient(t *testing.T) {
 func TestClient_Connect(t *testing.T) {
 	apiKey := testnetAPIKey
 	apiSecret := testnetAPISecret
-	maxActiveTime := "1m"
-
 	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 
@@ -81,7 +78,6 @@ func TestClient_Connect(t *testing.T) {
 func TestClient_Send(t *testing.T) {
 	apiKey := testnetAPIKey
 	apiSecret := testnetAPISecret
-	maxActiveTime := "1m"
 
 	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
@@ -101,7 +97,6 @@ func TestClient_Send(t *testing.T) {
 func TestClient_Receive(t *testing.T) {
 	apiKey := testnetAPIKey
 	apiSecret := testnetAPISecret
-	maxActiveTime := "1m"
 
 	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
@@ -143,8 +138,6 @@ func TestClient_Receive(t *testing.T) {
 func TestClient_Close(t *testing.T) {
 	apiKey := testnetAPIKey
 	apiSecret := testnetAPISecret
-	maxActiveTime := "1m"
-
 	client, err := NewPrivateClient(apiKey, apiSecret, true, maxActiveTime, "usdt_contract")
 	assert.NoError(t, err)
 

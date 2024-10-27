@@ -27,48 +27,48 @@ type implPrivate struct {
 func (i *implPrivate) Dcp(category string) dcp.Dcp {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return dcp.New(cli)
 }
 
 func (i *implPrivate) Execution(category string) execution.Execution {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return execution.New(cli)
 }
 
 func (i *implPrivate) Greek(category string) greek.Greek {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return greek.New(cli)
 }
 
 func (i *implPrivate) Order(category string) order.Order {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return order.New(cli)
 }
 
 func (i *implPrivate) Position(category string) position.Position {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return position.New(cli)
 }
 
 func (i *implPrivate) Wallet(category string) wallet.Wallet {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return wallet.New(cli)
 }
 

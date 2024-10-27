@@ -36,7 +36,7 @@ type Response struct {
 	Topic string `json:"topic"`
 	Type  string `json:"type"`
 	Data  Data   `json:"data"`
-	Ts    int64  `json:"ts"`
+	TS    int64  `json:"ts"`
 }
 
 // Data struct represents individual liquidation data points.

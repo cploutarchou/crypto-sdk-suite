@@ -68,11 +68,11 @@ func ConvertCancelOrderRequestToParams(req *CancelOrderRequest) client.Params {
 		"symbol":   req.Symbol,
 	}
 
-	if req.OrderId != nil {
-		params["orderId"] = *req.OrderId
+	if req.OrderID != nil {
+		params["orderId"] = *req.OrderID
 	}
-	if req.OrderLinkId != nil {
-		params["orderLinkId"] = *req.OrderLinkId
+	if req.OrderLinkID != nil {
+		params["orderLinkId"] = *req.OrderLinkID
 	}
 	if req.OrderFilter != nil {
 		params["orderFilter"] = *req.OrderFilter
@@ -96,11 +96,11 @@ func ConvertGetOpenOrdersRequestToParams(req *GetOpenOrdersRequest) client.Param
 	if req.SettleCoin != nil {
 		params["settleCoin"] = *req.SettleCoin
 	}
-	if req.OrderId != nil {
-		params["orderId"] = *req.OrderId
+	if req.OrderID != nil {
+		params["orderId"] = *req.OrderID
 	}
-	if req.OrderLinkId != nil {
-		params["orderLinkId"] = *req.OrderLinkId
+	if req.OrderLinkID != nil {
+		params["orderLinkId"] = *req.OrderLinkID
 	}
 	if req.OpenOnly != nil {
 		params["openOnly"] = strconv.Itoa(*req.OpenOnly) // Convert integer to string
@@ -350,11 +350,11 @@ func ConvertBatchCancelOrderRequestToParams(req *BatchCancelOrderRequest) client
 		index := fmt.Sprintf("request[%d]", i)
 		params[index+".symbol"] = orderReq.Symbol
 
-		if orderReq.OrderId != nil {
-			params[index+".orderId"] = *orderReq.OrderId
+		if orderReq.OrderID != nil {
+			params[index+".orderId"] = *orderReq.OrderID
 		}
-		if orderReq.OrderLinkId != nil {
-			params[index+".orderLinkId"] = *orderReq.OrderLinkId
+		if orderReq.OrderLinkID != nil {
+			params[index+".orderLinkId"] = *orderReq.OrderLinkID
 		}
 		if orderReq.OrderFilter != nil {
 			params[index+".orderFilter"] = *orderReq.OrderFilter

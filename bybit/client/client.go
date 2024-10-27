@@ -21,7 +21,7 @@ const (
 	recvWindow            = "5000"
 	BaseURL               = "https://api.bybit.com"
 	TestnetBaseURL        = "https://api-testnet.bybit.com"
-	ApiVersion            = "v5"
+	APIVersion            = "v5"
 	GET            Method = "GET"
 	POST           Method = "POST"
 

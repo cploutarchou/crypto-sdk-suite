@@ -33,7 +33,7 @@ func New(c *client.Client) Market {
 }
 
 func (m *marketImpl) ServerTime(params *client.Params) (*ServerTimeResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/time", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/time", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (m *marketImpl) ServerTime(params *client.Params) (*ServerTimeResponse, err
 	return &serverTime, nil
 }
 func (m *marketImpl) Kline(params *client.Params) (*KlineResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/kline", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/kline", client.APIVersion), *params)
 
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (m *marketImpl) Kline(params *client.Params) (*KlineResponse, error) {
 }
 
 func (m *marketImpl) Announcement(params *client.Params) (*AnnouncementsResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/announcements/index", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/announcements/index", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (m *marketImpl) Announcement(params *client.Params) (*AnnouncementsResponse
 }
 
 func (m *marketImpl) MarkPriceKline(params *client.Params) (*KlineResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/mark-price-kline", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/mark-price-kline", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (m *marketImpl) MarkPriceKline(params *client.Params) (*KlineResponse, erro
 }
 
 func (m *marketImpl) IndexPriceKline(params *client.Params) (*KlineResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/index-price-kline", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/index-price-kline", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (m *marketImpl) IndexPriceKline(params *client.Params) (*KlineResponse, err
 }
 
 func (m *marketImpl) PremiumIndexKline(params *client.Params) (*KlineResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/premium-index-kline", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/premium-index-kline", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (m *marketImpl) PremiumIndexKline(params *client.Params) (*KlineResponse, e
 }
 
 func (m *marketImpl) OrderBook(params *client.Params) (*OrderBook, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/orderbook", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/orderbook", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (m *marketImpl) OrderBook(params *client.Params) (*OrderBook, error) {
 }
 
 func (m *marketImpl) InstrumentsInfo(params *client.Params) (*InstrumentsInfoResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/instruments-info", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/instruments-info", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (m *marketImpl) InstrumentsInfo(params *client.Params) (*InstrumentsInfoRes
 }
 
 func (m *marketImpl) Tickers(params *client.Params) (*TickerResponse, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/tickers", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/tickers", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (m *marketImpl) Tickers(params *client.Params) (*TickerResponse, error) {
 }
 
 func (m *marketImpl) FundingHistory(params *client.Params) (*FundingRateHistory, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/funding/history", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/funding/history", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (m *marketImpl) FundingHistory(params *client.Params) (*FundingRateHistory,
 }
 
 func (m *marketImpl) RiskLimit(params *client.Params) (*RiskLimit, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/insurance", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/insurance", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (m *marketImpl) RiskLimit(params *client.Params) (*RiskLimit, error) {
 }
 
 func (m *marketImpl) OpenInterest(params *client.Params) (*OpenHistory, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/open-interest", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/open-interest", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (m *marketImpl) OpenInterest(params *client.Params) (*OpenHistory, error) {
 }
 
 func (m *marketImpl) Insurance(params *client.Params) (*Insurance, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/insurance", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/insurance", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func (m *marketImpl) Insurance(params *client.Params) (*Insurance, error) {
 }
 
 func (m *marketImpl) RecentTrade(params *client.Params) (*ResendTrade, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/market/trading-records", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/market/trading-records", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (m *marketImpl) RecentTrade(params *client.Params) (*ResendTrade, error) {
 }
 
 func (m *marketImpl) DeliveryPrice(params *client.Params) (*DeliveryPrice, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/public/delivery-price", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/public/delivery-price", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (m *marketImpl) DeliveryPrice(params *client.Params) (*DeliveryPrice, error
 }
 
 func (m *marketImpl) HistoricalVolatility(params *client.Params) (*HistoricalVolatility, error) {
-	res, err := m.c.Get(fmt.Sprintf("/%s/public/historical-volatility", client.ApiVersion), *params)
+	res, err := m.c.Get(fmt.Sprintf("/%s/public/historical-volatility", client.APIVersion), *params)
 	if err != nil {
 		return nil, err
 	}

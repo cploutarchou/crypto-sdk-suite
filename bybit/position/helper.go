@@ -1,9 +1,8 @@
 package position
 
 import (
-	"strconv"
-
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
+	"strconv"
 )
 
 // ConvertPositionRequestParams prepares the request parameters for fetching position info.
@@ -96,7 +95,7 @@ func ConvertSwitchPositionModeRequestToParams(req *SwitchPositionModeRequest) cl
 		params["coin"] = *req.Coin
 	}
 	if req.Mode != nil {
-		params["positionMode"] = strconv.Itoa(*req.Mode)
+		params["positionMode"] = *req.Mode
 	}
 	return params
 }
@@ -228,7 +227,7 @@ func ConvertGetClosedPnLRequestToParams(req *GetClosedPnLRequest) client.Params 
 		params["endTime"] = strconv.FormatInt(*req.EndTime, 10)
 	}
 	if req.Limit != nil {
-		params["limit"] = strconv.Itoa(*req.Limit)
+		params["limit"] = *req.Limit
 	}
 	if req.Cursor != nil {
 		params["cursor"] = *req.Cursor

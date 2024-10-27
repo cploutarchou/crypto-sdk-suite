@@ -30,63 +30,63 @@ type implPublic struct {
 func (i *implPublic) Kline(category string) (kline.Kline, error) {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return kline.New(cli)
 }
 func (i *implPublic) Liquidation(category string) liquidation.Liquidation {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return liquidation.New(cli)
 }
 
 func (i *implPublic) LtKline(category string) ltkline.LTKline {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return ltkline.New(cli)
 }
 
 func (i *implPublic) LtNav(category string) ltnav.LtNav {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return ltnav.New(cli)
 }
 
 func (i *implPublic) LtTickers(category string) ltticker.LtTicker {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return ltticker.New(cli)
 }
 
 func (i *implPublic) OrderBook(category string) orderbook.OrderBook {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return orderbook.New(cli)
 }
 
 func (i *implPublic) Ticker(category string) ticker.Ticker {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return ticker.New(cli)
 }
 
 func (i *implPublic) Trade(category string) trade.Trade {
 	cli := new(client.Client)
 	cli.Category = category
-	cli.ApiKey = i.client.ApiKey
-	cli.ApiSecret = i.client.ApiSecret
+	cli.APIKey = i.client.APIKey
+	cli.APISecret = i.client.APISecret
 	return trade.New(cli)
 }
 

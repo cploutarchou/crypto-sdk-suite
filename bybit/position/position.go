@@ -304,11 +304,14 @@ func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLRespons
 		RetCode:    response.RetCode,
 		RetMsg:     response.RetMsg,
 		RetExtInfo: response.RetExtInfo,
-		Time:       response.Time,
-		Result: PnLResult{
-			List:           allRecords,
-			NextPageCursor: "",
+		Result: struct {
+			NextPageCursor string        `json:"nextPageCursor"`
+			Category       string        `json:"category"`
+			List           []PnLPosition `json:"list"`
+		}{
+			NextPageCursor: response.Result.NextPageCursor,
 			Category:       response.Result.Category,
+			List:           allRecords,
 		},
 	}
 

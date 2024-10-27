@@ -143,21 +143,21 @@ type GetClosedPnLRequest struct {
 	Cursor    *string `json:"cursor,omitempty"`    // Optional: Cursor for pagination
 }
 
-// ClosedPnLResponse represents the response structure for closed PnL records.
 type ClosedPnLResponse struct {
-	RetCode    int         `json:"retCode"`
-	RetMsg     string      `json:"retMsg"`
-	Result     PnLResult   `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		NextPageCursor string        `json:"nextPageCursor"`
+		Category       string        `json:"category"`
+		List           []PnLPosition `json:"list"`
+	} `json:"result"`
+	RetExtInfo struct {
+	} `json:"retExtInfo"`
+	Time int64 `json:"time"`
 }
 
 // PnLResult represents the result structure for closed PnL records.
-type PnLResult struct {
-	NextPageCursor string        `json:"nextPageCursor"`
-	Category       string        `json:"category"`
-	List           []PnLPosition `json:"list"`
-}
+
 type PnLPosition struct {
 	Symbol        string `json:"symbol"`
 	OrderType     string `json:"orderType"`

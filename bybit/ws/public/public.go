@@ -5,8 +5,8 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/kline"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/liquidation"
 	ltkline "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-kline"
-	ltnav "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-nav"
 	ltticker "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/lt-ticker"
+	ltnav "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/ltnav"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/orderbook"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/ticker"
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/public/trade"
@@ -90,6 +90,10 @@ func (i *implPublic) Trade(category string) trade.Trade {
 	return trade.New(cli)
 }
 
-func New(wsClient *client.Client, isPPublic bool) Public {
-	return &implPublic{client: wsClient}
+func New(wsClient *client.Client, isPublic bool) Public {
+	if isPublic {
+		return &implPublic{client: wsClient}
+	} else {
+		return &implPublic{client: wsClient}
+	}
 }

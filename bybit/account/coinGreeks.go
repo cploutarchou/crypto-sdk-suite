@@ -2,6 +2,8 @@ package account
 
 import "github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 
+const twoHundred = 200
+
 type CoinGreeks struct {
 	client *client.Client
 }
@@ -23,7 +25,7 @@ func (cg *CoinGreeks) Get(coin string) (*CoinGreekRes, error) {
 		return nil, err
 	}
 
-	if response.StatusCode() != 200 {
+	if response.StatusCode() != twoHundred {
 		return nil, response.Error()
 	}
 	var coinGreekRes CoinGreekRes

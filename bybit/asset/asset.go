@@ -9,6 +9,8 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
+var OK = "OK"
+
 type Asset interface {
 	// GetCoinExchangeRecords queries the coin exchange records.
 	GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetCoinExchangeRecordsResponse, error)
@@ -97,7 +99,7 @@ func (i *impl) GetCoinExchangeRecords(req *GetCoinExchangeRecordsRequest) (*GetC
 		req.Cursor = &exchangeRecordsResponse.Result.NextPageCursor // Set cursor for next page
 	}
 	finalResponse.RetCode = 0
-	finalResponse.RetMsg = "OK"
+	finalResponse.RetMsg = OK
 	finalResponse.Result.OrderBody = allRecords
 	finalResponse.Result.NextPageCursor = ""
 	return &finalResponse, nil
@@ -156,7 +158,7 @@ func (i *impl) GetDeliveryRecords(req *GetDeliveryRecordRequest) (*GetDeliveryRe
 	}
 
 	finalResponse.RetCode = 0
-	finalResponse.RetMsg = "OK"
+	finalResponse.RetMsg = OK
 	finalResponse.Result.List = allRecords
 	finalResponse.Result.NextPageCursor = ""
 	return &finalResponse, nil
@@ -211,7 +213,7 @@ func (i *impl) GetSessionSettlementRecords(req *GetSessionSettlementRecordReques
 	}
 
 	finalResponse.RetCode = 0
-	finalResponse.RetMsg = "OK"
+	finalResponse.RetMsg = OK
 	finalResponse.Result.List = allRecords
 	finalResponse.Result.NextPageCursor = ""
 
@@ -614,7 +616,7 @@ func (i *impl) GetSubDepositRecords(req *GetSubDepositRecordsRequest) (*GetSubDe
 	var finalResponse GetSubDepositRecordsResponse
 
 	queryParams := make(client.Params)
-	queryParams["subMemberId"] = req.SubMemberId
+	queryParams["subMemberId"] = req.SubMemberID
 	if req.Coin != nil {
 		queryParams["coin"] = *req.Coin
 	}
@@ -747,7 +749,7 @@ func (i *impl) GetSubDepositAddress(req *GetSubDepositAddressRequest) (*GetSubDe
 	queryParams := make(client.Params)
 	queryParams["coin"] = req.Coin
 	queryParams["chainType"] = req.ChainType
-	queryParams["subMemberId"] = req.SubMemberId
+	queryParams["subMemberId"] = req.SubMemberID
 
 	// Perform the GET request
 	responseBytes, err := i.client.Get("/v5/asset/deposit/query-sub-member-address", queryParams)
@@ -899,8 +901,8 @@ func (i *impl) Withdraw(req *WithdrawRequest) (*WithdrawResponse, error) {
 	if req.FeeType != nil {
 		queryParams["feeType"] = *req.FeeType
 	}
-	if req.RequestId != nil {
-		queryParams["requestId"] = *req.RequestId
+	if req.RequestID != nil {
+		queryParams["requestId"] = *req.RequestID
 	}
 
 	// Perform the POST request

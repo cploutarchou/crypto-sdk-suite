@@ -35,7 +35,7 @@ func (b *Borrow) GetHistory(currency string, startTime, endTime, limit int, curs
 		return nil, err
 	}
 
-	if response.StatusCode() != 200 {
+	if response.StatusCode() != twoHundred {
 		return nil, errors.New("received non-200 response")
 	}
 	var borrowRes BorrowRes

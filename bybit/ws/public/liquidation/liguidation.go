@@ -7,6 +7,8 @@ import (
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
+var oneHundred = 100
+
 // Liquidation represents the interface for the liquidation functionality.
 type Liquidation interface {
 	// SetClient sets the client for the liquidation functionality.
@@ -53,7 +55,7 @@ type Data struct {
 func New(cli *client.Client) Liquidation {
 	var l liquidationImpl
 	l.client = cli
-	l.Messages = make(chan []byte, 100)
+	l.Messages = make(chan []byte, oneHundred)
 	l.StopChan = make(chan struct{}, 1)
 	l.isTest = cli.IsTestNet
 	err := l.client.Connect()

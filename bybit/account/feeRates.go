@@ -13,8 +13,8 @@ type FeeRates struct {
 	client *client.Client
 }
 
-func NewFeeRates(client *client.Client) *FeeRates {
-	return &FeeRates{client: client}
+func NewFeeRates(client_ *client.Client) *FeeRates {
+	return &FeeRates{client: client_}
 }
 
 func (fr *FeeRates) GetFeeRate(category string, symbol, baseCoin string) (*FeeRatesResponse, error) {

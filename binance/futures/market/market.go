@@ -108,11 +108,11 @@ func (m *marketImpl) OldTradesLookup(symbol string, limit int, fromId int64) ([]
 }
 
 // CompressedAggregateTradesList retrieves compressed, aggregate market trades for a specific symbol.
-func (m *marketImpl) CompressedAggregateTradesList(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
+func (m *marketImpl) CompressedAggregateTradesList(symbol string, fromID, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
 	var params []any
 
-	if fromId != -1 {
-		params = append(params, fmt.Sprintf("fromId=%d", fromId))
+	if fromID != -1 {
+		params = append(params, fmt.Sprintf("fromId=%d", fromID))
 	}
 	if startTime != -1 {
 		params = append(params, fmt.Sprintf("startTime=%d", startTime))

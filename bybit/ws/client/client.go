@@ -28,8 +28,10 @@ const (
 )
 
 var (
-	DefaultReqID = randomString(8)
+	DefaultReqID = randomString(eightNumber)
 )
+
+const eightNumber = 8
 
 // PingMsg represents the WebSocket ping message format.
 type PingMsg struct {
@@ -71,7 +73,7 @@ func NewPublicClient(isTestNet bool, category string) (*Client, error) {
 		Connected: make(chan struct{}),
 		Category:  category,
 	}
-	DefaultReqID = randomString(8)
+	DefaultReqID = randomString(eightNumber)
 	return client, nil
 }
 
@@ -87,7 +89,7 @@ func NewPrivateClient(apiKey, apiSecret string, isTestNet bool, maxActiveTime st
 		MaxActiveTime: maxActiveTime,
 		Category:      category,
 	}
-	DefaultReqID = randomString(8)
+	DefaultReqID = randomString(eightNumber)
 	return client, nil
 }
 

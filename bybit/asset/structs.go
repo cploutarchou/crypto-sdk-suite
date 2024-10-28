@@ -16,7 +16,7 @@ type CoinExchangeRecord struct {
 	ToAmount     string `json:"toAmount"`
 	ExchangeRate string `json:"exchangeRate"`
 	CreatedTime  string `json:"createdTime"`
-	ExchangeTxId string `json:"exchangeTxId"`
+	ExchangeTxID string `json:"exchangeTxId"`
 }
 
 // GetCoinExchangeRecordsResponse represents the response from fetching coin exchange records.
@@ -410,7 +410,7 @@ type GetDepositRecordsResponse struct {
 	Time       int64 `json:"time"`
 }
 type GetSubDepositRecordsRequest struct {
-	SubMemberId string  `json:"subMemberId"`         // Required: Sub UID
+	SubMemberID string  `json:"subMemberId"`         // Required: Sub UID
 	Coin        *string `json:"coin,omitempty"`      // Optional: Coin
 	StartTime   *int64  `json:"startTime,omitempty"` // Optional: The start timestamp (ms)
 	EndTime     *int64  `json:"endTime,omitempty"`   // Optional: The end timestamp (ms)
@@ -484,7 +484,7 @@ type GetMasterDepositAddressResponse struct {
 type GetSubDepositAddressRequest struct {
 	Coin        string `json:"coin"`        // Required: Coin
 	ChainType   string `json:"chainType"`   // Required: Chain type from the coin-info endpoint
-	SubMemberId string `json:"subMemberId"` // Required: Sub user ID
+	SubMemberID string `json:"subMemberId"` // Required: Sub user ID
 }
 
 type SubDepositChainInfo struct {
@@ -546,7 +546,7 @@ type GetWithdrawalRecordsRequest struct {
 }
 
 type WithdrawalRecord struct {
-	WithdrawId   string `json:"withdrawId"`
+	WithdrawID   string `json:"withdrawId"`
 	TxID         string `json:"txID"`
 	WithdrawType int    `json:"withdrawType"`
 	Coin         string `json:"coin"`
@@ -601,14 +601,14 @@ type WithdrawRequest struct {
 	ForceChain  *int    `json:"forceChain,omitempty"`  // Optional
 	AccountType *string `json:"accountType,omitempty"` // Optional
 	FeeType     *int    `json:"feeType,omitempty"`     // Optional
-	RequestId   *string `json:"requestId,omitempty"`   // Optional for idempotency
+	RequestID   *string `json:"requestId,omitempty"`   // Optional for idempotency
 }
 
 type WithdrawResponse struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
-		Id string `json:"id"`
+		ID string `json:"id"`
 	} `json:"result"`
 	RetExtInfo any   `json:"retExtInfo"`
 	Time       int64 `json:"time"`

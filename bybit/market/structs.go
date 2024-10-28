@@ -1,6 +1,6 @@
 package market
 
-type ApiResponse struct {
+type APIResponse struct {
 	RetCode    int    `json:"retCode"`
 	RetMsg     string `json:"retMsg"`
 	Result     any    `json:"result,omitempty"`
@@ -33,7 +33,7 @@ type OrderBookResult struct {
 	S  string     `json:"s"`
 	A  [][]string `json:"a"`
 	B  [][]string `json:"b"`
-	Ts int64      `json:"ts"`
+	TS int64      `json:"ts"`
 	U  int        `json:"u"`
 }
 
@@ -48,7 +48,7 @@ type ResendTradeItem struct {
 	Size         string `json:"size"`
 	Price        string `json:"price"`
 	Time         string `json:"time"`
-	ExecId       string `json:"execId"`
+	ExecID       string `json:"execId"`
 	IsBlockTrade bool   `json:"isBlockTrade"`
 }
 
@@ -82,27 +82,27 @@ type FundingRateHistoryItem struct {
 }
 
 type KlineResponse struct {
-	ApiResponse
+	APIResponse
 	Result KlineResult `json:"result"`
 }
 
 type ServerTimeResponse struct {
-	ApiResponse
+	APIResponse
 	Result ServerTimeResult `json:"result"`
 }
 
 type OrderBook struct {
-	ApiResponse
+	APIResponse
 	Result OrderBookResult `json:"result"`
 }
 
 type RiskLimit struct {
-	ApiResponse
+	APIResponse
 	Result RiskLimitResult `json:"result"`
 }
 
 type ResendTrade struct {
-	ApiResponse
+	APIResponse
 	Result struct {
 		Category string            `json:"category"`
 		List     []ResendTradeItem `json:"list"`
@@ -110,7 +110,7 @@ type ResendTrade struct {
 }
 
 type DeliveryPrice struct {
-	ApiResponse
+	APIResponse
 	Result struct {
 		Category       string              `json:"category"`
 		NextPageCursor string              `json:"nextPageCursor"`
@@ -119,12 +119,12 @@ type DeliveryPrice struct {
 }
 
 type HistoricalVolatility struct {
-	ApiResponse
+	APIResponse
 	Result []HistoricalVolatilityItem `json:"result"`
 }
 
 type Insurance struct {
-	ApiResponse
+	APIResponse
 	Result struct {
 		UpdatedTime string          `json:"updatedTime"`
 		List        []InsuranceItem `json:"list"`
@@ -132,7 +132,7 @@ type Insurance struct {
 }
 
 type OpenHistory struct {
-	ApiResponse
+	APIResponse
 	Result struct {
 		Symbol         string            `json:"symbol"`
 		Category       string            `json:"category"`
@@ -142,7 +142,7 @@ type OpenHistory struct {
 }
 
 type FundingRateHistory struct {
-	ApiResponse
+	APIResponse
 	Result struct {
 		Category string                   `json:"category"`
 		List     []FundingRateHistoryItem `json:"list"`
@@ -165,7 +165,7 @@ type Announcement struct {
 			Key   string `json:"key"`
 		} `json:"type"`
 		Tags               []string `json:"tags"`
-		Url                string   `json:"url"`
+		URL                string   `json:"url"`
 		DateTimestamp      int64    `json:"dateTimestamp"`
 		StartDateTimestamp int64    `json:"startDateTimestamp"`
 		EndDateTimestamp   int64    `json:"endDateTimestamp"`

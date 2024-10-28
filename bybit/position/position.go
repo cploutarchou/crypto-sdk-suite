@@ -276,10 +276,14 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 // GetClosedPnLup2Years retrieves closed PnL data with pagination controlled by the user.
 func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
 	params := map[string]any{
-		"category":  req.Category,
-		"startTime": strconv.FormatInt(*req.StartTime, 10),
-		"endTime":   strconv.FormatInt(*req.EndTime, 10),
-		"limit":     req.Limit,
+		"category": req.Category,
+		"limit":    req.Limit,
+	}
+	if req.StartTime != nil {
+		params["startTime"] = strconv.FormatInt(*req.StartTime, 10)
+	}
+	if req.EndTime != nil {
+		params["endTime"] = strconv.FormatInt(*req.EndTime, 10)
 	}
 	if req.Cursor != nil {
 		params["cursor"] = req.Cursor

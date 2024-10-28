@@ -2,13 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	httperrors "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/errors"
 	"io"
 	"net/http"
+
+	httperrors "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/errors"
 )
 
 type Response interface {
-	Unmarshal(v interface{}) error
+	Unmarshal(v any) error
 	Data() []byte
 	Status() string
 	StatusCode() int
@@ -57,7 +58,7 @@ func (r *ResponseImpl) Error() error {
 	return r.err
 }
 
-func (r *ResponseImpl) Unmarshal(v interface{}) error {
+func (r *ResponseImpl) Unmarshal(v any) error {
 	// Check if there's an HTTP error first
 	if r.httpError != nil {
 		return r.httpError

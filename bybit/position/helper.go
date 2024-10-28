@@ -96,7 +96,7 @@ func ConvertSwitchPositionModeRequestToParams(req *SwitchPositionModeRequest) cl
 		params["coin"] = *req.Coin
 	}
 	if req.Mode != nil {
-		params["positionMode"] = strconv.Itoa(*req.Mode)
+		params["positionMode"] = *req.Mode
 	}
 	return params
 }
@@ -195,7 +195,6 @@ func ConvertSetAutoAddMarginRequestToParams(req *SetAutoAddMarginRequest) client
 		params["positionIdx"] = strconv.Itoa(*req.PositionIdx)
 	}
 	return params
-
 }
 func ConvertAddReduceMarginRequestToParams(req *AddReduceMarginRequest) client.Params {
 	params := make(client.Params)
@@ -228,7 +227,7 @@ func ConvertGetClosedPnLRequestToParams(req *GetClosedPnLRequest) client.Params 
 		params["endTime"] = strconv.FormatInt(*req.EndTime, 10)
 	}
 	if req.Limit != nil {
-		params["limit"] = strconv.Itoa(*req.Limit)
+		params["limit"] = *req.Limit
 	}
 	if req.Cursor != nil {
 		params["cursor"] = *req.Cursor
@@ -248,7 +247,6 @@ func ConvertMovePositionRequestToParams(req *MovePositionRequest) client.Params 
 		params["list"] = req.List
 	}
 	return params
-
 }
 func ConvertGetMovePositionHistoryRequestToParams(req *GetMovePositionHistoryRequest) client.Params {
 	params := make(client.Params)

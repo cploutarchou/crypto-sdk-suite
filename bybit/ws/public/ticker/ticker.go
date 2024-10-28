@@ -14,8 +14,8 @@ type response struct {
 	Topic string `json:"topic"`
 	Type  string `json:"type"`
 	Data  Data   `json:"data"`
-	Cs    int64  `json:"cs"`
-	Ts    int64  `json:"ts"`
+	CS    int64  `json:"cs"`
+	TS    int64  `json:"ts"`
 }
 
 type Data struct {
@@ -85,7 +85,7 @@ func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
 	t.subscribers[topic] = callback
 
 	// Correctly construct the subscription message with "args"
-	subscriptionMessage := map[string]interface{}{
+	subscriptionMessage := map[string]any{
 		"op":   "subscribe",
 		"args": []string{topic}, // Use an array for topics as per API requirements
 	}
@@ -113,18 +113,18 @@ func (t *Ticker) Listen() {
 				continue
 			}
 
-			var response response
-			if err := json.Unmarshal(message, &response); err != nil {
+			var res response
+			if err := json.Unmarshal(message, &res); err != nil {
 				log.Printf("Error unmarshalling message: %v", err)
 				continue
 			}
 
 			t.mu.RLock()
-			callback, exists := t.subscribers[response.Topic]
+			callback, exists := t.subscribers[res.Topic]
 			t.mu.RUnlock()
 
-			if exists && (response.Type == "snapshot" || response.Type == "delta") {
-				go callback(response.Data)
+			if exists && (res.Type == "snapshot" || res.Type == "delta") {
+				go callback(res.Data)
 			}
 		}
 	}
@@ -139,7 +139,7 @@ func (t *Ticker) Unsubscribe(symbol string) error {
 	delete(t.subscribers, topic)
 
 	// Construct the unsubscription message
-	unsubscriptionMessage := map[string]interface{}{
+	unsubscriptionMessage := map[string]any{
 		"op":   "unsubscribe",
 		"args": []string{topic},
 	}

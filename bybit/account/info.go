@@ -2,8 +2,9 @@ package account
 
 import (
 	"errors"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"net/http"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 type Info struct {

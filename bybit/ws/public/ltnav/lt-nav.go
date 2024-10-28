@@ -1,4 +1,4 @@
-package lt_nav
+package ltnav
 
 import "github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 

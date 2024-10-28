@@ -17,6 +17,6 @@ type LTKlineData struct {
 type LTKlineResponse struct {
 	Topic string        `json:"topic"`
 	Type  string        `json:"type"`
-	Ts    int64         `json:"ts"`
+	TS    int64         `json:"ts"`
 	Data  []LTKlineData `json:"data"`
 }

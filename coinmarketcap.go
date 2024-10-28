@@ -20,7 +20,6 @@ func init() {
 }
 
 func GetIDMap() {
-
 	resp, err := cr.Map().GetID(nil)
 	if err != nil {
 		logrus.Fatal(err)

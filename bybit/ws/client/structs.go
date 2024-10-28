@@ -17,7 +17,7 @@ type WSPongPublicResponse struct {
 // It also provides a unique request ID and arguments associated with the response.
 type WSPongPrivateResponse struct {
 	CommonResponse
-	ReqId string   `json:"req_id"`
+	ReqID string   `json:"req_id"`
 	Args  []string `json:"args"`
 }
 
@@ -31,7 +31,7 @@ type WSPongPrivateSpotResponse WSPongPrivateResponse
 // for linear inverse operations and also contains a unique request ID.
 type WSPongPublicLinearInverseResponse struct {
 	WSPongPublicResponse
-	ReqId string `json:"req_id"`
+	ReqID string `json:"req_id"`
 }
 
 // WSPongPrivateLinearInverseResponse represents a specific private pong response
@@ -52,7 +52,7 @@ const (
 // CommonResponse encapsulates fields that are common across various WebSocket responses.
 type CommonResponse struct {
 	Op     string `json:"op"`      // Op is the operation of the request
-	ConnId string `json:"conn_id"` // ConnId is the connection ID of the request
+	ConnID string `json:"conn_id"` // ConnID is the connection ID of the request
 }
 
 // SuccessResponse represents the response structure for a successful WebSocket request.

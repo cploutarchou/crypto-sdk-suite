@@ -27,55 +27,55 @@ func init() {
 	acc = account.New(bybitCli)
 }
 
-func getWalletBalance() (interface{}, error) {
+func getWalletBalance() (any, error) {
 	wallet := acc.Wallet()
 	fmt.Println("getWalletBalance")
 	return wallet.GetContractWalletBalance("BTC")
 }
 
-func upgradeToUnified() (interface{}, error) {
+func upgradeToUnified() (any, error) {
 	fmt.Println("upgradeToUnified")
 	upgrade := acc.UpgradeToUnified()
 	return upgrade.Upgrade()
 }
 
-func getBorrowHistory() (interface{}, error) {
+func getBorrowHistory() (any, error) {
 	fmt.Println("getBorrowHistory")
 	borrow := acc.Borrow()
 	return borrow.GetHistory("BTC", 0, 0, 0, "")
 }
 
-func getCollateralCoin() (interface{}, error) {
+func getCollateralCoin() (any, error) {
 	fmt.Println("getCollateralCoin")
 	collateral := acc.Collateral()
 	return collateral.GetInfo("BTCUSDT")
 }
 
-func setCollateralCoin() (interface{}, error) {
+func setCollateralCoin() (any, error) {
 	fmt.Println("setCollateralCoin")
 	collateral := acc.Collateral()
 	return collateral.Set("BTC", "ON")
 }
 
-func getCoinGreeks() (interface{}, error) {
+func getCoinGreeks() (any, error) {
 	fmt.Println("getCoinGreeks")
 	coinGreeks := acc.CoinGreek()
 	return coinGreeks.Get("BTC")
 }
 
-func getFeeRates() (interface{}, error) {
+func getFeeRates() (any, error) {
 	fmt.Println("getFeeRates")
 	feeRates := acc.FeeRates()
 	return feeRates.GetFeeRate("taker", "BTCUSDT", "USDT")
 }
 
-func getInfo() (interface{}, error) {
+func getInfo() (any, error) {
 	fmt.Println("getInfo")
 	info := acc.Info()
 	return info.Get()
 }
 
-func getTransactionLog() (interface{}, error) {
+func getTransactionLog() (any, error) {
 	params := map[string]string{
 		"accountType": "UNIFIED",
 		"category":    "linear",
@@ -86,13 +86,13 @@ func getTransactionLog() (interface{}, error) {
 	return transactionLog.Get(params)
 }
 
-func setMargin() (interface{}, error) {
+func setMargin() (any, error) {
 	margin := acc.Margin()
 	fmt.Println("setMargin")
 	return margin.SetMarginMode("ISOLATED")
 }
 
-func setMMP() (interface{}, error) {
+func setMMP() (any, error) {
 	margin := acc.Margin()
 	params := &account.MMPParams{
 		BaseCoin:     "BTC",
@@ -105,13 +105,13 @@ func setMMP() (interface{}, error) {
 	return margin.SetMMP(params)
 }
 
-func resetMMP() (interface{}, error) {
+func resetMMP() (any, error) {
 	margin := acc.Margin()
 	fmt.Println("resetMMP")
 	return margin.ResetMMP("BTC")
 }
 
-func getMMPState() (interface{}, error) {
+func getMMPState() (any, error) {
 	margin := acc.Margin()
 	fmt.Println("getMMPState")
 	return margin.GetMMPState("BTC")

@@ -2,9 +2,10 @@ package account
 
 import (
 	"errors"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"net/http"
 	"net/url"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 // TransactionLog holds a client instance

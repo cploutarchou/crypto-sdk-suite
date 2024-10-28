@@ -3,7 +3,7 @@ package gainer_looser
 import "time"
 
 type CryptocurrencyData struct {
-	Id                CryptocurrencyID `json:"id"`
+	ID                CryptocurrencyID `json:"id"`
 	Name              string           `json:"name"`
 	Symbol            string           `json:"symbol"`
 	Slug              string           `json:"slug"`
@@ -15,7 +15,7 @@ type CryptocurrencyData struct {
 	LastUpdated       time.Time        `json:"last_updated"`
 	DateAdded         time.Time        `json:"date_added"`
 	Tags              []string         `json:"tags"`
-	Platform          interface{}      `json:"platform"`
+	Platform          any              `json:"platform"`
 	Quote             Quote            `json:"quote"`
 }
 

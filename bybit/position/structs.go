@@ -19,8 +19,8 @@ type Response struct {
 		NextPageCursor string    `json:"nextPageCursor"`
 		Category       string    `json:"category"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // Details represent the details of a single position.
@@ -245,8 +245,8 @@ type GetMovePositionHistoryResponse struct {
 		List           []MovePositionHistoryEntry `json:"list"`
 		NextPageCursor string                     `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // ConfirmNewRiskLimitRequest represents the payload for confirming a new risk limit.

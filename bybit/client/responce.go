@@ -7,7 +7,7 @@ import (
 )
 
 type Response interface {
-	Unmarshal(v interface{}) error
+	Unmarshal(v any) error
 	Data() []byte
 	Status() string
 	StatusCode() int
@@ -33,7 +33,7 @@ func NewResponse(response *http.Response) Response {
 	return &res
 }
 
-func (r *ResponseImpl) Unmarshal(v interface{}) error {
+func (r *ResponseImpl) Unmarshal(v any) error {
 	if r.err != nil {
 		return r.err
 	}

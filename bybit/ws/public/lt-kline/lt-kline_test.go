@@ -1,10 +1,11 @@
 package lt_kline
 
 import (
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestSubscribe tests the Subscribe method of the klineImpl struct.

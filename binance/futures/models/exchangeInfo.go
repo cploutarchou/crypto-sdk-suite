@@ -47,7 +47,7 @@ type SymbolInfo struct {
 	BaseAssetPrecision    int            `json:"baseAssetPrecision"`
 	QuotePrecision        int            `json:"quotePrecision"`
 	UnderlyingType        string         `json:"underlyingType"`
-	UnderlyingSubType     []interface{}  `json:"underlyingSubType"`
+	UnderlyingSubType     []any          `json:"underlyingSubType"`
 	SettlePlan            int            `json:"settlePlan"`
 	TriggerProtect        string         `json:"triggerProtect"`
 	LiquidationFee        string         `json:"liquidationFee"`
@@ -59,13 +59,13 @@ type SymbolInfo struct {
 }
 
 type ExchangeInfo struct {
-	Timezone        string        `json:"timezone"`
-	ServerTime      int64         `json:"serverTime"`
-	FuturesType     string        `json:"futuresType"`
-	RateLimits      []RateLimit   `json:"rateLimits"`
-	ExchangeFilters []interface{} `json:"exchangeFilters"`
-	Assets          []AssetInfo   `json:"assets"`
-	Symbols         []SymbolInfo  `json:"symbols"`
+	Timezone        string       `json:"timezone"`
+	ServerTime      int64        `json:"serverTime"`
+	FuturesType     string       `json:"futuresType"`
+	RateLimits      []RateLimit  `json:"rateLimits"`
+	ExchangeFilters []any        `json:"exchangeFilters"`
+	Assets          []AssetInfo  `json:"assets"`
+	Symbols         []SymbolInfo `json:"symbols"`
 }
 
 type ServerTimeResponse struct {

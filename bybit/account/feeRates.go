@@ -2,8 +2,9 @@ package account
 
 import (
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"net/http"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 const FeeRatesEndpoint = "/v5/account/fee-rate"
@@ -12,8 +13,8 @@ type FeeRates struct {
 	client *client.Client
 }
 
-func NewFeeRates(client *client.Client) *FeeRates {
-	return &FeeRates{client: client}
+func NewFeeRates(client_ *client.Client) *FeeRates {
+	return &FeeRates{client: client_}
 }
 
 func (fr *FeeRates) GetFeeRate(category string, symbol, baseCoin string) (*FeeRatesResponse, error) {
@@ -46,5 +47,4 @@ func (fr *FeeRates) GetFeeRate(category string, symbol, baseCoin string) (*FeeRa
 	}
 
 	return &feeRatesResponse, nil
-
 }

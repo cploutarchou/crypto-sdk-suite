@@ -17,12 +17,10 @@ type implWebSocket struct {
 }
 
 func (i *implWebSocket) Private() (private.Private, error) {
-
 	return i.private, nil
 }
 
 func (i *implWebSocket) Public() (public.Public, error) {
-
 	return i.public, nil
 }
 func New(publicClient, privateClient *client.Client, isTestnet bool) WebSocket {

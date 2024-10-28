@@ -2,10 +2,10 @@ package account
 
 // BaseResponse is a generic struct used to parse the common response received from Bybit API
 type BaseResponse struct {
-	RetCode    int                    `json:"retCode"`
-	RetMsg     string                 `json:"retMsg"`
-	Time       int64                  `json:"time"`
-	RetExtInfo map[string]interface{} `json:"retExtInfo"`
+	RetCode    int            `json:"retCode"`
+	RetMsg     string         `json:"retMsg"`
+	Time       int64          `json:"time"`
+	RetExtInfo map[string]any `json:"retExtInfo"`
 }
 
 type CoinDetails struct {

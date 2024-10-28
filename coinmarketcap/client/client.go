@@ -5,10 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (

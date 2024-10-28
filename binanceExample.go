@@ -3,12 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/cploutarchou/crypto-sdk-suite/binance"
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures/models"
-	"os"
 
 	"github.com/cploutarchou/crypto-sdk-suite/binance/futures"
 )
+
+const oneHundered = 100
 
 var b futures.Futures
 
@@ -19,7 +22,6 @@ var dsd = binance.New(
 
 func init() {
 	b = dsd.Futures()
-
 }
 
 // testPing tests the ping endpoint.
@@ -60,7 +62,7 @@ func testGetServerTime() {
 }
 
 func MarketOrderBook() {
-	data, err := b.Market().OrderBook("BTCUSDT", 100)
+	data, err := b.Market().OrderBook("BTCUSDT", oneHundered)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -73,7 +75,7 @@ func MarketOrderBook() {
 }
 
 func RecentTradesList() {
-	data, err := b.Market().RecentTradesList("BTCUSDT", 100)
+	data, err := b.Market().RecentTradesList("BTCUSDT", oneHundered)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -109,7 +111,6 @@ func CompressedAggregateTradesList() {
 		fmt.Println(err)
 	}
 	fmt.Println(string(pretty))
-
 }
 func KlineCandlestickData() {
 	data, err := b.Market().KlineCandlestickData("BTCUSDT", "1m", -1, -1, -1)

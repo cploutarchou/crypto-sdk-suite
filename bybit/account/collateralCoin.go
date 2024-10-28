@@ -27,7 +27,6 @@ func (s *CollateralCoin) Set(coin string, collateralSwitch CollateralSwitch) (*C
 		params["collateralSwitch"] = "ON"
 	case OFF:
 		params["collateralSwitch"] = "OFF"
-
 	}
 
 	response, err := s.client.Post(Endpoints.Collateral, params)

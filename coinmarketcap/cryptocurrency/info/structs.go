@@ -6,7 +6,7 @@ type Response struct {
 }
 
 type CryptoCurrency struct {
-	Urls         UrlData  `json:"urls"`
+	Urls         URLData  `json:"urls"`
 	Logo         string   `json:"logo"`
 	ID           int      `json:"id"`
 	Name         string   `json:"name"`
@@ -22,7 +22,7 @@ type CryptoCurrency struct {
 	// You might need to add more fields if they are available
 }
 
-type UrlData struct {
+type URLData struct {
 	Website      []string `json:"website"`
 	TechnicalDoc []string `json:"technical_doc"`
 	Twitter      []string `json:"twitter"`
@@ -46,7 +46,7 @@ type StatusData struct {
 
 //
 //// Params represents the query parameters for fetching data.
-//type Params struct {
+// type Params struct {
 //	Id          *string `json:"id,omitempty"`
 //	Slug        *string `json:"slug,omitempty"`
 //	Symbol      *string `json:"symbol,omitempty"`

@@ -16,11 +16,11 @@ func ConvertAmendOrderRequestToParams(req *AmendOrderRequest) client.Params {
 	params["symbol"] = req.Symbol
 
 	// Optional fields
-	if req.OrderId != nil {
-		params["orderId"] = *req.OrderId
+	if req.OrderID != nil {
+		params["orderId"] = *req.OrderID
 	}
-	if req.OrderLinkId != nil {
-		params["orderLinkId"] = *req.OrderLinkId
+	if req.OrderLinkID != nil {
+		params["orderLinkId"] = *req.OrderLinkID
 	}
 	if req.OrderIv != nil {
 		params["orderIv"] = *req.OrderIv
@@ -151,8 +151,8 @@ func ConvertGetOrderHistoryRequestToParams(req *GetOrderHistoryRequest) client.P
 	if req.SettleCoin != nil {
 		params["settleCoin"] = *req.SettleCoin
 	}
-	if req.OrderId != nil {
-		params["orderId"] = *req.OrderId
+	if req.OrderID != nil {
+		params["orderId"] = *req.OrderID
 	}
 	if req.OrderFilter != nil {
 		params["orderFilter"] = *req.OrderFilter
@@ -181,11 +181,11 @@ func ConvertGetTradeHistoryRequestToParams(req *GetTradeHistoryRequest) client.P
 	if req.Symbol != nil {
 		params["symbol"] = *req.Symbol
 	}
-	if req.OrderId != nil {
-		params["orderId"] = *req.OrderId
+	if req.OrderID != nil {
+		params["orderId"] = *req.OrderID
 	}
-	if req.OrderLinkId != nil {
-		params["orderLinkId"] = *req.OrderLinkId
+	if req.OrderLinkID != nil {
+		params["orderLinkId"] = *req.OrderLinkID
 	}
 	if req.BaseCoin != nil {
 		params["baseCoin"] = *req.BaseCoin
@@ -240,8 +240,8 @@ func ConvertBatchPlaceOrderRequestToParams(req *BatchPlaceOrderRequest) client.P
 		if order.PositionIdx != nil {
 			params[prefix+"positionIdx"] = strconv.Itoa(*order.PositionIdx)
 		}
-		if order.OrderLinkId != nil {
-			params[prefix+"orderLinkId"] = *order.OrderLinkId
+		if order.OrderLinkID != nil {
+			params[prefix+"orderLinkId"] = *order.OrderLinkID
 		}
 		if order.TakeProfit != nil {
 			params[prefix+"takeProfit"] = *order.TakeProfit
@@ -294,11 +294,11 @@ func ConvertBatchAmendOrderRequestToParams(req *BatchAmendOrderRequest) client.P
 		base := fmt.Sprintf("request[%d].", i)
 		params[base+"symbol"] = order.Symbol
 
-		if order.OrderId != nil {
-			params[base+"orderId"] = *order.OrderId
+		if order.OrderID != nil {
+			params[base+"orderId"] = *order.OrderID
 		}
-		if order.OrderLinkId != nil {
-			params[base+"orderLinkId"] = *order.OrderLinkId
+		if order.OrderLinkID != nil {
+			params[base+"orderLinkId"] = *order.OrderLinkID
 		}
 		if order.OrderIv != nil {
 			params[base+"orderIv"] = *order.OrderIv

@@ -52,13 +52,12 @@ func NewFuturesClient(apiKey, apiSecret string, isTestnet bool) *Client {
 }
 
 // MakeAuthenticatedRequest creates an authenticated request to the API.
-func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string, responseData interface{}) error {
+func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string, responseData any) error {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
 	var data, signature string
 	signature = c.createSignature(data)
 	if len(bodyData) > 0 {
 		data = fmt.Sprintf("%s&timestamp=%d", bodyData, timestamp)
-
 	}
 	reqURL := fmt.Sprintf("%s%s%s&signature=%s", c.config.BaseURL, endpoint, data, signature)
 
@@ -88,13 +87,13 @@ func (c *Client) MakeAuthenticatedRequest(method, endpoint, bodyData string, res
 }
 
 // MakeRequestWithoutSignature handles making a non-authenticated API request.
-func (c *Client) MakeRequestWithoutSignature(method, endpoint string, responseData interface{}) error {
+func (c *Client) MakeRequestWithoutSignature(method, endpoint string, responseData any) error {
 	c.Lock()
 	defer c.Unlock()
 
 	reqURL := fmt.Sprintf("%s%s", c.config.BaseURL, endpoint)
 
-	req, err := http.NewRequest(method, reqURL, nil)
+	req, err := http.NewRequest(method, reqURL, http.NoBody)
 	if err != nil {
 		log.Printf("Error creating new request: %v", err)
 		return err

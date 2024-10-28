@@ -2,6 +2,7 @@ package market
 
 import (
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 

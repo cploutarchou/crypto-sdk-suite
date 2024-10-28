@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
@@ -11,7 +12,6 @@ type Borrow struct {
 }
 
 func (b *Borrow) GetHistory(currency string, startTime, endTime, limit int, cursor string) (*BorrowRes, error) {
-
 	params := client.Params{}
 
 	if currency != "" {
@@ -46,11 +46,11 @@ func (b *Borrow) GetHistory(currency string, startTime, endTime, limit int, curs
 
 	return &borrowRes, nil
 }
-func NewBorrow(client *client.Client) *Borrow {
-	if client == nil {
+func NewBorrow(client_ *client.Client) *Borrow {
+	if client_ == nil {
 		panic("client should not be nil")
 	}
 	return &Borrow{
-		client: client,
+		client: client_,
 	}
 }

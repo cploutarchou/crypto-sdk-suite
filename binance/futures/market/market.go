@@ -11,7 +11,7 @@ import (
 
 // Market defines the interface for market operations.
 type Market interface {
-	Ping() (interface{}, error)
+	Ping() (any, error)
 	CheckServerTime() (int64, error)
 	GetExchangeInfo() (*models.ExchangeInfo, error)
 	OrderBook(symbol string, limit int) (*OrderBookResponse, error)
@@ -31,7 +31,7 @@ func NewMarket(client *client.Client) Market {
 }
 
 // buildEndpoint creates a formatted API endpoint string.
-func buildEndpoint(base string, symbol string, params ...interface{}) string {
+func buildEndpoint(base string, symbol string, params ...any) string {
 	endpoint := fmt.Sprintf(base, symbol)
 	for _, param := range params {
 		endpoint += fmt.Sprintf("&%s", param)
@@ -40,7 +40,7 @@ func buildEndpoint(base string, symbol string, params ...interface{}) string {
 }
 
 // Ping checks the connectivity to the Binance API server.
-func (m *marketImpl) Ping() (interface{}, error) {
+func (m *marketImpl) Ping() (any, error) {
 	var responseData struct{}
 	return responseData, m.MakeRequestWithoutSignature(http.MethodGet, constants.PingEndpoint, &responseData)
 }
@@ -88,7 +88,7 @@ func (m *marketImpl) RecentTradesList(symbol string, limit int) ([]Trade, error)
 
 // OldTradesLookup retrieves older market historical trades for a specific symbol.
 func (m *marketImpl) OldTradesLookup(symbol string, limit int, fromId int64) ([]Trade, error) {
-	var params []interface{}
+	var params []any
 
 	if limit != -1 {
 		params = append(params, fmt.Sprintf("limit=%d", limit))
@@ -109,7 +109,7 @@ func (m *marketImpl) OldTradesLookup(symbol string, limit int, fromId int64) ([]
 
 // CompressedAggregateTradesList retrieves compressed, aggregate market trades for a specific symbol.
 func (m *marketImpl) CompressedAggregateTradesList(symbol string, fromId, startTime, endTime int64, limit int) ([]AggregateTrade, error) {
-	var params []interface{}
+	var params []any
 
 	if fromId != -1 {
 		params = append(params, fmt.Sprintf("fromId=%d", fromId))
@@ -136,7 +136,7 @@ func (m *marketImpl) CompressedAggregateTradesList(symbol string, fromId, startT
 
 // KlineCandlestickData retrieves kline candlestick data for a specific symbol.
 func (m *marketImpl) KlineCandlestickData(symbol string, interval Interval, startTime, endTime int64, limit int) ([][]any, error) {
-	var params []interface{}
+	var params []any
 
 	if interval != "" {
 		params = append(params, fmt.Sprintf("interval=%s", interval))

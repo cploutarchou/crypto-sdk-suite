@@ -3,6 +3,7 @@ package kline
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
@@ -103,7 +104,7 @@ func (k *klineImpl) Subscribe(symbols []string, interval string, callback func(r
 		k.topicCallbacks[topic] = topicCallback{callback: callback}
 	}
 
-	subscription := map[string]interface{}{
+	subscription := map[string]any{
 		"op":   "subscribe",
 		"args": topics,
 	}
@@ -121,7 +122,7 @@ func (k *klineImpl) Subscribe(symbols []string, interval string, callback func(r
 }
 
 func (k *klineImpl) Unsubscribe(topics ...string) error {
-	unsubscription := map[string]interface{}{
+	unsubscription := map[string]any{
 		"op":   "unsubscribe",
 		"args": topics,
 	}

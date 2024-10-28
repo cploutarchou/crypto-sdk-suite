@@ -11,7 +11,7 @@ import (
 // The function takes an interface{} as input and marshals it to JSON using json.MarshalIndent.
 // If there's an error during marshaling, it logs the error and returns.
 // Otherwise, it logs the JSON string.
-func printJSON(v interface{}) {
+func printJSON(v any) {
 	d, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		log.Println("Error marshaling to JSON:", err)
@@ -35,7 +35,7 @@ func handleError(err error) {
 // The function takes an interface{} and an error as input.
 // If the error is not nil, it calls handleError to log the error.
 // If the error is nil, it calls printJSON to print the data as JSON.
-func handleErrorWithPrint(data interface{}, err error) {
+func handleErrorWithPrint(data any, err error) {
 	if err != nil {
 		handleError(err)
 		return

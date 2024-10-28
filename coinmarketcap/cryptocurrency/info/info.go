@@ -4,6 +4,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+
 	c "github.com/cploutarchou/crypto-sdk-suite/coinmarketcap/client"
 )
 
@@ -36,7 +37,7 @@ func (m *Metadata) setDefaultAux() string {
 
 // Params represents the query parameters for fetching data.
 type Params struct {
-	Id          *string  `json:"id,omitempty"`
+	ID          *string  `json:"id,omitempty"`
 	Slugs       []string `json:"slugs,omitempty"`
 	Symbols     []string `json:"symbols,omitempty"`
 	Address     *string  `json:"address,omitempty"`
@@ -45,7 +46,7 @@ type Params struct {
 }
 
 func (m *Metadata) GetMetadata(params *Params) (map[string]CryptoCurrency, error) {
-	if params.Id == nil && len(params.Slugs) == 0 && len(params.Symbols) == 0 {
+	if params.ID == nil && len(params.Slugs) == 0 && len(params.Symbols) == 0 {
 		return nil, errors.New("missing required params! |id : " +
 			"the coinmarketcap token id |slugs : like bitcoin,ethereum |" +
 			" symbols : like BTC,ETH}")
@@ -54,8 +55,8 @@ func (m *Metadata) GetMetadata(params *Params) (map[string]CryptoCurrency, error
 	if params == nil {
 		params = &Params{}
 	}
-	if params.Id != nil {
-		queryParams["limit"] = *params.Id
+	if params.ID != nil {
+		queryParams["limit"] = *params.ID
 	}
 	if params.Symbols != nil {
 		str, err := SliceToString(params.Symbols, ",")
@@ -79,9 +80,7 @@ func (m *Metadata) GetMetadata(params *Params) (map[string]CryptoCurrency, error
 	}
 	if params.Aux != nil {
 		var theParams []string
-		for _, i := range params.Aux {
-			theParams = append(theParams, fmt.Sprintf("%s", i))
-		}
+		theParams = append(theParams, params.Aux...)
 		str, err := SliceToString(theParams, ",")
 		if err != nil {
 			return nil, err

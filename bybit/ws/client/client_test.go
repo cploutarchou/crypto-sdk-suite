@@ -109,7 +109,7 @@ func TestClient_Receive(t *testing.T) {
 	// Wait to receive a successful authentication message
 	_, authMsg, err := client.Conn.ReadMessage()
 	assert.NoError(t, err)
-	var authResponse map[string]interface{}
+	var authResponse map[string]any
 	err = json.Unmarshal(authMsg, &authResponse)
 	assert.NoError(t, err)
 	assert.False(t, authResponse["success"].(bool), "Authentication failed")

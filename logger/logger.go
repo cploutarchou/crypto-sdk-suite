@@ -61,7 +61,7 @@ func NewLogger(level LogLevel, jsonMode bool) *Logger {
 	}
 }
 
-func (l *Logger) log(level LogLevel, format string, v ...interface{}) {
+func (l *Logger) log(level LogLevel, format string, v ...any) {
 	if level >= l.logLevel {
 		l.mu.Lock()
 		defer l.mu.Unlock()
@@ -95,26 +95,26 @@ func (l *Logger) outputLog(logLine string) {
 }
 
 // Debug logs a message at DEBUG level
-func (l *Logger) Debug(format string, v ...interface{}) {
+func (l *Logger) Debug(format string, v ...any) {
 	l.log(DEBUG, format, v...)
 }
 
 // Info logs a message at INFO level
-func (l *Logger) Info(format string, v ...interface{}) {
+func (l *Logger) Info(format string, v ...any) {
 	l.log(INFO, format, v...)
 }
 
 // Warning logs a message at WARNING level
-func (l *Logger) Warning(format string, v ...interface{}) {
+func (l *Logger) Warning(format string, v ...any) {
 	l.log(WARNING, format, v...)
 }
 
 // Error logs a message at ERROR level
-func (l *Logger) Error(format string, v ...interface{}) {
+func (l *Logger) Error(format string, v ...any) {
 	l.log(ERROR, format, v...)
 }
 
 // Fatal logs a message at FATAL level and exits
-func (l *Logger) Fatal(format string, v ...interface{}) {
+func (l *Logger) Fatal(format string, v ...any) {
 	l.log(FATAL, format, v...)
 }

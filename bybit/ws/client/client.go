@@ -225,9 +225,9 @@ func (c *Client) Authenticate(apiKey, expires, signature string) error {
 		return errors.New("cannot authenticate on a public channel")
 	}
 	c.logger.Printf("Authenticating with apiKey %s, expires %s, signed %s", apiKey, expires, signature)
-	authRequest := map[string]interface{}{
+	authRequest := map[string]any{
 		"op":   AuthOperation,
-		"args": []interface{}{apiKey, expires, signature},
+		"args": []any{apiKey, expires, signature},
 	}
 	jsonData, err := json.Marshal(authRequest)
 	if err != nil {

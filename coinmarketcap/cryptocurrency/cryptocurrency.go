@@ -17,23 +17,20 @@ type cryptocurrencyImpl struct {
 	client *client.Client
 }
 
-func New(client *client.Client) Cryptocurrency {
+func New(client_ *client.Client) Cryptocurrency {
 	return &cryptocurrencyImpl{
-		client: client,
+		client: client_,
 	}
 }
 
 func (c *cryptocurrencyImpl) Map() *idmap.Map {
 	return idmap.New(c.client)
-
 }
 
 func (c *cryptocurrencyImpl) GainersAndLosers() *gainer.GainersAndLosers {
 	return gainer.New(c.client)
-
 }
 
 func (c *cryptocurrencyImpl) Info() *info.Metadata {
 	return info.New(c.client)
-
 }

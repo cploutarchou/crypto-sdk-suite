@@ -10,12 +10,12 @@ const (
 
 // ExchangeInfo represents information about the exchange, including rate limits, server time, available assets, symbols, and timezone.
 type ExchangeInfo struct {
-	ExchangeFilters []interface{} `json:"exchangeFilters"` // Filters applied to the exchange.
-	RateLimits      []RateLimit   `json:"rateLimits"`      // Rate limits for API requests.
-	ServerTime      int64         `json:"serverTime"`      // Current server time in milliseconds.
-	Assets          []Asset       `json:"assets"`          // List of available assets on the exchange.
-	Symbols         []Symbol      `json:"symbols"`         // List of available trading pairs (symbols).
-	Timezone        string        `json:"timezone"`        // Timezone of the exchange.
+	ExchangeFilters []any       `json:"exchangeFilters"` // Filters applied to the exchange.
+	RateLimits      []RateLimit `json:"rateLimits"`      // Rate limits for API requests.
+	ServerTime      int64       `json:"serverTime"`      // Current server time in milliseconds.
+	Assets          []Asset     `json:"assets"`          // List of available assets on the exchange.
+	Symbols         []Symbol    `json:"symbols"`         // List of available trading pairs (symbols).
+	Timezone        string      `json:"timezone"`        // Timezone of the exchange.
 }
 
 // RateLimit represents a rate limit for API requests.

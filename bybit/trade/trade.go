@@ -65,7 +65,7 @@ func ConvertPlaceOrderRequestToParams(req *PlaceOrderRequest) client.Params {
 		"side":        req.Side,
 		"orderType":   req.OrderType,
 		"qty":         req.Qty,
-		"orderLinkId": req.OrderLinkId,
+		"orderLinkId": req.OrderLinkID,
 	}
 
 	if req.Price != "" {

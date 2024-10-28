@@ -85,7 +85,7 @@ func (t *Ticker) Subscribe(symbol string, callback func(Data)) error {
 	t.subscribers[topic] = callback
 
 	// Correctly construct the subscription message with "args"
-	subscriptionMessage := map[string]interface{}{
+	subscriptionMessage := map[string]any{
 		"op":   "subscribe",
 		"args": []string{topic}, // Use an array for topics as per API requirements
 	}
@@ -139,7 +139,7 @@ func (t *Ticker) Unsubscribe(symbol string) error {
 	delete(t.subscribers, topic)
 
 	// Construct the unsubscription message
-	unsubscriptionMessage := map[string]interface{}{
+	unsubscriptionMessage := map[string]any{
 		"op":   "unsubscribe",
 		"args": []string{topic},
 	}

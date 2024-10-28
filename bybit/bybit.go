@@ -64,7 +64,7 @@ func New(key, secretKey string, isTestNet bool, category string) Bybit {
 //
 // No parameters.
 // Returns a market.Market interface.
-func (b bybitImpl) Market() market.Market {
+func (b *bybitImpl) Market() market.Market {
 	return b.market
 }
 
@@ -72,7 +72,7 @@ func (b bybitImpl) Market() market.Market {
 //
 // No parameters.
 // Returns a ws.WebSocket interface.
-func (b bybitImpl) WebSocket() ws.WebSocket {
+func (b *bybitImpl) WebSocket() ws.WebSocket {
 	return b.webSocket
 }
 
@@ -80,7 +80,7 @@ func (b bybitImpl) WebSocket() ws.WebSocket {
 //
 // No parameters.
 // Returns an account.Account interface.
-func (b bybitImpl) Account() account.Account {
+func (b *bybitImpl) Account() account.Account {
 	return b.account
 }
 
@@ -88,7 +88,7 @@ func (b bybitImpl) Account() account.Account {
 //
 // No parameters.
 // Returns a trade.Trade interface.
-func (b bybitImpl) Trade() trade.Trade {
+func (b *bybitImpl) Trade() trade.Trade {
 	return b.trade
 }
 
@@ -96,7 +96,7 @@ func (b bybitImpl) Trade() trade.Trade {
 //
 // No parameters.
 // Returns a position.Position interface.
-func (b bybitImpl) Position() position.Position {
+func (b *bybitImpl) Position() position.Position {
 	return b.position
 }
 
@@ -104,6 +104,6 @@ func (b bybitImpl) Position() position.Position {
 //
 // No parameters.
 // Returns an asset.Asset interface.
-func (b bybitImpl) Asset() asset.Asset {
+func (b *bybitImpl) Asset() asset.Asset {
 	return b.asset
 }

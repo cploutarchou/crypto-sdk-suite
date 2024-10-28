@@ -33,11 +33,10 @@ func NewAccount(client *client.Client) Account {
 func (a *accountImpl) ChangePositionMode(enable bool) error {
 	endpoint := changePositionModeEndpoint
 	data := fmt.Sprintf("dualSidePosition=%v", enable)
-	var resp interface{}
+	var resp any
 	err := a.MakeAuthenticatedRequest(http.MethodPost, endpoint, data, resp)
 	if err != nil {
 		return fmt.Errorf("failed to change position mode: %w", err)
 	}
 	return nil
-
 }

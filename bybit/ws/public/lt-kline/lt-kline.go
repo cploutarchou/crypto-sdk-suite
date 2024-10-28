@@ -3,8 +3,9 @@ package lt_kline
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 	"log"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/ws/client"
 )
 
 // LTKline represents the interface for the LT Kline functionality.
@@ -58,7 +59,7 @@ func (l *ltKlineImpl) Close() {
 	l.client.Close()
 }
 func (l *ltKlineImpl) Unsubscribe(topics ...string) error {
-	unsubscription := map[string]interface{}{
+	unsubscription := map[string]any{
 		"op":   "unsubscribe",
 		"args": topics,
 	}
@@ -83,7 +84,7 @@ func (l *ltKlineImpl) GetMessagesChan() <-chan []byte {
 // SubscribeLTKline subscribes to the leveraged token kline stream for the specified interval and symbol.
 func (l *ltKlineImpl) SubscribeLTKline(interval string, symbol string, callback func(response LTKlineResponse)) error {
 	topic := fmt.Sprintf("kline_lt.%s.%s", interval, symbol)
-	subscription := map[string]interface{}{
+	subscription := map[string]any{
 		"op":   "subscribe",
 		"args": []string{topic},
 	}

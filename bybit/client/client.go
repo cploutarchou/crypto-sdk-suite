@@ -53,7 +53,7 @@ type Client struct {
 type Method string
 
 // Params represents parameters for the API request
-type Params map[string]interface{}
+type Params map[string]any
 
 // Request struct represents an HTTP request with method, path, and params
 type Request struct {
@@ -180,7 +180,7 @@ func (c *Client) newGETRequest(baseURL string, req *Request) (*http.Request, err
 		c.QueryParams.Set(k, fmt.Sprintf("%v", v))
 	}
 
-	return http.NewRequest(string(GET), baseURL+req.path+"?"+c.QueryParams.Encode(), nil)
+	return http.NewRequest(string(GET), baseURL+req.path+"?"+c.QueryParams.Encode(), http.NoBody)
 }
 
 func (c *Client) newPOSTRequest(baseURL string, req *Request) (*http.Request, error) {
@@ -202,7 +202,7 @@ func (c *Client) setCommonHeaders(req *http.Request) {
 	if req.Method == "POST" {
 		req.Header.Set("Content-Type", "application/json")
 		// Concatenate timestamp, API key, recvWindow, and the request body for POST requests
-		signatureBase = []byte(timestamp + c.key + "5000" + string(c.params[:]))
+		signatureBase = []byte(timestamp + c.key + "5000" + string(c.params))
 	} else {
 		// Alphabetically sort query parameters and concatenate them with other fields for GET requests
 		queryString := c.QueryParams.Encode() // Automatically sorts the parameters alphabetically

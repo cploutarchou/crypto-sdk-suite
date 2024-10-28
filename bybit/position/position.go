@@ -3,6 +3,7 @@ package position
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
@@ -271,51 +272,33 @@ func (i *impl) AddOrReduceMargin(req *AddReduceMarginRequest) (*Response, error)
 
 	return &positionResponse, nil
 }
+
+// GetClosedPnLup2Years retrieves closed PnL data with pagination controlled by the user.
 func (i *impl) GetClosedPnLup2Years(req *GetClosedPnLRequest) (*ClosedPnLResponse, error) {
-	params := ConvertGetClosedPnLRequestToParams(req)
-	var allRecords []PnLPosition
-	var finalResponse *ClosedPnLResponse
+	params := map[string]any{
+		"category":  req.Category,
+		"startTime": strconv.FormatInt(*req.StartTime, 10),
+		"endTime":   strconv.FormatInt(*req.EndTime, 10),
+		"limit":     req.Limit,
+	}
+	if req.Cursor != nil {
+		params["cursor"] = req.Cursor
+	}
+
+	// Perform the API GET request
+	responseData, err := i.client.Get("/v5/position/closed-pnl", params)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching closed PnL records: %w", err)
+	}
+
+	// Parse the response into the ClosedPnLResponse structure
 	var response ClosedPnLResponse
-
-	for {
-		// Fetch the response data from the API
-		responseData, err := i.client.Get("/v5/position/closed-pnl", params)
-		if err != nil {
-			return nil, fmt.Errorf("error fetching closed PnL records: %w", err)
-		}
-		err = responseData.Unmarshal(&response)
-		if err != nil {
-			return nil, fmt.Errorf("error unmarshalling closed PnL response: %w", err)
-		}
-		// Append the records to allRecords
-		allRecords = append(allRecords, response.Result.List...)
-
-		// Check if there are more pages to process
-		if response.Result.NextPageCursor == "" {
-			break
-		}
-
-		// Update the cursor for the next API call
-		params["cursor"] = response.Result.NextPageCursor
+	err = responseData.Unmarshal(&response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling closed PnL response: %w", err)
 	}
 
-	// Build the final response with the accumulated records
-	finalResponse = &ClosedPnLResponse{
-		RetCode:    response.RetCode,
-		RetMsg:     response.RetMsg,
-		RetExtInfo: response.RetExtInfo,
-		Result: struct {
-			NextPageCursor string        `json:"nextPageCursor"`
-			Category       string        `json:"category"`
-			List           []PnLPosition `json:"list"`
-		}{
-			NextPageCursor: response.Result.NextPageCursor,
-			Category:       response.Result.Category,
-			List:           allRecords,
-		},
-	}
-
-	return finalResponse, nil
+	return &response, nil
 }
 
 func (i *impl) MovePositions(req *MovePositionRequest) (*MovePositionResponse, error) {
@@ -376,7 +359,6 @@ func (i *impl) GetMovePositionHistory(req *GetMovePositionHistoryRequest) (*GetM
 		finalResponse.Result.List = allEntries
 		finalResponse.RetExtInfo = historyResponse.RetExtInfo
 		finalResponse.Time = historyResponse.Time
-
 	}
 
 	return &finalResponse, nil

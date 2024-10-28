@@ -15,7 +15,7 @@ type PlaceOrderRequest struct {
 	OrderIv          *string `json:"orderIv,omitempty"`
 	TimeInForce      string  `json:"timeInForce"`
 	PositionIdx      *int    `json:"positionIdx,omitempty"`
-	OrderLinkId      string  `json:"orderLinkId"`
+	OrderLinkID      string  `json:"orderLinkId"`
 	TakeProfit       *string `json:"takeProfit,omitempty"`
 	StopLoss         *string `json:"stopLoss,omitempty"`
 	TpTriggerBy      *string `json:"tpTriggerBy,omitempty"`
@@ -46,8 +46,8 @@ type PlaceOrderResponse struct {
 type AmendOrderRequest struct {
 	Category     string  `json:"category"`
 	Symbol       string  `json:"symbol"`
-	OrderId      *string `json:"orderId,omitempty"`
-	OrderLinkId  *string `json:"orderLinkId,omitempty"`
+	OrderID      *string `json:"orderId,omitempty"`
+	OrderLinkID  *string `json:"orderLinkId,omitempty"`
 	OrderIv      *string `json:"orderIv,omitempty"`
 	TriggerPrice *string `json:"triggerPrice,omitempty"`
 	Qty          *string `json:"qty,omitempty"`
@@ -65,11 +65,11 @@ type AmendOrderResponse struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
-		OrderId     string `json:"orderId"`
+		OrderID     string `json:"orderId"`
 		OrderLinkID string `json:"orderLinkId"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type CancelOrderRequest struct {
 	Category    string  `json:"category"`
@@ -85,8 +85,8 @@ type CancelOrderResponse struct {
 		OrderID     string `json:"orderId"`
 		OrderLinkID string `json:"orderLinkId"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetOpenOrdersRequest struct {
 	Category    string
@@ -108,12 +108,12 @@ type GetOpenOrdersResponse struct {
 		NextPageCursor string         `json:"nextPageCursor"`
 		Category       string         `json:"category"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 type OrderDetails struct {
-	OrderId            string `json:"orderId"`
+	OrderID            string `json:"orderId"`
 	OrderLinkID        string `json:"orderLinkId"`
 	BlockTradeID       string `json:"blockTradeId"`
 	Symbol             string `json:"symbol"`
@@ -168,20 +168,20 @@ type CancelAllOrdersResponse struct {
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
 		List []struct {
-			OrderId     string `json:"orderId"`
-			OrderLinkId string `json:"orderLinkId"`
+			OrderID     string `json:"orderId"`
+			OrderLinkID string `json:"orderLinkId"`
 		} `json:"list"`
 		Success string `json:"success"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetOrderHistoryRequest struct {
 	Category    string  `json:"category"`
 	Symbol      *string `json:"symbol"`
 	BaseCoin    *string `json:"baseCoin,omitempty"`
 	SettleCoin  *string `json:"settleCoin,omitempty"`
-	OrderId     *string `json:"orderId,omitempty"`
+	OrderID     *string `json:"orderId,omitempty"`
 	OrderFilter *string `json:"orderFilter,omitempty"`
 	OrderStatus *string `json:"orderStatus,omitempty"`
 	StartTime   *int64  `json:"startTime,omitempty"`
@@ -197,14 +197,14 @@ type GetOrderHistoryResponse struct {
 		NextPageCursor string         `json:"nextPageCursor"`
 		Category       string         `json:"category"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetTradeHistoryRequest struct {
 	Category    string
 	Symbol      *string
-	OrderId     *string
-	OrderLinkId *string
+	OrderID     *string
+	OrderLinkID *string
 	BaseCoin    *string
 	StartTime   *int64
 	EndTime     *int64
@@ -220,14 +220,14 @@ type GetTradeHistoryResponse struct {
 		NextPageCursor string    `json:"nextPageCursor"`
 		Category       string    `json:"category"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 type Details struct {
 	Symbol          string `json:"symbol"`
-	OrderId         string `json:"orderId"`
-	OrderLinkId     string `json:"orderLinkId"`
+	OrderID         string `json:"orderId"`
+	OrderLinkID     string `json:"orderLinkId"`
 	Side            string `json:"side"`
 	OrderPrice      string `json:"orderPrice"`
 	OrderQty        string `json:"orderQty"`
@@ -272,7 +272,7 @@ type OrderRequest struct {
 	OrderIv          *string `json:"orderIv,omitempty"`
 	TimeInForce      *string `json:"timeInForce,omitempty"`
 	PositionIdx      *int    `json:"positionIdx,omitempty"`
-	OrderLinkId      *string `json:"orderLinkId,omitempty"`
+	OrderLinkID      *string `json:"orderLinkId,omitempty"`
 	TakeProfit       *string `json:"takeProfit,omitempty"`
 	StopLoss         *string `json:"stopLoss,omitempty"`
 	TpTriggerBy      *string `json:"tpTriggerBy,omitempty"`
@@ -294,8 +294,8 @@ type BatchPlaceOrderResponse struct {
 		List []struct {
 			Category    string `json:"category"`
 			Symbol      string `json:"symbol"`
-			OrderId     string `json:"orderId"`
-			OrderLinkId string `json:"orderLinkId"`
+			OrderID     string `json:"orderId"`
+			OrderLinkID string `json:"orderLinkId"`
 			CreateAt    string `json:"createAt"`
 		} `json:"list"`
 	} `json:"result"`
@@ -319,8 +319,8 @@ type BatchAmendOrderResponse struct {
 		List []struct {
 			Category    string `json:"category"`
 			Symbol      string `json:"symbol"`
-			OrderId     string `json:"orderId"`
-			OrderLinkId string `json:"orderLinkId"`
+			OrderID     string `json:"orderId"`
+			OrderLinkID string `json:"orderLinkId"`
 		} `json:"list"`
 	} `json:"result"`
 	RetExtInfo struct {
@@ -342,8 +342,8 @@ type BatchCancelOrderResponse struct {
 		List []struct {
 			Category    string `json:"category"`
 			Symbol      string `json:"symbol"`
-			OrderId     string `json:"orderId"`
-			OrderLinkId string `json:"orderLinkId"`
+			OrderID     string `json:"orderId"`
+			OrderLinkID string `json:"orderLinkId"`
 		} `json:"list"`
 	} `json:"result"`
 	RetExtInfo struct {
@@ -360,7 +360,7 @@ type BorrowQuotaResponse struct {
 	RetCode    int               `json:"retCode"`
 	RetMsg     string            `json:"retMsg"`
 	Result     BorrowQuotaResult `json:"result"`
-	RetExtInfo interface{}       `json:"retExtInfo"`
+	RetExtInfo any               `json:"retExtInfo"`
 	Time       int64             `json:"time"`
 }
 

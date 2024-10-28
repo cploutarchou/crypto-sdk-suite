@@ -1,8 +1,9 @@
 package position
 
 import (
-	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 	"strconv"
+
+	"github.com/cploutarchou/crypto-sdk-suite/bybit/client"
 )
 
 // ConvertPositionRequestParams prepares the request parameters for fetching position info.
@@ -194,7 +195,6 @@ func ConvertSetAutoAddMarginRequestToParams(req *SetAutoAddMarginRequest) client
 		params["positionIdx"] = strconv.Itoa(*req.PositionIdx)
 	}
 	return params
-
 }
 func ConvertAddReduceMarginRequestToParams(req *AddReduceMarginRequest) client.Params {
 	params := make(client.Params)
@@ -247,7 +247,6 @@ func ConvertMovePositionRequestToParams(req *MovePositionRequest) client.Params 
 		params["list"] = req.List
 	}
 	return params
-
 }
 func ConvertGetMovePositionHistoryRequestToParams(req *GetMovePositionHistoryRequest) client.Params {
 	params := make(client.Params)

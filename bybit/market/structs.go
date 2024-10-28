@@ -1,11 +1,11 @@
 package market
 
 type ApiResponse struct {
-	RetCode    int         `json:"retCode"`
-	RetMsg     string      `json:"retMsg"`
-	Result     interface{} `json:"result,omitempty"`
-	RetExtInfo interface{} `json:"retExtInfo,omitempty"`
-	Time       int64       `json:"time"`
+	RetCode    int    `json:"retCode"`
+	RetMsg     string `json:"retMsg"`
+	Result     any    `json:"result,omitempty"`
+	RetExtInfo any    `json:"retExtInfo,omitempty"`
+	Time       int64  `json:"time"`
 }
 
 // KlineRequest represents a request for querying historical klines
@@ -38,8 +38,8 @@ type OrderBookResult struct {
 }
 
 type RiskLimitResult struct {
-	Category string        `json:"category"`
-	List     []interface{} `json:"list"`
+	Category string `json:"category"`
+	List     []any  `json:"list"`
 }
 
 type ResendTradeItem struct {
@@ -149,10 +149,10 @@ type FundingRateHistory struct {
 	} `json:"result"`
 }
 type APIBaseResponse struct {
-	RetCode    int         `json:"retCode"`
-	RetMsg     string      `json:"retMsg"`
-	Time       int64       `json:"time"`
-	RetExtInfo interface{} `json:"retExtInfo,omitempty"` // Using omitempty since sometimes the field is empty
+	RetCode    int    `json:"retCode"`
+	RetMsg     string `json:"retMsg"`
+	Time       int64  `json:"time"`
+	RetExtInfo any    `json:"retExtInfo,omitempty"` // Using omitempty since sometimes the field is empty
 }
 
 type Announcement struct {

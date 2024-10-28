@@ -15,7 +15,7 @@ type Status struct {
 }
 
 type Platform struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Symbol       string `json:"symbol"`
 	Slug         string `json:"slug"`
@@ -23,7 +23,7 @@ type Platform struct {
 }
 
 type Data struct {
-	Id                  int       `json:"id"`
+	ID                  int       `json:"id"`
 	Rank                int       `json:"rank"`
 	Name                string    `json:"name"`
 	Symbol              string    `json:"symbol"`

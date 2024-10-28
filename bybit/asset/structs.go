@@ -27,8 +27,8 @@ type GetCoinExchangeRecordsResponse struct {
 		OrderBody      []CoinExchangeRecord `json:"orderBody"`
 		NextPageCursor string               `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetDeliveryRecordRequest represents the query parameters for fetching delivery records.
@@ -63,8 +63,8 @@ type GetDeliveryRecordResponse struct {
 		Category       string                `json:"category"`
 		List           []DeliveryRecordEntry `json:"list"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetSessionSettlementRecordRequest represents the query parameters for fetching session settlement records.
@@ -97,8 +97,8 @@ type GetSessionSettlementRecordResponse struct {
 		Category       string                    `json:"category"`
 		List           []SessionSettlementRecord `json:"list"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetAssetInfoRequest represents the query parameters for fetching asset information.
@@ -125,8 +125,8 @@ type GetAssetInfoResponse struct {
 			Assets []AssetInfoEntry `json:"assets"` // Assets array
 		} `json:"spot"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetAllCoinsBalanceRequest represents the query parameters for fetching all coins' balances.
@@ -154,8 +154,8 @@ type GetAllCoinsBalanceResponse struct {
 		AccountType string             `json:"accountType"` // Account type
 		Balance     []CoinBalanceEntry `json:"balance"`     // Array of balance entries
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetSingleCoinBalanceRequest represents the query parameters for fetching a single coin balance.
@@ -191,8 +191,8 @@ type GetSingleCoinBalanceResponse struct {
 		MemberID    string                 `json:"memberId"`
 		Balance     SingleCoinBalanceEntry `json:"balance"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetTransferableCoinRequest represents the query parameters for fetching the transferable coin list.
@@ -208,8 +208,8 @@ type GetTransferableCoinResponse struct {
 	Result  struct {
 		List []string `json:"list"` // A list of coins
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // CreateInternalTransferRequest represents the payload for creating an internal transfer.
@@ -228,8 +228,8 @@ type CreateInternalTransferResponse struct {
 	Result  struct {
 		TransferID string `json:"transferId"` // UUID
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetUniversalTransferRecordsRequest represents the query parameters for fetching universal transfer records.
@@ -264,8 +264,8 @@ type GetUniversalTransferRecordsResponse struct {
 		List           []UniversalTransferRecordEntry `json:"list"`
 		NextPageCursor string                         `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetInternalTransferRecordsRequest represents the query parameters for fetching internal transfer records.
@@ -298,8 +298,8 @@ type GetInternalTransferRecordsResponse struct {
 		List           []InternalTransferRecordEntry `json:"list"`
 		NextPageCursor string                        `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // GetSubUIDsResponse represents the response from fetching sub UIDs.
@@ -310,8 +310,8 @@ type GetSubUIDsResponse struct {
 		SubMemberIds             []string `json:"subMemberIds"`             // All sub UIDs under the main UID
 		TransferableSubMemberIds []string `json:"transferableSubMemberIds"` // All sub UIDs that have universal transfer enabled
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 // CreateUniversalTransferRequest represents the payload for creating a universal transfer.
@@ -332,8 +332,8 @@ type CreateUniversalTransferResponse struct {
 	Result  struct {
 		TransferID string `json:"transferId"` // UUID
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetAllowedDepositCoinInfoRequest struct {
 	Coin   *string `json:"coin,omitempty"`   // Optional: Coin. coin and chain must be paired if passed
@@ -358,8 +358,8 @@ type GetAllowedDepositCoinInfoResponse struct {
 		ConfigList     []DepositConfig `json:"configList"`
 		NextPageCursor string          `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type SetDepositAccountRequest struct {
 	AccountType string `json:"accountType"` // Required: Account type (UNIFIED, SPOT, OPTION, CONTRACT, FUND)
@@ -371,8 +371,8 @@ type SetDepositAccountResponse struct {
 	Result  struct {
 		Status int `json:"status"` // Request result: 1 for SUCCESS, 0 for FAIL
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetDepositRecordsRequest struct {
 	Coin      *string `json:"coin,omitempty"`      // Optional: Coin
@@ -406,8 +406,8 @@ type GetDepositRecordsResponse struct {
 		Rows           []DepositRecordEntry `json:"rows"`
 		NextPageCursor string               `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetSubDepositRecordsRequest struct {
 	SubMemberId string  `json:"subMemberId"`         // Required: Sub UID
@@ -425,8 +425,8 @@ type GetSubDepositRecordsResponse struct {
 		Rows           []DepositRecordEntry `json:"rows"`
 		NextPageCursor string               `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetInternalDepositRecordsRequest struct {
 	TxID      *string `json:"txID,omitempty"`      // Optional: Internal transfer transaction ID
@@ -455,8 +455,8 @@ type GetInternalDepositRecordsResponse struct {
 		Rows           []InternalDepositRecordEntry `json:"rows"`
 		NextPageCursor string                       `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetMasterDepositAddressRequest struct {
 	Coin      string  `json:"coin"`                // Required: Coin
@@ -478,8 +478,8 @@ type GetMasterDepositAddressResponse struct {
 		Coin   string             `json:"coin"`
 		Chains []DepositChainInfo `json:"chains"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetSubDepositAddressRequest struct {
 	Coin        string `json:"coin"`        // Required: Coin
@@ -502,8 +502,8 @@ type GetSubDepositAddressResponse struct {
 		Coin   string                `json:"coin"`
 		Chains []SubDepositChainInfo `json:"chains"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type CoinChainInfo struct {
 	Chain                 string `json:"chain"`
@@ -531,8 +531,8 @@ type GetCoinInfoResponse struct {
 	Result  struct {
 		Rows []CoinInfoEntry `json:"rows"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type GetWithdrawalRecordsRequest struct {
 	WithdrawID   *string `json:"withdrawID,omitempty"`
@@ -567,8 +567,8 @@ type GetWithdrawalRecordsResponse struct {
 		Rows           []WithdrawalRecord `json:"rows"`
 		NextPageCursor string             `json:"nextPageCursor"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 
 type GetWithdrawableAmountRequest struct {
@@ -588,8 +588,8 @@ type GetWithdrawableAmountResponse struct {
 		LimitAmountUsd     string                              `json:"limitAmountUsd"`
 		WithdrawableAmount map[string]WalletWithdrawableAmount `json:"withdrawableAmount"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type WithdrawRequest struct {
 	Coin        string  `json:"coin"`                  // Required
@@ -610,8 +610,8 @@ type WithdrawResponse struct {
 	Result  struct {
 		Id string `json:"id"`
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
 type CancelWithdrawalRequest struct {
 	ID string `json:"id"` // Required: Withdrawal ID
@@ -623,6 +623,6 @@ type CancelWithdrawalResponse struct {
 	Result  struct {
 		Status int `json:"status"` // 0: fail, 1: success
 	} `json:"result"`
-	RetExtInfo interface{} `json:"retExtInfo"`
-	Time       int64       `json:"time"`
+	RetExtInfo any   `json:"retExtInfo"`
+	Time       int64 `json:"time"`
 }
